@@ -21,6 +21,7 @@ string * toString(char c[32]);
 
 /*
  * Esta funcion nos permite obtener el campo nombre de un Struct string.
+ * NO SIRVE PARA NADA....LITERALMENTE
  */
 string * getNombre(string *d){
   if(debug){
