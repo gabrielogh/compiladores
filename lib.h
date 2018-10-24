@@ -235,14 +235,8 @@ stack * tope(){
  * Esta funcion nos permite obtener el campo tipo de un Struct data_stack.
  */
 int getTipo(data_stack *d){
-  if(debug){
-    printf("ENTRAMOS A GETTIPO\n");
-  }
   if(d != NULL){
     data_gen *aux = d->data;
-    if(debug){
-      printf("VAMOS A SALIR DE GETTIPO\n");
-    }
     return aux->tipo;
   }
   else{
@@ -254,19 +248,10 @@ int getTipo(data_stack *d){
  * Esta funcion nos permite obtener el ID del padre de un nivel.
  */
 int getParent(){
-  if(debug){
-    printf("ENTRAMOS A GET PARENT\n");
-  }
   if(getIndexPrev(tablaLast) != NULL){
-    if(debug){
-      printf("PADRE PREVIO OBTENIDO: ID: %d\n", getIndexId(tablaLast));
-    }
     return getIndexId(getIndexPrev(tablaLast));
   }
   else{
-    if(debug){
-      printf("PADRE ACTUAL OBTENIDO: ID: %d\n", getIndexId(tablaLast));
-    }
     return getIndexId(tablaLast);
   }
 }
@@ -276,9 +261,6 @@ int getParent(){
  * n: ID del bloque que lo contiene
  */
 void crear_nivel(){
-  if(debug){
-    printf("ENTRAMOS A CREAR NIVEL\n");
-  }
   stack *newLevel = (stack *) malloc(sizeof(stack));
   current->next = newLevel;
   current = newLevel;
@@ -286,9 +268,6 @@ void crear_nivel(){
   insertar_index(niveles);
   newLevel->parent = getParent();
   newLevel->id = niveles;
-  if(debug){
-    printf("SE CREO EL NIVEL %d CON PADRE: %d\n",niveles, newLevel->parent);
-  }
 }
 
 
@@ -355,9 +334,6 @@ void printDataStack(data_stack *d, int id, int padre){
  * *d: Dato del nivel a imprimir.
  */
 void printLevel(data_stack *d, int id, int padre){
-  if(debug){
-    printf("ENTRMAOS AL PRINTLEVEL\n");
-  }
   if(d != NULL){
     if(d->next == NULL){
       printDataStack(d, id, padre);
@@ -412,44 +388,18 @@ void printStack(){
  * c[10]: ID a buscar.
  */
 data_stack * buscar_id(stack *s, char c[32]){
-  if(debug){
-    printf("ENTRAMOS A BUSCAR ID: %s\n", c);
-  }
   if(s->info != NULL){
     data_stack *aux = s->info;
-    if(debug){
-      printf("PASA EL DATA STACK\n");
-    }
     char name[32];
     strcpy(name, aux->data->nombre);
-    if(debug){
-      printf(" ID: %s\n", name);
-    }
     while(((aux->next) !=  NULL)  && (strcmp(name,c)!= 0)){
       aux = (data_stack *) aux->next;
       strcpy(name, aux->data->nombre);
     }
-    if(strcmp(name, c) == 0){
-      if(debug){
-        printf("Nivel no vacio y VARIABLE EXISTE: %s y %s resultado de comparar: %d\n", c, name,strcmp(name, c));
-        printf("VOLVEMOS A BUSCAR X NIVELES CON AUX\n");
-      }
-      return aux;
-    }
-    else{
-      if(debug){
-        printf("Nivel no vacio pero ID no encontrado comparando: %s y %s\n", c, name);
-        printf("VOLVEMOS A BUSCAR X NIVELES CON NULL\n");
-      }
-      return NULL;
-    }
+    if(strcmp(name, c) == 0){return aux;}
+    else{return NULL;}
   }
-  else{
-    if(debug){
-      printf("NIVEL VACIO BUSCANDO ID\n");
-    }
-    return NULL;
-  }
+  else{ return NULL;}
 }
 
 /*
@@ -458,21 +408,14 @@ data_stack * buscar_id(stack *s, char c[32]){
  * n: ID del nivel a buscar.
  */
 stack * buscar_niv(stack *s, int n){
-  if(debug){
-    printf("ENTRAMOS A BUSCAR NIVEL con ID: %d\n", n);
-  }
   if(s->id == n){
     return s;
   }else{
     while(((s->next) !=  NULL)  && (s->id != n)){
       s = (stack *) s->next;
     }
-    if(s->id == n){
-      return s;
-    }
-    else{
-      return NULL;
-    }
+    if(s->id == n){return s;}
+    else{return NULL;}
   }
 }
 
@@ -482,8 +425,6 @@ stack * buscar_niv(stack *s, int n){
  * return: data_Stack si encuentra el ID, NULL si no lo encuentra.
  */
 data_stack * buscar_func(string *s){
-  //printf("ENTRAMOS A BUSCAR FUNCION: %s\n", s->nombre);
-  //printStack();
   return buscar_id(inicial, s->nombre);
 }
 
@@ -493,9 +434,6 @@ data_stack * buscar_func(string *s){
  * c[10]: ID a buscar.
 */
 data_stack * buscar_por_niveles(stack *s, char c[32]){
-  if(debug){
-    printf("ENTRAMOS A BUSCAR POR NIVELES EN EL NIVEL: ID: %d y el padre: ID: %d\n", s->id, s->parent);
-  }
   int id = s->parent;
   stack *auxS = s;
   data_stack *aux;
@@ -505,18 +443,9 @@ data_stack * buscar_por_niveles(stack *s, char c[32]){
     return aux;
   }
   if(id != -1){
-    if(debug){
-      printf("VAMOS A BUSCAR AL PADRE\n");
-    }
     auxS = buscar_niv(inicial, id);
-    if(debug){
-      printf("ENCONTRAMOS AL PADRE");
-    }
     aux = buscar_id(auxS,c);
     if(aux != NULL){
-      if(debug){
-        printf("VAMOS A SALIR DE BUSCAR POR NIVELES CON AUX\n");
-      }
       return aux;
     }
     id = auxS->parent;
@@ -538,8 +467,6 @@ void insertar_funcion(data_stack *d){
   if(debug){
     char s[32];
     strcpy(s, (d->data->nombre));
-    printf("ENTRAMOS A INSERTAR FUNCION: %s\n", s);
-    printf("EL CUERPO ES NULL?? %d\n", d->block == NULL);
   }
 
   data_stack *newD = (data_stack *) malloc(sizeof(data_stack));
@@ -557,22 +484,10 @@ void insertar_funcion(data_stack *d){
     printErrors();
   }
   else{
-    if(debug){
-      printf("RES==NULL EN INSERTAR\n");
-    }
     res = (data_stack *) aux->info;
-    if(debug){
-      printf("VAMOS A ENTRAR AL WHILE EN INSERTAR\n");
-    }
     if(res != NULL){
       while((res->next) != NULL){
-        if(debug){
-          printf("ENTRAMOS AL WHILE EN INSERTAR: ID %s\n", res->data->nombre);
-        }
         res = (data_stack *) res->next;
-      }
-      if(debug){
-        printf("SALIO DEL WHILE EN INSERTAR\n");
       }
       res->next = (data_stack *)newD;
       res = newD;
@@ -581,10 +496,6 @@ void insertar_funcion(data_stack *d){
       res = newD;
       aux->info = newD;
     }
-    if(debug){
-      printf("Funcion '%s' insertada con exito\n", d->data->nombre);
-    }
-
   }
 }
 
@@ -608,9 +519,6 @@ int counActualParams(paramList *pl){
     }
    }
   }
-  else{
-    if(debug){printf("LA LISTA DE PARAMETROS ES NULA\n");}
-  }
   return params;  
 }
 
@@ -628,9 +536,6 @@ int countParams(formalParam *pl){
      aux = aux->next;
    }
   }
-  else{
-    if(debug){printf("LA LISTA DE PARAMETROS ES NULA\n");}
-  }
   return params;
 }
 
@@ -646,9 +551,6 @@ formalParam * getParams(data_stack *d){
  * Esta funcion nos permite obtener la informacion de un node.
  */
 void insertar(data_stack *d){
-  if(debug){
-    printf("ENTRAMOS A INSERTAR EN LA TABLA EL ID: %s EN EL NIVEL: %d Y YIPO DE OP: %d\n", d->data->nombre, current->id, d->tipoOp);
-  }
   data_stack *newD = (data_stack *) malloc(sizeof(data_stack));
   newD = (data_stack *)d;
   newD->next = NULL;
@@ -656,9 +558,6 @@ void insertar(data_stack *d){
   stack *aux = tope();
   data_stack *res = buscar_id(current, d->data->nombre);
   if(res != NULL){
-    if(debug){
-      printf("RES != NULL EN INSERTAR.\n");
-    }
     if(d->es_funcion){
       printNodeError(createError(res->data->linea, FUNCEXIST));
     }
@@ -667,9 +566,6 @@ void insertar(data_stack *d){
     }
   }
   else{
-    if(debug){
-      printf("RES==NULL EN INSERTAR\n");
-    }
     res = (data_stack *) aux->info;
     if(res != NULL){
       if(res->tipoOp == PARAMETRO){
@@ -702,29 +598,15 @@ void insertar(data_stack *d){
         lastParam = fstParam;
       }
     }
-    if(debug){
-      printf("VAMOS A ENTRAR AL WHILE EN INSERTAR\n");
-    }
     if(res != NULL){
       while((res->next) != NULL){
-        if(debug){
-          printf("ENTRAMOS AL WHILE EN INSERTAR\n");
-        }
         res = (data_stack *) res->next;
-      }
-      if(debug){
-        printf("SALIO DEL WHILE EN INSERTAR\n");
       }
       res->next = (data_stack *)newD;
     }
     else{
       res = (data_stack *)newD;
       aux->info = res;
-    }
-    if(debug){
-      printf("variable '%s' insertada con exito\n", d->data->nombre);
-      printf("MOSTRANDO NIVEL: \n");
-      printLevel(aux->info, aux->id, aux->parent);
     }
   }
 }
@@ -753,9 +635,6 @@ data_stack * crearDataStack(string *s, int tipo, int valor, int tipoOp, int line
   aux->formalParams = params;
   aux->nParams = countParams(params);
   aux->es_funcion = es_func;
-  if(tipoOp == INSERTFUNC && debug){
-    printf("Cantidad de parametros en createDataStack?: %d\n", aux->nParams);
-  }
   return aux;
 }
 
@@ -865,21 +744,8 @@ formalParam * getFormalParams(){
 }
 
 data_stack * getNodeData(node *n){
-  if(debug){
-    printf("ENTRAMOS A GETNODEDATA\n");
-  }
-  if(n != NULL){
-    if(debug){
-      printf("VAMOS A SALIR DE GETNODEDATA\n");
-    }
-    return n->info;
-  }
-  else{
-    if(debug){
-      printf("VAMOS A SALIR DE GETNODEDATA CON NULL\n");
-    }
-    return NULL;
-  }
+  if(n != NULL){return n->info;}
+  else{return NULL;}
 }  
 
 int getLinea(data_stack *d){
@@ -887,21 +753,10 @@ int getLinea(data_stack *d){
 }
 
 int lastType(){
-  if(debug){
-    printf("ENTRAMOS A LAST TYPE\n");
-    printf("MOSTRANDO NIVEL EN EL QUE VAMOS A BUSCAR EL TIPO DE LA ULTIMA VARIABLE: \n");
-    printLevel(inicial->info, inicial->id, inicial->parent);
-  }
   stack *aux = current;
   data_stack *aux2 = (data_stack *)aux->info;
-  if(debug){
-    printf("VAMOS A ENTRAR AL WHILE EN LAST TYPE\n");
-  }
   while(aux2->next!= NULL){
     aux2 = (data_stack *) aux2->next;
-  }
-  if(debug){
-    printf("SALIMOS DEL WHILE EN LAST TYPE con: %d\n", aux2->data->tipo);
   }
   return aux2->data->tipo;
 }
@@ -911,9 +766,6 @@ int lastType(){
  * Esta funcion nos permite crear la informarcion necesaria para un nodo.
  */
 nodeParam * createNodeParam(string *s, int val, int tipoVar, int tipoRet, int oper, node *fst, node *snd, node *trd, bool es_funcion, paramList *params, int linea){
-  if(debug){
-    printf("ENTRAMOS A CREATE NODE PARAM\n");
-  }
   nodeParam *nodeAux = (nodeParam *) malloc(sizeof(nodeParam));
   strcpy(nodeAux->nombre,s->nombre);
   nodeAux->valor = val;
@@ -926,9 +778,6 @@ nodeParam * createNodeParam(string *s, int val, int tipoVar, int tipoRet, int op
   nodeAux->trd = trd;
   nodeAux->es_funcion = es_funcion;
   nodeAux->params = params;
-  if(es_funcion && debug){
-    printf("SALIMOS DE CREATE NODE PARAM con OPER = %d Y NOMBRE: %s\n", nodeAux->oper, nodeAux->nombre);
-  }
   return nodeAux;
 }
 
@@ -936,28 +785,15 @@ nodeParam * createNodeParam(string *s, int val, int tipoVar, int tipoRet, int op
  * Esta funcion nos permite crear un nodo.
  */
 node * createNode(nodeParam *param){
-  if(debug){
-    printf("ENTRAMOS A CREATE NODE\n");
-  }
 
   data_gen *data = (data_gen *) malloc(sizeof(data_gen));
   data_stack *dataS = (data_stack *) malloc(sizeof(data_stack));
   node *n = (node *) malloc(sizeof(node));
 
   if(param != NULL){
-    if(debug){
-      printf("NO ES NULL\n");
-    }
     if((param->oper) == ASIGNACIONN){
-      if(debug){
-        printf("PASO LA ASIGNACION\n");
-        printf("VAMOS A BUSCAR POR NIVELES DESDE CREATE NODE ASIGNACION\n");
-      }
       dataS = buscar_por_niveles(tope(), param->snd->info->data->nombre);
       if(dataS == NULL){
-        if(debug){
-          printf(KRED "ERROR DESDE CREATE NODE CON ASIGNACION VARIABLE: %s\n", param->snd->info->data->nombre);printf(KNRM);
-        }
         createError(param->linea, UNDECLAREDVAR);
       }
       else{
@@ -965,14 +801,8 @@ node * createNode(nodeParam *param){
       }
     }
     else if(param->oper == VARR || param->oper == PARAMETRO){
-      if(debug){
-        printf("VAMOS A BUSCAR POR NIVELES DESDE CREATE NODE VARR: ID: %s\n", param->nombre);
-      }
       dataS = buscar_por_niveles(current, param->nombre);
       if(dataS == NULL){
-        if(debug){
-          printf(KRED "ERROR DESDE CREATE NODE CON VARR\n");printf(KNRM);
-        }
         char c[256];
         strcpy(c, " variable no declarada: ");
         strcat(c, param->nombre);
@@ -980,30 +810,16 @@ node * createNode(nodeParam *param){
       }
     }
     else if(param->oper == INVOCC){
-      if(debug){
-        printf("CREATE NODE: INVOC\n");
-      }
       dataS = crearDataStack(toString(param->nombre), param->tipoVar, param->valor, param->oper,  param->linea, NULL, NULL, true);
       dataS->params = param->params;
       
     }
     else{
-      if(debug){
-        printf("ENTRAMOS A CREATE NODE CON %s \n", param->nombre);
-      }
       dataS = crearDataStack(toString(param->nombre), param->tipoVar, param->valor, param->oper, param->linea, NULL, NULL, false);
     }
     treeSize = treeSize + 1;
     n->info = dataS;
     n->fst = param->fst; n->snd = param->snd; n->trd = param->trd;
-    if(debug){
-      printf("VAMOS A MOSTRAR NODO:\n");
-      string *s = getName(dataS);
-      printf("%s %s,%d\n","---MOSTRANDO NODO: ", param->nombre, param->valor);
-    }
-  }
-  else{
-    printf("PARAMETRO NULO EN CREATE NODE\n");
   }
   return n;
 }
@@ -1012,9 +828,6 @@ node * createNode(nodeParam *param){
  * Esta funcion nos permite crear una nueva invocacion a una funcion.
  */
 void newCall(paramList *p, node *n){
-  if(true){
-    printf("ENTRAMOS A NEW CALL\n");
-  }
   paramList *newParam = (paramList *) malloc(sizeof(paramList));
   paramList *aux = p;
   newParam->parametro = n;
@@ -1042,12 +855,6 @@ void checkFunctions(stack *s){
     while(aux->next != NULL){
       aux = aux->next;
       if(aux->es_funcion){
-        if(debug){
-          printf("ES FUNCION EN EL WHILE . ES NULL? %d\n", aux->block==NULL);
-          printf(KRED "EL NOMBRE DE LA FUNCION ES: %s Y SU TIPO DE RETORNO ES: %d  Y TIENE %d PARAMETROS\n", aux->data->nombre, getTipo(aux), aux->nParams); printf(KNRM);
-          printFormalParams(aux->formalParams);
-          printf("EL NOMBRE DEL NODO ES: %s\n", getName(aux->block->info)->nombre);
-        }
         evalExpr(aux->block, getTipo(aux));
       }
     }
@@ -1063,9 +870,7 @@ int evalExpr(node *n, int tipoRet){
       string *s = getName(data);
       char cAux[32];
       strcpy(cAux, s->nombre);
-      //printf("ENCONTRAMOS A: %s CON TIPO OP: %d\n", cAux, op);
       if(op == VARR || op == CONSTANTEE || op == PARAMETRO){
-        //printf("EL TIPO DE LA VARIABLE %s ES: %d\n", cAux, getTipo(data));
         return (getTipo(data));
       }
       if(op == INVOCC){
@@ -1155,11 +960,7 @@ int evalExpr(node *n, int tipoRet){
         else if(res != WRONGTYPE){
           createNewError(getLinea(data), "Error de tipos en el return: El tipo de la expresion del return debe ser igual al tipo de retorno de la funcion ", WRONGTYPE);return WRONGTYPE;}
       }
-    }
-    else{
-      if(debug){printf("data == NULL en evalExpr\n");}
-    }
-  }
+    }  }
   return UNKNOW;
 }
 
@@ -1171,9 +972,6 @@ void checkParams(node *n){
   bool control = true;
   int nn = counActualParams(paramInvoc);
   if(data->nParams != nn){
-    if(debug){
-      printf("ERROR DESDE CHECKPARAMS cantidad de parametros\n");      
-    }
     createError(getLinea(getNodeData(n)), INVOCPARAMS);
   }
   else{
@@ -1185,9 +983,6 @@ void checkParams(node *n){
       //printf("VAMOS A COMPARAR %s CON %s EN LA FUNCION: %s \n", formal->nombre, paramInvoc->parametro->info->data->nombre, data->data->nombre);
       //printf("EL RESULTADO ES: %d vs %d\n", res, formal->tipo);
       if((res != formal->tipo) && (res != UNKNOW)) {
-        if(debug){
-          printf("ERROR DESDE CHECKPARAMS tipos en la invocacion\n");      
-        }
         createNewError(getLinea(data), "Error de tipos en el la invocacion ", WRONGTYPEPARAM);
         control =false;
       }
@@ -1231,14 +1026,7 @@ void eliminarArbol(node *n){
       string *s = getName(data);
       char cAux[32];
       strcpy(cAux, s->nombre);
-      printf("Nodo a eliminar: ");
-      printf("Nombre: %s, Valor: %i, Tipo: %d\n", cAux, getValue(data), getTipo(data));
 
-    }
-    else{
-      if(debug){
-        printf("El data es NULL\n");
-      }
     }
     eliminarArbol(getNodeFst(n));
     eliminarArbol(getNodeSnd(n));
