@@ -40,7 +40,11 @@ bool noErrors();
 
 //IMPLEMENTACION DE METODOS.
 
-
+/*
+ * Este metodo nos permite generar errores predeterminados.
+ * linea: El numero de la linea donde se genero.
+ * tipo: Identificador del error.
+ */
 error * createError(int linea, int tipo){
   error *newError = (error *) malloc(sizeof(error));
   errorList *newErrorList = (errorList *) malloc(sizeof(errorList));
@@ -96,6 +100,12 @@ error * createError(int linea, int tipo){
   return newError;
 }
 
+/*
+ * Este metodo nos permite generar errores personalizados, se utiliza para los semanticos.
+ * linea: El numero de la linea donde se genero.
+ * c[256]: Mensaje personalizado.
+ * tipo: Identificador del error.
+ */
 error * createNewError(int linea, char c[256], int tipo){
   error *newError = (error *) malloc(sizeof(error));
   errorList *newErrorList = (errorList *) malloc(sizeof(errorList));
@@ -118,6 +128,10 @@ error * createNewError(int linea, char c[256], int tipo){
   return newError;
 }
 
+/*
+ * Este metodo nos permite imprimir un error de la lista de errores.
+ * data: El error a imprimir
+ */
 void printNodeError(error *data){
   if(data != NULL){
     printf(KRED "ERROR en la linea: %d - %s\n", data->line, data->desc); printf(KNRM);
@@ -127,6 +141,9 @@ void printNodeError(error *data){
   }
 }
 
+/*
+ * Este metodo nos permite imprimir la lista de errores utilizando a la printNodeError.
+ */
 void printErrors(){
   errorList *aux = (errorList *) malloc(sizeof(errorList));
   if(headErrorList!= NULL){
@@ -139,6 +156,9 @@ void printErrors(){
   }
 }
 
+/*
+ * Este metodo nos permite verificar si se generaron errores en el codigo.
+ */
 bool noErrors(){
   if(headErrorList == NULL){
     return true;
