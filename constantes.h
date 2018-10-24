@@ -1,5 +1,4 @@
 //VARIABLES GLOBALES.
-bool debug;
 int treeSize;
 
 //COLORES

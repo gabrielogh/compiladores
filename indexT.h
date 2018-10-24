@@ -95,18 +95,12 @@ void printIndexList(){
  * niv: ID del nuevo nivel.
  */
 void insertar_index(int niv){
-  if(debug){
-    printf("ENTRAMOS A INSERTAR INDEX CON: %d\n", niv);
-  }
   indexT *aux = (indexT *) malloc(sizeof(indexT));
   aux->id = niv;
   aux->next = NULL;
   aux->prev = tablaLast;
   tablaLast->next = aux;
   tablaLast = aux;
-  if(debug){
-    printf("SALIMOS DE INSERTAR INDEX\n");
-  }
 }
 
 /*
@@ -135,10 +129,6 @@ void eliminarTabla(){
  * Esta funcion retrocede un elemento en la tabla de index, permitiendo retroceder al bloque que lo contiene (al primero que lo contiene).
  */
 void cerrar_nivel(){
-  if(debug){
-    printf("ENTRAMOS A CERRAR NIVEL\n");
-    printf("SE CERRO EL NIVEL: %d\n", tablaLast->id);
-  }
   indexT *aux = tablaLast;
   tablaLast = tablaLast->prev;
 }
