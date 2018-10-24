@@ -1,0 +1,46 @@
+#!/bin/bash
+clear && printf '\e[3J'
+flex calc-lexico.l 
+bison -d calc-sintaxis.y
+gcc lex.yy.c calc-sintaxis.tab.c
+clear && printf '\e[3J'
+
+echo "Corriendo tests...espere"
+echo
+echo "----  INICIANDO TESTS LEXICO-SINTACTICOS  ----"
+echo
+echo
+echo "TESTS SATISFACTORIOS"
+echo
+
+for file in $(ls tests/lexico-sintacticos/ok); do
+  echo "Ejecutando el test "$file""
+  ./a.out "tests/lexico-sintacticos/ok/"$file
+done
+
+echo
+echo "TESTS FALLIDOS"
+echo
+for file in $(ls tests/lexico-sintacticos/fail); do
+  echo "Ejecutando el test "$file""
+  ./a.out "tests/lexico-sintacticos/fail/"$file
+done
+echo
+echo "----  INICIANDO TESTS SEMANTICOS  ----"
+echo
+echo
+echo "TESTS SATISFACTORIOS"
+echo
+
+for file in $(ls tests/semanticos/ok); do
+  echo "Ejecutando el test "$file""
+  ./a.out "tests/semanticos/ok/"$file
+done
+
+echo
+echo "TESTS FALLIDOS"
+echo
+for file in $(ls tests/semanticos/fail); do
+  echo "Ejecutando el test "$file""
+  ./a.out "tests/semanticos/fail/"$file
+done

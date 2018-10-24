@@ -1,0 +1,32 @@
+program
+begin
+integer z;
+  {Esta función toma un numero y lo incrementa en una unidad}
+  integer inc(integer x)
+  begin
+    return x + 1;
+  end
+  {Esta función toma un numero y lo decrementa en una unidad}
+  integer dec(integer y)
+  begin
+    return y - 1;
+  end
+  void main()
+  begin
+    integer y, k;
+    y = 4;
+    {Probando comentario de varias lineas
+     Probando comentario de varias lineas
+     Probando comentario de varias lineas
+    }
+    if (y == 1) then
+    begin
+      return inc(y);
+    end
+    else 
+    begin
+      return dec(y);
+    end
+    k = inc(k);
+  end
+end

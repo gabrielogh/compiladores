@@ -1,0 +1,49 @@
+program
+begin
+  integer x, y, z;
+
+  void dec(integer soyX) extern;
+
+  integer inc(integer x) begin
+    return x + 4;
+  end
+
+  integer div(integer m, integer y) begin
+    if(y>0) then begin
+      return m/y;
+    end
+    else begin
+      return -9999;
+    end
+  end
+
+  integer mod(integer k, integer l) begin
+    if(l>0) then begin
+      return k%l;
+    end
+    else begin
+      return -9999;
+    end
+  end
+
+  void main() begin
+    bool res2, res3;
+    x = 5;
+    y = 10;
+    z = (y/x) > 0;
+    res2 = ((y/x) > 0);
+    while(x<=100) begin
+      if(x < 50) then begin 
+        if((x == 5) && (res2)) then begin
+          x = 50;
+        end
+        x = x- (5>2);
+      end
+      else
+      begin
+        integer n;
+        x = z;
+      end
+    end
+  end
+end
