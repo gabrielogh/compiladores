@@ -1,5 +1,5 @@
 //VARIABLES GLOBALES.
-int treeSize;
+int treeSize, testType;
 
 //COLORES
 #define KRED  "\x1B[31m"

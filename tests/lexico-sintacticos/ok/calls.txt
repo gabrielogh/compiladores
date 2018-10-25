@@ -15,11 +15,11 @@ integer z;
     y = 4;
     if (y == 1) then
     begin
-      return inc(y);
+      z = inc(y);
     end
     else 
     begin
-      return dec(y);
+      z = dec(y);
     end
     k = inc(k);
   end

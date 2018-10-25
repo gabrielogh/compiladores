@@ -10,7 +10,7 @@ begin
 
   integer div(integer m, integer y) begin
     if(y>0) then begin
-      return m/y;
+      return (m/y);
     end
     else begin
       return -9999;

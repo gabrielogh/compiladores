@@ -39,8 +39,7 @@ begin
         end
         x = x- (5>2);
       end
-      else
-      begin
+      else begin
         integer n;
         x = z;
       end

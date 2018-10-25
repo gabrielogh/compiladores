@@ -464,11 +464,6 @@ data_stack * buscar_por_niveles(stack *s, char c[32]){
  * *d: Informacion de la funcion representada en un data_stack.
  */
 void insertar_funcion(data_stack *d){
-  if(debug){
-    char s[32];
-    strcpy(s, (d->data->nombre));
-  }
-
   data_stack *newD = (data_stack *) malloc(sizeof(data_stack));
   newD = d;
   newD->block = d->block;
@@ -1022,12 +1017,6 @@ void deleteFuncitonBlocks(){
 void eliminarArbol(node *n){
   if (n != NULL) {
     data_stack *data = n->info;
-    if(data != NULL && debug){
-      string *s = getName(data);
-      char cAux[32];
-      strcpy(cAux, s->nombre);
-
-    }
     eliminarArbol(getNodeFst(n));
     eliminarArbol(getNodeSnd(n));
     eliminarArbol(getNodeTrd(n));

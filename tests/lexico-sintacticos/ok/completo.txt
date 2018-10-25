@@ -10,7 +10,7 @@ begin
 
   bool mayor(integer m, integer y) begin
     if(m>y) then begin
-      return 1;
+      return true;
     end
     else begin
       return false;

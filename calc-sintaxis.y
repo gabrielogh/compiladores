@@ -77,30 +77,32 @@ extern int yylineno;
  
 %%
 
-prog: {debug = 0; init();} PROGRAM BEGINN program_block END {  printIndexList();
-                                                              printStack();
-                                                              printf("Iniciando chequeo Sintactico...\n");
-                                                              if(noErrors()){
-                                                                printf(KGRN "%s\n", "Chequeo Sintactico satisfactorio. "); printf(KNRM);
-                                                                printf("Iniciando chequeo Semantico...\n");
-                                                                checkFunctions(inicial);
-                                                                if(noErrors()){
-                                                                  printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
-                                                                }
-                                                                else{
-                                                                printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);
-                                                                printErrors();
-                                                                }
-                                                              }
-                                                              else{
-                                                                printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SINTATICOS: "); printf(KNRM);
-                                                                printErrors();
-                                                              }
+prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
+                                                    //printStack();
+                                                    printf("Iniciando chequeo Sintactico...\n");
+                                                    if(noErrors()){
+                                                      printf(KGRN "%s\n", "Chequeo Sintactico satisfactorio. "); printf(KNRM);
+                                                      if(testType == 1){
+                                                        printf("Iniciando chequeo Semantico...\n");
+                                                        checkFunctions(inicial);
+                                                      }
+                                                      if(noErrors() && (testType == 1)){
+                                                        printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
+                                                      }
+                                                      else if (!noErrors() && (testType == 1)){
+                                                      printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);
+                                                      printErrors();
+                                                      }
+                                                    }
+                                                    else{
+                                                      printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SINTATICOS: "); printf(KNRM);
+                                                      printErrors();
+                                                    }
 
-                                                              printf("Tamaño del arbol antes de eliminar: %d\n", treeSize);
-                                                              deleteFuncitonBlocks();
-                                                              printf("Tamaño del arbol luego de eliminar: %d\n", treeSize);
-                                                            }
+                                                    printf("Tamaño del arbol antes de eliminar: %d\n", treeSize);
+                                                    deleteFuncitonBlocks();
+                                                    printf("Tamaño del arbol luego de eliminar: %d\n", treeSize);
+                                                 }
 ;
 
 program_block: main                              {insertar_funcion(crearDataStack(toString("main"), VOIDD, -1, INSERTFUNC, yylineno, $1, NULL, true)); $$ = $1;} 

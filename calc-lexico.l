@@ -10,7 +10,7 @@
 #define KNRM  "\x1B[0m"
 
 void error(char *c);
-int debugL;
+int debugL, testType;
 %}
 
 %option noyywrap
@@ -300,6 +300,7 @@ void delay(int number_of_seconds) {
 int main(int argc,char *argv[]){
     //system("@cls||clear");
     debugL = 0;
+    testType = 1;
 	++argv,--argc;
 	if (argc > 0)
 		yyin = fopen(argv[0],"r");
