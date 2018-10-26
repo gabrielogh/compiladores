@@ -3,7 +3,7 @@ clear && printf '\e[3J'
 flex calc-lexico.l 
 bison -d calc-sintaxis.y
 gcc lex.yy.c calc-sintaxis.tab.c
-clear && printf '\e[3J'
+
 
 echo "Corriendo tests...espere"
 echo "|---------------------------------------------------------------------------------------|"
@@ -26,6 +26,9 @@ for file in $(ls tests/lexico-sintacticos/fail); do
   echo "Ejecutando el test "$file""
   ./a.out "tests/lexico-sintacticos/fail/"$file
 done
+echo
+echo
+echo
 echo "|-------------------------------------------------------------------------------|"
 echo "|------------------------  INICIANDO TESTS SEMANTICOS  -------------------------|"
 echo " -------------------------------------------------------------------------------"

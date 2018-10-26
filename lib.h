@@ -500,19 +500,21 @@ void insertar_funcion(data_stack *d){
  */
 int counActualParams(paramList *pl){
   int params = 0;
-  paramList *aux = pl;
-  node *n = aux->parametro;
-  if(aux != NULL){
-   if(n!= NULL){
-      params = params + 1;
-   }
-   while(aux->next != NULL){
-    aux = aux->next;
-    n = aux->parametro;
-    if(n!= NULL){
-      params = params + 1;
+  if(pl != NULL){
+    paramList *aux = pl;
+    node *n = aux->parametro;
+    if(aux != NULL){
+     if(n!= NULL){
+        params = params + 1;
+     }
+     while(aux->next != NULL){
+      aux = aux->next;
+      n = aux->parametro;
+      if(n!= NULL){
+        params = params + 1;
+      }
+     }
     }
-   }
   }
   return params;  
 }
@@ -874,7 +876,13 @@ int evalExpr(node *n, int tipoRet){
       }
 
       else if (op == ASIGNACIONN){
-        if(evalExpr(getNodeFst(n), tipoRet) == evalExpr(getNodeSnd(n), tipoRet)){
+        int res1 = evalExpr(getNodeFst(n), tipoRet);
+        printf("RES1 RETORNA: %d\n", res1);
+        int res2 = evalExpr(getNodeSnd(n), tipoRet);
+        if(res1 == res2){
+        }
+        else if(res1 == VOIDD){
+          createNewError(getLinea(data), "Error de tipos en la expresion, la funcion invocada debe retornar un resultado ", WRONGTYPE);return WRONGTYPE;
         }
         else{
           createNewError(getLinea(data), "Error de tipos en la asignacion: La expresion debe ser del mismo tipo que la variable ", WRONGTYPE);return WRONGTYPE;}
@@ -950,20 +958,21 @@ int evalExpr(node *n, int tipoRet){
       }
       else if (op == RETURNN){
         int res = evalExpr(getNodeFst(n), tipoRet);
-        if( res == tipoRet){
+        if((res == tipoRet)){
+          return tipoRet;
         }
         else if(res != WRONGTYPE){
           createNewError(getLinea(data), "Error de tipos en el return: El tipo de la expresion del return debe ser igual al tipo de retorno de la funcion ", WRONGTYPE);return WRONGTYPE;}
       }
-    }  }
-  return UNKNOW;
+    }
+  }
+  return VOIDD;
 }
 
 void checkParams(node *n){
   data_stack *data = buscar_func(toString(n->info->data->nombre));
   paramList *paramInvoc = n->info->params;
   formalParam *formal = data->formalParams;
-
   bool control = true;
   int nn = counActualParams(paramInvoc);
   if(data->nParams != nn){
@@ -975,8 +984,6 @@ void checkParams(node *n){
         paramInvoc = paramInvoc->next;
       }
       int res = evalExpr(paramInvoc->parametro, IGNORE);
-      //printf("VAMOS A COMPARAR %s CON %s EN LA FUNCION: %s \n", formal->nombre, paramInvoc->parametro->info->data->nombre, data->data->nombre);
-      //printf("EL RESULTADO ES: %d vs %d\n", res, formal->tipo);
       if((res != formal->tipo) && (res != UNKNOW)) {
         createNewError(getLinea(data), "Error de tipos en el la invocacion ", WRONGTYPEPARAM);
         control =false;

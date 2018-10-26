@@ -1,6 +1,6 @@
 program
 begin
-  integer x, y, z;
+  integer x, y, z, global;
 
   void dec(integer soyX) extern;
 
@@ -10,7 +10,7 @@ begin
 
   integer div(integer m, integer y) begin
     if(y>0) then begin
-      return (m/y);
+      return m/y;
     end
     else begin
       return -9999;
@@ -22,24 +22,20 @@ begin
       return k%l;
     end
     else begin
-      return -9999;
+      return l%k;
     end
   end
 
-  bool mayor(integer x, integer y)begin
-    return (x>y);
-  end
-
-  void emptyFunc() begin
-    return ;
+  void setGlobal(integer k, integer l) begin
+    global = k + l;
   end
 
   void main() begin
     bool res2, res3;
     x = 5;
     y = 10;
-    z = 5;
-    res2 = (x == z);
+    z = (y/x);
+    res2 = ((y/x) > 0);
     while(x<=100) begin
       if(x < 50) then begin 
         if((x == 5) && (res2)) then begin
@@ -50,8 +46,8 @@ begin
       else
       begin
         integer n;
-        emptyFunc();
-        x = mod(div(x,y),mod(y,div(x,z)));
+        x = z;
+        x = setGlobal(y, z);
       end
     end
   end
