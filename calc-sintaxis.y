@@ -129,11 +129,11 @@ dec_methods: dec_method                              {}
 
 dec_method: type ID PARA param_list PARC block_type  {insertar_funcion(crearDataStack(getNombre($2), $1, -1, INSERTFUNC, yylineno, $6, fstParam, true));cerrar_nivel(); resetParams();}
 
-          | VOID ID PARA param_list PARC block_type  {insertar_funcion(crearDataStack(getNombre($2), $1, -1, INSERTFUNC, yylineno, $6, fstParam, true));cerrar_nivel(); resetParams();}
+          | VOID ID PARA param_list PARC block_type  {insertar_funcion(crearDataStack(getNombre($2), VOIDD, -1, INSERTFUNC, yylineno, $6, fstParam, true));cerrar_nivel(); resetParams();}
 
           | type ID PARA PARC block_type             {insertar_funcion(crearDataStack(getNombre($2), $1, -1, INSERTFUNC, yylineno, $5, NULL, true));}
 
-          | VOID ID PARA PARC block_type             {insertar_funcion(crearDataStack(getNombre($2), $1, -1, INSERTFUNC, yylineno, $5, NULL, true));}
+          | VOID ID PARA PARC block_type             {insertar_funcion(crearDataStack(getNombre($2), VOIDD, -1, INSERTFUNC, yylineno, $5, NULL, true));}
 ;
 
 param_list: type ID                     { crear_nivel();

@@ -40,7 +40,8 @@ typedef struct data_generic{
  * tipo: Tipo de la variable (integer, bool) o tipo de retorno (VOID, integer, bool) en caso de ser una funcion
  * linea: Numero de linea.
  * es_funcion: Nos indica si el data_stack esta representando una funcion.
- * params: Puntero al primer parametro de la lista.
+ * *params: Lista de parametros actuales de una funcion.
+ * *formalParams: Lista de parametros formales de una funcion
  * *next: Puntero al proximo elemento del scope.
  */
 typedef struct data_stacks{
@@ -81,14 +82,18 @@ typedef struct stacks{
 }stack;
 
 /*
- * Tipo utilizado para representar los parametros de la funcion insertar, con el fin de modularizar y simplificar los cambios.
+ * Tipo utilizado para representar los parametros de la funcion createNodeParam, con el fin de modularizar y simplificar los cambios.
  * c[32]: Identificador de variable o funcion.
  * val: Valor entero en caso de tenerlo.
  * tipoVar: Tipo de variable representado por un entero.
  * tipoRet: Tipo de valor de retorno en caso de ser una funcion.
+ * oper: Tipo de operacion.
+ * linea: Numero de linea.
  * *fst: Primer hijo.
  * *snd: Segundo hijo.
  * *trd: Tercer hijo.
+ * es_funcion: Campo booleano que nos permite saber si estamos tratando una funcion
+ * *params: Lista de parametros actuales de una funcion.
  */
 typedef struct nodeParams{ 
     char nombre[32];
@@ -128,7 +133,7 @@ typedef struct Formalparams{
 //VARIABLES GLOBALES:
 node *root;
 stack *current, *inicial;
-formalParam *fstParam, *lastParam;
+formalParam *fstParam, *lastParam; //--Lista de parametros formales que se reinicia luego de insertada la funcion.
 int niveles;
 
 
@@ -152,8 +157,6 @@ int getValue(data_stack *d);
 //Crea una nueva invocacion a una funcion.
 void newCall(paramList *p, node *n);
 
-void eliminarArbol(node *n);
-
 //Esta funcion nos permite obbtener el primer hijo de un arbol.
 node * getNodeFst(node *param);
 
@@ -162,9 +165,6 @@ node * getNodeSnd(node *n);
 
 //Esta funcion nos permite obbtener el tercer hijo de un arbol.
 node * getNodeTrd(node *n);
-
-//Se utiliza para obtener los parametros de una funcion.
-paramList * getStackInfo(stack *s);
 
 //Esta funcion cuenta la cantidad de parametros formales de una funcion
 int countParams(formalParam *pl);
@@ -193,11 +193,17 @@ void deleteFuncitonBlocks();
 //Funcion que nos permite visualizar los parametros formales de una funcion.
 void printFormalParams(formalParam *fp);
 
+//Funcion que comienza el chequeo semantico del programa.
 void checkParams(node *n);
 
+//Funcion que elimina los cuerpos de las funciones.
 void deleteFuncitonBlocks();
 
+//Funcoion que elimina los nodos generados por las invocaciones a funciones.
 void deleteCalls(paramList *pl);
+
+//Esta funcion elimina un arbol o sub-arbol.
+void eliminarArbol(node *n);
 
 //IMPLEMENTACION DE METODOS.
 
@@ -635,16 +641,29 @@ data_stack * crearDataStack(string *s, int tipo, int valor, int tipoOp, int line
   return aux;
 }
 
+/*
+ * Esta funcion realmente no sirve para nada, es totalmente inutil, retorna lo mismo que se le pasa como parametro
+ * Seguramente se creo a altas horas de la madrugada cuando la razon y la logica se encuentran totalmente opacadas por el sueño.
+ * *d: Ni siquiera importa...de hecho, pensandolo bien, en lo que escribi esta descripcion, podria haber eliminado la funcion...
+ */
 string * getNombre(string *d){
   return d;
 }
 
+/*
+ * Esta funcion nos permite convertir un char [] en un struct string.
+ * c[32]: palabra a convertir a string.
+ */
 string * toString(char c[32]){
   string *s = (string *) malloc(sizeof(string));
   strcpy(s->nombre, c);
   return s;
 }
 
+/*
+ * Esta funcion nos permite obtener el campo nombre de un data_stack
+ * *d: data_stack.
+ */
 string * getName(data_stack *d){
   string *s;
   if(d != NULL){
@@ -659,20 +678,32 @@ string * getName(data_stack *d){
 
 }
 
+/*
+ * Esta funcion nos permite obtener campo valor de un data_stack
+ * *d: data_stack que contiene a value.
+ */
 int getValue(data_stack *d){
   data_gen *aux = d->data;
   return aux->valor;
 }
 
-node * getNodeFst(node *param){
-  if(param->fst != NULL){
-    return(param->fst);
+/*
+ * Esta funcion nos permite obtener el primer hijo de un nodo
+ * *n: Nodo padre.
+ */
+node * getNodeFst(node *n){
+  if(n->fst != NULL){
+    return(n->fst);
   }
   else{
     return NULL;
   }
 }
 
+/*
+ * Esta funcion nos permite obtener el segundo hijo de un nodo
+ * *n: Nodo padre.
+ */
 node * getNodeSnd(node *n){
   if(n->snd != NULL){
     return(n->snd);
@@ -682,6 +713,10 @@ node * getNodeSnd(node *n){
   }
 }
 
+/*
+ * Esta funcion nos permite obtener el tercer hijo de un nodo
+ * *n: Nodo padre.
+ */
 node * getNodeTrd(node *n){
   if(n->trd != NULL){
     return(n->trd);
@@ -691,16 +726,20 @@ node * getNodeTrd(node *n){
   }
 }
 
-paramList * getStackInfo(stack *s){
-  return s->info->params;
-}
-
+/*
+ * Luego de que se genera la lista de parametros de una funcion, al ser esta global debe ser reiniciada.
+ * para que la proxima definicion de funcion no tenga parametros quen no le corresponden.
+ */
 void resetParams(){
   fstParam = (formalParam *)malloc(sizeof(formalParam));
   fstParam->next = NULL;
   lastParam = fstParam;
 }
 
+/*
+ * Esta fue utilizada para visualizar los parametros formales de una funcion
+ * *fp: Lista de parametros formales.
+ */
 void printFormalParams(formalParam *fp){
   if(fp==NULL){
     printf("Parametros vacios\n");
@@ -713,6 +752,10 @@ void printFormalParams(formalParam *fp){
   }
 }
 
+/*
+ * Esta fue utilizada para visualizar los parametros actuales de una invocacion.
+ * *pl: Lista de parametros actuales.
+ */
 void printActualParams(paramList *pl){
   paramList *aux = pl;
   node *n;
@@ -736,19 +779,36 @@ void printActualParams(paramList *pl){
   }
 }
 
+/*
+ * Esta funcion nos permite recuperar el primer nodo de la lista de parametros formales que se esta generando
+ * Luego de que se genera la lista de parametros de una funcion, al ser esta global debe ser reiniciada.
+ * *pl: Es la lista de parametros actuales.
+ */
 formalParam * getFormalParams(){
   return fstParam;
 }
 
+/*
+ * Esta funcion nos permite recuperar la informacion de un nodo.
+ * *n: Nodo que contiene la informacion.
+ */
 data_stack * getNodeData(node *n){
   if(n != NULL){return n->info;}
   else{return NULL;}
 }  
 
+/*
+ * Esta funcion se utiliza para obtener el numero de linea de algun dato en la pila o de un nodo.
+ * *d: No hay mucho que decir, es un data_Stack
+ */
 int getLinea(data_stack *d){
   return d->data->linea;
 }
 
+/*
+ * Esta funcion se utiliza para obtener el tipo de la ultima variable declarada, se utiliza en la declaracion de multiples variables
+ * del mismo tipo
+ */
 int lastType(){
   stack *aux = current;
   data_stack *aux2 = (data_stack *)aux->info;
@@ -760,7 +820,19 @@ int lastType(){
 
 
 /*
- * Esta funcion nos permite crear la informarcion necesaria para un nodo.
+ * Esta funcion nos permite crear un nodeParam que luego se utiliza para generar un nuevo nodo del arbol.
+ * *s: Es un Struct string que representa el nombre del nodo.
+ * val: valor del nodo en caso de tenerlo (por ejemplo en las constantes).
+ * tipoVar: Se suele utilizar para repsentar el tipo de una variable.
+ * tipoRet: Se utiliza para indicar el tipo de retorno de una funcion.
+ * oper: Representa el tipo de operacion a realizar.
+ * *fst: Representa el primer hijo en caso de tenerlo, si no tiene, es NULL.
+ * *snd: Representa el segundo hijo..idem al primero
+ * *trd: idem a los anteriores.
+ * *block: Representa el cuerpo de una funcion (en caso de serlo, sino es NULL).
+ * es_func: Este campo nos permite indicar e identificar a las funciones.
+ * *params: Lista de parametros actuales de una funcion (si no es funcion, es NULL).
+ * linea: Numero de linea donde se leyo la informacion.
  */
 nodeParam * createNodeParam(string *s, int val, int tipoVar, int tipoRet, int oper, node *fst, node *snd, node *trd, bool es_funcion, paramList *params, int linea){
   nodeParam *nodeAux = (nodeParam *) malloc(sizeof(nodeParam));
@@ -779,7 +851,8 @@ nodeParam * createNodeParam(string *s, int val, int tipoVar, int tipoRet, int op
 }
 
 /*
- * Esta funcion nos permite crear un nodo.
+ * Esta funcion nos permite crear un nodo con la informacion obtenida en createNodeParam().
+ * *param: Es un struct que contiene toda la informacion necesaria para representar un nodo.
  */
 node * createNode(nodeParam *param){
 
@@ -809,7 +882,6 @@ node * createNode(nodeParam *param){
     else if(param->oper == INVOCC){
       dataS = crearDataStack(toString(param->nombre), param->tipoVar, param->valor, param->oper,  param->linea, NULL, NULL, true);
       dataS->params = param->params;
-      
     }
     else{
       dataS = crearDataStack(toString(param->nombre), param->tipoVar, param->valor, param->oper, param->linea, NULL, NULL, false);
@@ -823,6 +895,9 @@ node * createNode(nodeParam *param){
 
 /*
  * Esta funcion nos permite crear una nueva invocacion a una funcion.
+ * Se va creando una lista de parametros actuales representados por nodos, ya que los parametros actuales son expresiones.
+ * *p: Lista de parametros actuales a donde vamos a cargar el nuevo parametro leido.
+ * *n: Es el parametro leido representado como un nodo.
  */
 void newCall(paramList *p, node *n){
   paramList *newParam = (paramList *) malloc(sizeof(paramList));
@@ -840,13 +915,17 @@ void newCall(paramList *p, node *n){
   }
 }
 
+/*
+ * Esta funcion inicializa todo el chequeo semantico del programa, ya que el mismo esta cargado en el stack
+ * La funcion main() que contiene el cuerpo principal del programa es la ultima funcion cargada en el primer nivel del stack.
+ * *s: Este parametro deberia ser el nivel inicial del stack, que es donde estan todas las funciones incluyendo a la main().
+ */
 void checkFunctions(stack *s){
   data_stack *origin = s->info;
   data_stack *aux = origin;
 
   if(aux != NULL){
     if(aux->es_funcion){
-      printFormalParams(aux->formalParams);
       evalExpr(aux->block, getTipo(aux));
     }
     while(aux->next != NULL){
@@ -858,10 +937,14 @@ void checkFunctions(stack *s){
   }
 }
 
+/*
+ * Esta funcion evalua una expresion y retorna su tipo, si encuentra algun conflicto genera un error y lo carga en la lista.
+ * *n: Este parametro representa la expresion;
+ * tipoRet: Es el tipo que esperamos deberia retornar la expresion. Si son distintos, se genera un error.
+ */
 int evalExpr(node *n, int tipoRet){
   if(n!=NULL){
     data_stack *data = n->info;
-
     if(data != NULL){
       int op = data->tipoOp;
       string *s = getName(data);
@@ -874,7 +957,6 @@ int evalExpr(node *n, int tipoRet){
         checkParams(n);
         return (getTipo(data));
       }
-
       else if (op == ASIGNACIONN){
         int res1 = evalExpr(getNodeFst(n), tipoRet);
         printf("RES1 RETORNA: %d\n", res1);
@@ -885,49 +967,56 @@ int evalExpr(node *n, int tipoRet){
           createNewError(getLinea(data), "Error de tipos en la expresion, la funcion invocada debe retornar un resultado ", WRONGTYPE);return WRONGTYPE;
         }
         else{
-          createNewError(getLinea(data), "Error de tipos en la asignacion: La expresion debe ser del mismo tipo que la variable ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en la asignacion: La expresion debe ser del mismo tipo que la variable ", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if (op == RESTAA && (getNodeSnd(n) != NULL)){
         if((evalExpr(getNodeFst(n), tipoRet) == INTEGERR) && (evalExpr(getNodeSnd(n), tipoRet) == INTEGERR)){
           return INTEGERR;
         }
         else{
-          createNewError(getLinea(data), "Los operandos de una resta deben ser de tipo integer", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Los operandos de una resta deben ser de tipo integer", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if (op == RESTAA && (getNodeSnd(n) == NULL)){
         if(evalExpr(getNodeFst(n), tipoRet) == INTEGERR){
           return INTEGERR;
         }
         else{
-          createNewError(getLinea(data), "Error de tipos en el opuesto: Se esperaba una expresion de tipo entero ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en el opuesto: Se esperaba una expresion de tipo entero ", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if ((op == DIVV) ||(op == PRODD) || (op == MODD) || (op == SUMAA)){
         if((evalExpr(getNodeFst(n), tipoRet) == INTEGERR) && (evalExpr(getNodeSnd(n), tipoRet) == INTEGERR)){
           return INTEGERR;
         }
         else{
-          createNewError(getLinea(data), "Error de tipos en una operacion aritmetica binaria: Se espera que los operandos sean de tipo integer ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en una operacion aritmetica binaria: Se espera que los operandos sean de tipo integer ", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if ((op == ANDD) || (op == ORR)){
         if((evalExpr(getNodeFst(n), tipoRet) == BOOLEAN) && (evalExpr(getNodeSnd(n), tipoRet) == BOOLEAN)){
           return BOOLEAN;
         }
         else{
-          createNewError(getLinea(data), "Error de tipos en una operacion logica binaria: Ambas expresiones deben ser de tipo bool ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en una operacion logica binaria: Ambas expresiones deben ser de tipo bool ", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if ((op == MAYORR) ||(op == MENORR) || (op == MENIGUALL) || (op == MAYIGUALL) || (op == IGUALDADD)){
         if((evalExpr(getNodeFst(n), tipoRet) == INTEGERR) && (evalExpr(getNodeSnd(n), tipoRet) == INTEGERR)){
           return BOOLEAN;
         }
         else{
-          createNewError(getLinea(data), "Error de tipos en una operacion aritmetica-logica binaria: Ambas expresiones deben ser de tipo integer ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en una operacion aritmetica-logica binaria: Ambas expresiones deben ser de tipo integer ", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if (op == NOTT){
         if(evalExpr(getNodeFst(n), tipoRet) == BOOLEAN){
           return BOOLEAN;
         }
         else{
-          createNewError(getLinea(data), "Error de tipos en la negacion: La expresion debe ser de tipo bool ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en la negacion: La expresion debe ser de tipo bool ", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if (op == IFTHENN || op == WHILEE){
         if(evalExpr(getNodeFst(n), tipoRet) == BOOLEAN){
@@ -935,7 +1024,8 @@ int evalExpr(node *n, int tipoRet){
           return BOOLEAN;
         }
         else{
-        createNewError(getLinea(data), "Error de tipos en la condicion ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en la condicion ", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if (op == IFTHENELSEE){
         if(evalExpr(getNodeFst(n), tipoRet) == BOOLEAN){
@@ -944,7 +1034,8 @@ int evalExpr(node *n, int tipoRet){
           return BOOLEAN;
         }
         else{
-        createNewError(getLinea(data), "Error de tipos en la condicion ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en la condicion ", WRONGTYPE);return WRONGTYPE;
+        }
       }
       else if (op == BLOCK){
         evalExpr(getNodeFst(n), tipoRet);
@@ -958,7 +1049,7 @@ int evalExpr(node *n, int tipoRet){
       }
       else if (op == RETURNN){
         int res = evalExpr(getNodeFst(n), tipoRet);
-        if((res == tipoRet)){
+        if(res == tipoRet){
           return tipoRet;
         }
         else if(res != WRONGTYPE){
@@ -969,6 +1060,12 @@ int evalExpr(node *n, int tipoRet){
   return VOIDD;
 }
 
+/*
+ * Esta funcion controla que la invocacion a una funcion sea correcta.
+ * Primero verifica si la cantidad de parametros ingresadas es la correta.
+ * En caso de que el chequeo anterior sea correcto, se procede a verificar el orden y tipo de los parametros
+ * *n: Es el nodo que representa la invocacion de la funcion.
+ */
 void checkParams(node *n){
   data_stack *data = buscar_func(toString(n->info->data->nombre));
   paramList *paramInvoc = n->info->params;
@@ -996,6 +1093,10 @@ void checkParams(node *n){
   }
 }
 
+/*
+ * Esta funcion se utiliza para liberar la memoria utilizada por las llamadas a funciones ya que los parametros actuales son nodos
+ * *pl: Es la lista de parametros actuales.
+ */
 void deleteCalls(paramList *pl){
   if(pl!=NULL){
     eliminarArbol(pl->parametro);
@@ -1006,6 +1107,10 @@ void deleteCalls(paramList *pl){
   }
 }
 
+/*
+ * Esta funcion se utiliza para liberar la memoria utilizada por los cuerpos de las funciones.
+ * Es la funcion principal encargada de liberar la memoria.
+ */
 void deleteFuncitonBlocks(){
   data_stack *res = inicial->info;
   data_stack *aux = res;
@@ -1021,6 +1126,10 @@ void deleteFuncitonBlocks(){
 
 }
 
+/*
+ * Esta funcion se utiliza para liberar la memoria utilizada por un arbol o subarbol.
+ * *n: Raiz del arbol o subarbol a eliminar.
+ */
 void eliminarArbol(node *n){
   if (n != NULL) {
     data_stack *data = n->info;

@@ -60,7 +60,7 @@ begin
       else
       begin
         integer n;
-        emptyFunc();
+        n = emptyFunc();
         n = factorial(z);
         x = mod(div(x,y),mod(y,div(x,z)));
       end
