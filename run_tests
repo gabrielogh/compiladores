@@ -16,6 +16,7 @@ echo "             --------------------------"
 for file in $(ls tests/lexico-sintacticos/ok); do
   echo "Ejecutando el test "$file""
   ./a.out "tests/lexico-sintacticos/ok/"$file
+  echo "-------------------------------------------------------"
 done
 
 echo "              ------------------------"
@@ -25,6 +26,7 @@ echo "              ------------------------"
 for file in $(ls tests/lexico-sintacticos/fail); do
   echo "Ejecutando el test "$file""
   ./a.out "tests/lexico-sintacticos/fail/"$file
+  echo "-------------------------------------------------------"
 done
 echo
 echo
@@ -39,6 +41,7 @@ echo "             --------------------------"
 for file in $(ls tests/semanticos/ok); do
   echo "Ejecutando el test "$file""
   ./a.out "tests/semanticos/ok/"$file
+  echo "-------------------------------------------------------"
 done
 
 echo "              ------------------------"
@@ -48,4 +51,5 @@ echo "              ------------------------"
 for file in $(ls tests/semanticos/fail); do
   echo "Ejecutando el test "$file""
   ./a.out "tests/semanticos/fail/"$file
+  echo "-------------------------------------------------------"
 done

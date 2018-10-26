@@ -959,7 +959,6 @@ int evalExpr(node *n, int tipoRet){
       }
       else if (op == ASIGNACIONN){
         int res1 = evalExpr(getNodeFst(n), tipoRet);
-        printf("RES1 RETORNA: %d\n", res1);
         int res2 = evalExpr(getNodeSnd(n), tipoRet);
         if(res1 == res2){
         }
