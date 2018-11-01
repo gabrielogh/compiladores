@@ -32,6 +32,10 @@ typedef struct data_generic{
   int valor;
   int tipo;
   int linea;
+  int offset;
+  bool param;
+  bool inic;
+  int nParam;
 } data_gen;
 
 /* Tipo utilizado para representar los posibles datos en el scope (cada nivel de la pila)

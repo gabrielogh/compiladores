@@ -88,6 +88,9 @@ prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
                                                       }
                                                       if(noErrors() && (testType == 1)){
                                                         printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
+                                                        printf(KGRN "%s\n", "Generando codigo intermedio.... "); printf(KNRM);
+                                                        generar_codigo();
+
                                                       }
                                                       else if (!noErrors() && (testType == 1)){
                                                       printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);

@@ -1,5 +1,16 @@
 #include "lib.h"
 
+//DEFINICION DE TIPOS:
+typedef struct codTresDirs tresDir;
+typedef struct tresDirList tresDirL;
+
+
+typedef struct tresDirList{
+  char nombre[32];
+  tresDir *fst;
+  struct tresDirList *next;
+} tresDirL;
+
 typedef struct codTresDirs {
 	int op;
 	data_gen op1;
@@ -8,20 +19,92 @@ typedef struct codTresDirs {
 	struct codTresDirs *next;
 }tresDir;
 
-tresDir *tresDir_head, *tresDir_last;
 
-void agregar_instruccion(tresDir *param){
-  if (tresDir_head == NULL){
-    tresDir_head = param;
-    tresDir_last = tresDir_head;
+//VARIABLES GLOBALES:
+
+int temp,labels;
+tresDirL *head_td, *last_td;
+
+//DECLARACION DE METODOS:
+void initTresDirList();
+
+void generate_temp(char c[32]);
+
+void generate_label(char c[32]);
+
+void agregar_instruccion(tresDirL *pos, tresDir *param);
+
+tresDir * crear_instrucciones(tresDirL *t, node *n);
+
+void agregar_funcion(data_stack *d);
+
+void generar_codigo();
+
+//IMPLEMENTACION DE METODOS:
+
+void initTresDirList(){
+  temp = 0;
+  labels = 0;
+  head_td = NULL;
+  last_td = head_td;
+}
+
+void generate_temp(char c[32]){
+  temp = temp + 1;
+  strcpy(c, "Temp");
+  strcat(c, temp);
+}
+
+void generate_label(char c[32]){
+  labels = labels + 1;
+  strcpy(c, "Label");
+  strcat(c, labels);
+}
+
+void agregar_funcion(data_stack *d){
+  tresDirL *param = (tresDirL *) malloc(sizeof(tresDirL));
+  strcpy(param->nombre, d->data->nombre);
+  param->fst = NULL;
+
+  if (head_td == NULL){
+    head_td = param;
+    last_td = head_td;
   }
   else {
-    tresDir_last->next = param;
-    tresDir_last = param;
+    last_td->next = param;
+    last_td = param;
   }
 }
 
-tresDir * crear_instruccion(node *n){
+void agregar_instruccion(tresDirL *pos, tresDir *param){
+  if(pos->fst == NULL){
+    pos->fst = param;
+  }
+  else{
+    tresDir *aux = pos->fst;
+    while(aux->next != NULL){
+      aux = aux->next;
+    }
+    aux->next = param;
+  }
+
+}
+
+void generar_codigo(){
+  if(inicial!=NULL){
+    stack *aux = inicial;
+    data_stack *d = aux->info;
+    while(d!=NULL){
+      if(d->es_funcion){
+        agregar_funcion(d);
+        crear_instrucciones(last_td, d->block);
+      }
+      d = d->next;
+    }
+  }
+}
+
+tresDir * crear_instrucciones(tresDirL *t, node *n){
  /* if(n!=NULL){
     data_stack *data = n->info;
     if(data != NULL){
