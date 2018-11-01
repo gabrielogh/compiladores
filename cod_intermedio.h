@@ -52,13 +52,17 @@ void initTresDirList(){
 void generate_temp(char c[32]){
   temp = temp + 1;
   strcpy(c, "Temp");
-  strcat(c, temp);
+  char aux[32];
+  sprintf(aux,"%d",temp);
+  strcat(c, aux);
 }
 
 void generate_label(char c[32]){
   labels = labels + 1;
   strcpy(c, "Label");
-  strcat(c, labels);
+  char aux[32];
+  sprintf(aux,"%d",labels);
+  strcat(c, aux);
 }
 
 void agregar_funcion(data_stack *d){
@@ -104,7 +108,7 @@ void generar_codigo(){
 }
 
 tresDir * crear_instrucciones(tresDirL *t, node *n){
-  if(n!=NULL){
+  /*if(n!=NULL){
     data_stack *data = n->info;
     if(data != NULL){
       int op = data->tipoOp;
@@ -216,6 +220,6 @@ tresDir * crear_instrucciones(tresDirL *t, node *n){
           createNewError(getLinea(data), "Error de tipos en el return: El tipo de la expresion del return debe ser igual al tipo de retorno de la funcion ", WRONGTYPE);return WRONGTYPE;}
       }
     }
-  }
+  }*/
   return NULL;
 }
