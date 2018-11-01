@@ -33,11 +33,13 @@ void generate_label(char c[32]);
 
 void agregar_instruccion(tresDirL *pos, tresDir *param);
 
-tresDir * crear_instrucciones(tresDirL *t, node *n);
+void crear_instrucciones(tresDirL *t, node *n);
 
 void agregar_funcion(data_stack *d);
 
 void generar_codigo();
+
+data_gen * recuperar_var(node *n);
 
 //IMPLEMENTACION DE METODOS:
 
@@ -64,35 +66,12 @@ void generate_label(char c[32]){
   sprintf(aux,"%d",labels);
   strcat(c, aux);
 }
-
-void agregar_funcion(data_stack *d){
-  tresDirL *param = (tresDirL *) malloc(sizeof(tresDirL));
-  strcpy(param->nombre, d->data->nombre);
-  param->fst = NULL;
-  if(head_td == NULL){
-    head_td = param;
-    last_td = head_td;
-  }
-  else{
-    last_td->next = param;
-    last_td = param;
-  }
-}
-
-void agregar_instruccion(tresDirL *pos, tresDir *param){
-  if(pos->fst == NULL){
-    pos->fst = param;
-  }
-  else{
-    tresDir *aux = pos->fst;
-    while(aux->next != NULL){
-      aux = aux->next;
-    }
-    aux->next = param;
-  }
-
-}
-
+/*
+ * Esta esta la funcion principal que se encarga de generar todo el codigo de tres direcciones
+ * Recorre en nivel inicial del stack en busca de las funciones e inserta cada una en la lista principal de tipo tresDirL.
+ * Luego de insertar una funcion, genera todo el codigo de su cuerpo, el cual inserta en el nodo corriente de la lista general
+ * cada nodo de la lista general tiene a su vez una lista que representa su cuerpo de instrucciones
+ */
 void generar_codigo(){
   if(inicial!=NULL){
     stack *aux = inicial;
@@ -107,17 +86,78 @@ void generar_codigo(){
   }
 }
 
-tresDir * crear_instrucciones(tresDirL *t, node *n){
-  /*if(n!=NULL){
+/*
+ * Esta funcion se encarga de generar un nuevo nodo en la lista general para insertar una nueva funcion.
+ * *d: Datos de la funcion
+ */
+void agregar_funcion(data_stack *d){
+  tresDirL *param = (tresDirL *) malloc(sizeof(tresDirL));
+  strcpy(param->nombre, d->data->nombre);
+  param->fst = NULL;
+  if(head_td == NULL){
+    head_td = param;
+    last_td = head_td;
+  }
+  else{
+    last_td->next = param;
+    last_td = param;
+  }
+}
+
+/*
+ * Esta funcion se encarga de agregar una instruccion, es utilizada en la funcion crear_instrucciones().
+ * *pos: Posicion en la lista general donde se va a insertar la instruccion.
+ * *param: Instruccion que se va a insertar.
+ */
+void agregar_instruccion(tresDirL *pos, tresDir *param){
+  if(pos->fst == NULL){
+    pos->fst = param;
+  }
+  else{
+    tresDir *aux = pos->fst;
+    while(aux->next != NULL){
+      aux = aux->next;
+    }
+    aux->next = param;
+  }
+
+}
+
+data_gen * recuperar_var(node *n){
+  return (n->info->data);
+}
+
+void crear_instrucciones(tresDirL *t, node *n){
+  if(n!=NULL){
     data_stack *data = n->info;
     if(data != NULL){
       int op = data->tipoOp;
+      tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+      instruccion->op = op
       string *s = getName(data);
       char cAux[32];
       strcpy(cAux, s->nombre);
-      if(op == VARR || op == CONSTANTEE || op == PARAMETRO){
-        return (getTipo(data));
+
+      if(op == CONSTANTEE){
+        data_gen *res = (data_gen *) malloc(sizeof(data_gen));
+
+        instruccion->op1 = data->data;
+        generate_temp(res->nombre);
+
+        res->offset = data->data->offset;
+        res->valor = tree->content->value;
+        res->tipo = CONSTANT;
+        res->ret = tree->content->ret;
+
+        instruccion->res = res;
+        agregar_instruccion(instruccion);
       }
+      else if(op == ASIGNACIONN){
+        instruccion->op1 = recuperar_var(getNodeFst(n));
+        instruccion->res = recuperar_var(getNodeSnd(n));
+        agregar_instruccion(instruccion);
+      }
+      /*
       if(op == INVOCC){
         checkParams(n);
         return (getTipo(data));
@@ -218,8 +258,8 @@ tresDir * crear_instrucciones(tresDirL *t, node *n){
         }
         else if(res != WRONGTYPE){
           createNewError(getLinea(data), "Error de tipos en el return: El tipo de la expresion del return debe ser igual al tipo de retorno de la funcion ", WRONGTYPE);return WRONGTYPE;}
-      }
+      }*/
     }
-  }*/
+  }
   return NULL;
 }
