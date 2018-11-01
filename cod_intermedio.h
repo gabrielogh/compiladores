@@ -4,20 +4,19 @@
 typedef struct codTresDirs tresDir;
 typedef struct tresDirList tresDirL;
 
+typedef struct codTresDirs {
+  int op;
+  data_gen op1;
+  data_gen op2;
+  data_gen res;
+  struct codTresDirs *next;
+}tresDir;
 
 typedef struct tresDirList{
   char nombre[32];
   tresDir *fst;
   struct tresDirList *next;
 } tresDirL;
-
-typedef struct codTresDirs {
-	int op;
-	data_gen op1;
-	data_gen op2;
-	data_gen res;
-	struct codTresDirs *next;
-}tresDir;
 
 
 //VARIABLES GLOBALES:
@@ -45,7 +44,8 @@ void generar_codigo();
 void initTresDirList(){
   temp = 0;
   labels = 0;
-  head_td = NULL;
+  head_td = (tresDirL *) malloc(sizeof(tresDirL));
+  head_td->next = NULL;
   last_td = head_td;
 }
 
@@ -65,12 +65,11 @@ void agregar_funcion(data_stack *d){
   tresDirL *param = (tresDirL *) malloc(sizeof(tresDirL));
   strcpy(param->nombre, d->data->nombre);
   param->fst = NULL;
-
-  if (head_td == NULL){
+  if(head_td == NULL){
     head_td = param;
     last_td = head_td;
   }
-  else {
+  else{
     last_td->next = param;
     last_td = param;
   }
@@ -105,7 +104,7 @@ void generar_codigo(){
 }
 
 tresDir * crear_instrucciones(tresDirL *t, node *n){
- /* if(n!=NULL){
+  if(n!=NULL){
     data_stack *data = n->info;
     if(data != NULL){
       int op = data->tipoOp;
@@ -217,6 +216,6 @@ tresDir * crear_instrucciones(tresDirL *t, node *n){
           createNewError(getLinea(data), "Error de tipos en el return: El tipo de la expresion del return debe ser igual al tipo de retorno de la funcion ", WRONGTYPE);return WRONGTYPE;}
       }
     }
-  }*/
+  }
   return NULL;
 }
