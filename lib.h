@@ -7,7 +7,10 @@
 
 //Definicion de tipos de datos.
 typedef struct strings string;
+typedef struct data_generic data_gen;
+typedef struct data_stacks data_stack;
 typedef struct nodes node;
+typedef struct stacks stack;
 typedef struct nodeParams nodeParam;
 typedef struct actualParams paramList;
 typedef struct Formalparams formalParam;
@@ -31,6 +34,7 @@ typedef struct data_generic{
   char nombre[32];
   int valor;
   int tipo;
+  int const_var;
   int linea;
   int offset;
   bool param;
