@@ -39,6 +39,12 @@ void agregar_funcion(data_stack *d);
 
 void generar_codigo();
 
+void printInstruccion(tresDir *d);
+
+void printFc(tresDirL *d);
+
+void printLista();
+
 //IMPLEMENTACION DE METODOS:
 
 void initTresDirList(){
@@ -222,4 +228,85 @@ tresDir * crear_instrucciones(tresDirL *t, node *n){
     }
   }*/
   return NULL;
+}
+
+/*
+ * Esta funcion nos permite castear un nodeAux como un node.
+ */
+void printInstruccion(tresDir *p){
+  data_gen *aux1 = p->op1;
+  data_gen *aux2 = p->op2;
+  data_gen *aux3 = p->res;
+
+  printf("          |\n");
+  printf("          |\n");
+  printf("          |\n");
+  printf("           ----------------------------- \n");
+
+  printf("          | Operacion:   | %d             |\n", p->op);
+  printf("          | Op1:   | %s             |\n", aux1->nombre);
+  printf("          | Op2:   | %s             |\n", aux2->nombre);
+  printf("          | Res:   | %s             |\n", aux3->nombre);
+  printf("           ----------------------------- \n");
+}
+
+/*
+ * Esta funcion imprime un nivel completo. Utiliza a la funcion printDataStack.
+ * id: ID del bloque al que pertenece
+ * padre: ID del bloque que lo contiene inmediatamente.
+ * *d: Dato del nivel a imprimir.
+ */
+void printFc(tresDirL *d){
+  if(d != NULL){
+    if(d->next == NULL){
+      printInstruccion(d->fst);
+    }
+    else{
+      printInstruccion(d->fst);
+      while(d->next != NULL){
+        d = d->next;
+        printInstruccion(d->fst);
+      }
+    }
+  }
+  else{
+    printf("FC vacio");
+  }
+}
+
+/*
+ * Esta funcion imprime el stack completo, utiliza a la funcion printLevel para imprimir cada nivel.
+ */
+void printLista(){
+  printf("\n");
+  printf("              Lista:\n");
+  tresDirL *t = (tresDirL *) malloc(sizeof(tresDirL));
+  t = head_td;
+  if(t == NULL){
+    printf("Lista Vacia.\n");
+  }
+  else{
+    printf(" ----------------------------- \n");
+    printf("|           Inicio:           |\n");
+    printf("|                             | \n");
+    printf(" ----------------------------- \n");
+    printFc(t);
+    printf(" ----------------------------- \n");
+    printf("|           Fin:           |\n");
+    printf("|                             | \n");
+    printf(" ----------------------------- \n");
+    t = t->next;
+    while(t != NULL){
+      printf(" ----------------------------- \n");
+      printf("|           Inicio:           |\n");
+      printf("|                             | \n");
+      printf(" ----------------------------- \n");
+      printFc(t);
+      printf(" ----------------------------- \n");
+      printf("|           Fin:           |\n");
+      printf("|                             | \n");
+      printf(" ----------------------------- \n");
+      t = t->next;
+    }
+  }
 }
