@@ -53,6 +53,8 @@ data_gen * getLastResult();
 
 char * opToString(int op);
 
+void createJmp(int p, data_gen *res);
+
 //IMPLEMENTACION DE METODOS:
 
 void initTresDirList(){
@@ -65,6 +67,8 @@ void initTresDirList(){
 
 void generate_temp(char c[32]){
   temp = temp + 1;
+  printf("CREAMOS EL Temp%d\n", temp);
+
   strcpy(c, "Temp");
   char aux[32];
   sprintf(aux,"%d",temp);
@@ -73,10 +77,18 @@ void generate_temp(char c[32]){
 
 void generate_label(char c[32]){
   labels = labels + 1;
+  printf("CREAMOS EL LABEL%d\n", labels);
   strcpy(c, "Label");
   char aux[32];
   sprintf(aux,"%d",labels);
   strcat(c, aux);
+}
+
+void createJmp(int p, data_gen *res){
+  tresDir *jmp = (tresDir *) malloc(sizeof(tresDir));
+  jmp->op = p;
+  jmp->res = res;
+  agregar_instruccion(last_td, jmp);
 }
 
 data_gen * getLastResult(){
@@ -107,7 +119,7 @@ void generar_codigo(){
     data_stack *d = aux->info;
     while(d!=NULL){
       if(d->es_funcion){
-        printf("TEMPORALES INICIA CON: %d\n", temp);
+        //printf("TEMPORALES INICIA CON: %d\n", temp);
         agregar_funcion(d);
         cargar_parametros_formales(d->formalParams);
         crear_instrucciones(last_td, d->block);
@@ -217,8 +229,8 @@ void crear_instrucciones(tresDirL *t, node *n){
       else if(op == ASIGNACIONN){
         printf("ENTRAMOS A ASIGNACION A: %s\n", getName(getNodeFst(n)->info)->nombre);
         instruccion->op = ASIGN_INSTRUCCION;
-        instruccion->op1 = eval_expr(getNodeFst(n));
-        instruccion->res = eval_expr(getNodeSnd(n));
+        instruccion->op1 = eval_expr(getNodeSnd(n));
+        instruccion->res = eval_expr(getNodeFst(n));
         agregar_instruccion(t, instruccion);
       }
       else if(op == IGUALDADD){
@@ -328,13 +340,73 @@ void crear_instrucciones(tresDirL *t, node *n){
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
         instruccion->op = IF_INSTRUCCION;
         generate_label(endLabel->nombre);
-        instruccion->op1 = endLabel;
+        instruccion->op2 = endLabel;
 
         instruccion->res = eval_expr(getNodeFst(n));
 
         agregar_instruccion(t, instruccion);
 
         crear_instrucciones(t, getNodeSnd(n));
+
+        tresDir *endIf = (tresDir *) malloc(sizeof(tresDir));
+        endIf->op = END_IF;
+        endIf->res = endLabel;
+        agregar_instruccion(t, endIf);
+      }
+      else if (op == IFTHENELSEE){
+        printf("ENTRAMOS A IF IFTHENELSEE\n");
+        data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
+
+        instruccion->op = IF_ELSE_INSTRUCCION;
+        generate_label(endLabel->nombre);
+
+        instruccion->res = eval_expr(getNodeFst(n));
+        data_gen *elseJmp = (data_gen *) malloc(sizeof(data_gen));
+        generate_label(elseJmp->nombre);
+        instruccion->op2 = elseJmp;
+        agregar_instruccion(t, instruccion);
+
+        crear_instrucciones(t, getNodeSnd(n));
+
+        createJmp(JMP,endLabel);
+
+        tresDir *elseInstr = (tresDir *) malloc(sizeof(tresDir));
+        elseInstr->op = ELSE_INSTRUCCION;
+        elseInstr->res = elseJmp;
+        agregar_instruccion(t, elseInstr);
+
+        crear_instrucciones(t, getNodeTrd(n));
+
+        tresDir *elseEnd = (tresDir *) malloc(sizeof(tresDir));
+        elseEnd->op = END_ELSE;
+        elseEnd->res = endLabel;
+        agregar_instruccion(t, elseEnd);
+      }
+      else if (op == WHILEE){
+        printf("ENTRAMOS A WHILEE\n");
+        data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
+        data_gen *labelWhile = (data_gen *) malloc(sizeof(data_gen));
+
+        instruccion->op = LABEL_WHILE_INSTRUCCION;
+        generate_label(labelWhile->nombre);
+        agregar_instruccion(t, instruccion);
+        
+        tresDir *whileInstruccion = (tresDir *) malloc(sizeof(tresDir));
+        whileInstruccion->op = WHILE_INSTRUCCION;
+        generate_label(endLabel->nombre);
+
+        whileInstruccion->res = eval_expr(getNodeFst(n));
+        whileInstruccion->op2 = endLabel;
+        agregar_instruccion(t, whileInstruccion);
+
+        crear_instrucciones(t, getNodeSnd(n));
+
+        createJmp(JMP,labelWhile);
+
+        tresDir *endWhile = (tresDir *) malloc(sizeof(tresDir));
+        endWhile->op = LABEL_END_WHILE_INSTRUCCION;
+        endWhile->res = endLabel;
+        agregar_instruccion(t, endWhile);
       }
 
       else if (op == BLOCK){
@@ -344,8 +416,8 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if (op == STATEMENTS){
         printf("ENTRAMOS A STATEMENTS\n");
-        crear_instrucciones(t, getNodeSnd(n));
         crear_instrucciones(t, getNodeFst(n));
+        crear_instrucciones(t, getNodeSnd(n));
       }
       else if (op == RETURNN){
         node *auxNode = getNodeFst(n);
@@ -440,6 +512,21 @@ char * opToString(int op){
         break;
      case RETURN_INSTRUCCION  :
         return "RETURN_INSTRUCCION";
+        break;
+     case ELSE_INSTRUCCION  :
+        return "ELSE_INSTRUCCION";
+        break;
+     case END_IF  :
+        return "END_IF";
+        break;
+     case END_ELSE  :
+        return "END_ELSE";
+        break;
+    case LABEL_WHILE_INSTRUCCION  :
+        return "LABEL_WHILE_INSTRUCCION";
+        break;
+    case LABEL_END_WHILE_INSTRUCCION  :
+        return "LABEL_END_WHILE_INSTRUCCION";
         break;
      default :
      return "NULL";

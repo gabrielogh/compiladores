@@ -1,0 +1,17 @@
+program begin
+
+  integer inc(integer x) begin
+    return x + 1;
+  end
+
+  void main() begin
+    integer y;
+    y = inc(0);
+    if (y == 1) then begin
+      
+    end 
+    else begin
+      
+    end
+  end
+end
