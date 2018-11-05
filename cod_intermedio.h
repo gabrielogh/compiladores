@@ -21,7 +21,7 @@ typedef struct tresDirList{
 
 //VARIABLES GLOBALES:
 
-int temp,labels;
+int temp,labels, instrucciones;
 tresDirL *head_td, *last_td;
 
 //DECLARACION DE METODOS:
@@ -49,6 +49,8 @@ data_gen * eval_expr(node *n);
 
 void cargar_parametros_formales(formalParam *params);
 
+void cargar_parametros_actuales(paramList *params);
+
 data_gen * getLastResult();
 
 char * opToString(int op);
@@ -60,6 +62,7 @@ void createJmp(int p, data_gen *res);
 void initTresDirList(){
   temp = 0;
   labels = 0;
+  instrucciones = 0;
   head_td = (tresDirL *) malloc(sizeof(tresDirL));
   head_td->next = NULL;
   last_td = head_td;
@@ -129,6 +132,34 @@ void generar_codigo(){
   }
 }
 
+void cargar_parametros_actuales(paramList *pl){
+  paramList *aux = pl;
+  node *n;
+  if(aux!=NULL){
+      tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+      n = aux->parametro;
+    if(n!=NULL){
+      data_gen *param = eval_expr(n);
+      printf("VAMOS A CARGAR EL PARAMETRO: %s\n", param->nombre);
+      instruccion->op = CARGAR_ACTUAL_PARAMS;
+      instruccion->res = param;
+      agregar_instruccion(last_td, instruccion);
+    }
+    aux = aux->next;
+    while(aux!=NULL){
+      n = aux->parametro;
+      if(n!=NULL){
+      data_gen *param = eval_expr(n);
+        printf("VAMOS A CARGAR EL PARAMETRO: %s\n", param->nombre);
+        instruccion->op = CARGAR_ACTUAL_PARAMS;
+        instruccion->res = param;
+        agregar_instruccion(last_td, instruccion);
+      }
+      aux = aux->next;
+    }
+  }
+}
+
 void cargar_parametros_formales(formalParam *params){
   if(params != NULL){
     formalParam *auxParam = params;
@@ -171,6 +202,7 @@ void agregar_funcion(data_stack *d){
  * *param: Instruccion que se va a insertar.
  */
 void agregar_instruccion(tresDirL *pos, tresDir *param){
+  instrucciones = instrucciones + 1;
   if(pos->fst == NULL){
     pos->fst = param;
   }
@@ -178,6 +210,7 @@ void agregar_instruccion(tresDirL *pos, tresDir *param){
     tresDir *aux = pos->fst;
     while(aux->next != NULL){
       aux = aux->next;
+      //printf("ESTAMOS EN EL WHILE EN AGREGAR INSTRUCCION: %d\n", aux->op);
     }
     aux->next = param;
   }
@@ -185,7 +218,7 @@ void agregar_instruccion(tresDirL *pos, tresDir *param){
 }
 
 data_gen * eval_expr(node *n){
-  //printf("ENTRAMOS A EVAL EXPR\n");
+  printf("ENTRAMOS A EVAL EXPR\n");
   data_gen *aux = n->info->data;
   if(aux != NULL){
     if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
@@ -196,7 +229,7 @@ data_gen * eval_expr(node *n){
       return getLastResult();
     }
   }
-  //printf("SALIMOS DE EVAL EXPR CON NULL\n");
+  printf("SALIMOS DE EVAL EXPR CON NULL\n");
   return NULL;
 }
 
@@ -211,7 +244,7 @@ void crear_instrucciones(tresDirL *t, node *n){
       string *s = getName(data);
       char cAux[32];
       strcpy(cAux, s->nombre);
-
+      printf("ENTRAMOS A CREAR INSTRUCCIONES CON: %s\n", cAux);
       if(op == CONSTANTEE){
         printf("ENTRAMOS A CONSTANTE\n");
         instruccion->op = CTE_INSTRUCCION;
@@ -426,6 +459,27 @@ void crear_instrucciones(tresDirL *t, node *n){
         instruccion->res = eval_expr(getNodeFst(n));
         agregar_instruccion(t, instruccion);
       }
+      else if (op == INVOCC){
+        printf("ENTRAMOS A INVOCACION\n");
+        if(data->params != NULL){
+          printActualParams(data->params);
+          cargar_parametros_actuales(data->params);
+          printf("SALIMOS DEL WHILE\n");
+          printLista();
+        }
+        tresDir *invocFunc = (tresDir *) malloc(sizeof(tresDir));
+        invocFunc->op = CALL_WITH_PARAMS;
+        data_gen *function = (data_gen *) malloc(sizeof(data_gen));
+        strcpy(function->nombre, data->data->nombre);
+        function->tipo = data->data->tipo;
+        function->nParam = data->data->nParam;
+        invocFunc->op1 = function;
+        generate_temp(res->nombre);
+        invocFunc->res = res;
+        printf("LA CANTIADD DE INSTRUCCIONES ES: %d\n", instrucciones);
+        agregar_instruccion(last_td, invocFunc);
+        printf("VAMOS A SALIR DE INVOCC\n");
+      }
     }
   }
 }
@@ -462,8 +516,8 @@ char * opToString(int op){
      case CALL  :
         return "CALL";
         break;
-     case CALL_PARAMS  :
-        return "CALL_PARAMS";
+     case CALL_WITH_PARAMS  :
+        return "CALL_WITH_PARAMS";
         break;
      case ASIGN_INSTRUCCION  :
         return "ASIGN_INSTRUCCION";
@@ -527,6 +581,9 @@ char * opToString(int op){
         break;
     case LABEL_END_WHILE_INSTRUCCION  :
         return "LABEL_END_WHILE_INSTRUCCION";
+        break;
+    case CARGAR_ACTUAL_PARAMS  :
+        return "CARGAR_ACTUAL_PARAMS";
         break;
      default :
      return "NULL";

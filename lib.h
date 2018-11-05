@@ -201,6 +201,8 @@ void deleteFuncitonBlocks();
 //Funcion que nos permite visualizar los parametros formales de una funcion.
 void printFormalParams(formalParam *fp);
 
+void printActualParams(paramList *pl);
+
 //Funcion que comienza el chequeo semantico del programa.
 void checkParams(node *n);
 
