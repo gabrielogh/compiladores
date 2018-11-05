@@ -90,6 +90,7 @@ prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
                                                         printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
                                                         printf(KGRN "%s\n", "Generando codigo intermedio.... "); printf(KNRM);
                                                         generar_codigo();
+                                                        printLista();
 
                                                       }
                                                       else if (!noErrors() && (testType == 1)){
@@ -167,7 +168,7 @@ statements: statement                               { $$ = $1;}
           | statements statement                    { $$ = createNode(createNodeParam(toString("STATEMENTS"), 0, UNKNOW, NONRETT, STATEMENTS, $1, $2, NULL, false, NULL, yylineno));}
 ;
 
-statement: ID ASIGNACION expr PCOMA                     { nodeParam *node = createNodeParam(toString("ASIGNACIONN"), 0, UNKNOW, NONRET, ASIGNACIONN, $3, createNode(createNodeParam(getNombre($1), 0, 0, NONRETT, VARR, NULL, NULL, NULL, false, NULL, yylineno)), NULL, false, NULL,  yylineno);
+statement: ID ASIGNACION expr PCOMA                     { nodeParam *node = createNodeParam(toString("ASIGNACIONN"), 0, UNKNOW, NONRET, ASIGNACIONN, createNode(createNodeParam(getNombre($1), 0, 0, NONRETT, VARR, NULL, NULL, NULL, false, NULL, yylineno)), $3, NULL, false, NULL,  yylineno);
                                                           $$ = createNode(node);
                                                         } 
          | method_call PCOMA                            { $$ = $1;}
@@ -253,9 +254,9 @@ expr:  ID                         { $$ = createNode(createNodeParam(getNombre($1
      | PARA expr PARC             { $$ = $2;} 
 ;
 
-literal: integer  { $$ = createNode( createNodeParam(toString("int"), $1, INTEGERR, NONRETT, CONSTANTEE, NULL, NULL, NULL, false, NULL, yylineno));}
+literal: integer  { $$ = createNode( createNodeParam(toString("int_cte"), $1, INTEGERR, NONRETT, CONSTANTEE, NULL, NULL, NULL, false, NULL, yylineno));}
 
-       | bool     { $$ = createNode(createNodeParam(toString("bool"), $1, BOOLEAN, NONRETT, CONSTANTEE, NULL, NULL, NULL, false, NULL, yylineno));}
+       | bool     { $$ = createNode(createNodeParam(toString("bool_cte"), $1, BOOLEAN, NONRETT, CONSTANTEE, NULL, NULL, NULL, false, NULL, yylineno));}
 ;
 
 integer: INT  {$$ = $1;}

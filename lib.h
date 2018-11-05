@@ -870,7 +870,7 @@ node * createNode(nodeParam *param){
 
   if(param != NULL){
     if((param->oper) == ASIGNACIONN){
-      dataS = buscar_por_niveles(tope(), param->snd->info->data->nombre);
+      dataS = buscar_por_niveles(tope(), param->fst->info->data->nombre);
       if(dataS == NULL){
         createError(param->linea, UNDECLAREDVAR);
       }

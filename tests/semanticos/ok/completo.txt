@@ -31,7 +31,7 @@ begin
   end
 
   void emptyFunc() begin
-    return ;
+    {return ;}
   end
 
   integer factorial(integer x) begin

@@ -76,7 +76,7 @@ int treeSize, testType;
 #define JMP 200
 #define MOV 201
 #define CMP 202
-#define CARGAR_P 203
+#define CARGAR_PARAMS 203
 #define IF_INSTRUCCION 204
 #define IF_ELSE_INSTRUCCION 205
 #define WHILE_INSTRUCCION 206
@@ -97,8 +97,7 @@ int treeSize, testType;
 #define MOD_INSTRUCCION 221
 #define AND_INSTRUCCION 222
 #define OR_INSTRUCCION 223
-
-
+#define RETURN_INSTRUCCION 224
 
 
 
