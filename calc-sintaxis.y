@@ -78,7 +78,7 @@ extern int yylineno;
 %%
 
 prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
-                                                    //printStack();
+                                                    printStack();
                                                     printf("Iniciando chequeo Sintactico...\n");
                                                     if(noErrors()){
                                                       printf(KGRN "%s\n", "Chequeo Sintactico satisfactorio. "); printf(KNRM);
@@ -90,8 +90,8 @@ prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
                                                         printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
                                                         printf(KGRN "%s\n", "Generando codigo intermedio.... "); printf(KNRM);
                                                         generar_codigo();
-                                                        printLista();
-
+                                                        //printLista();
+                                                        printf(KGRN "%s\n", "Codigo intermedio generado. "); printf(KNRM);
                                                       }
                                                       else if (!noErrors() && (testType == 1)){
                                                       printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);

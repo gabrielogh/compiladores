@@ -57,6 +57,7 @@ typedef struct data_stacks{
   bool es_funcion;
   int tipoOp;
   int nParams;
+  int stack_size;
   node *block;
   paramList *params;
   formalParam *formalParams;
@@ -142,7 +143,7 @@ typedef struct Formalparams{
 node *root;
 stack *current, *inicial;
 formalParam *fstParam, *lastParam; //--Lista de parametros formales que se reinicia luego de insertada la funcion.
-int niveles;
+int niveles, nVars;
 
 
 //DECLARACIONES DE METODOS:
@@ -222,6 +223,7 @@ void eliminarArbol(node *n);
  */
 void init(){
   //printf("ENTRAMOS A INIT\n");
+  nVars = 0;
   current = (stack *) malloc(sizeof(stack));
   inicial = (stack *) malloc(sizeof(stack));
   fstParam =  (formalParam *) malloc(sizeof(formalParam));
@@ -329,6 +331,16 @@ void printDataStack(data_stack *d, int id, int padre){
   else{
     printf("          | Tipo:       | %d            |\n", d->data->tipo);
 
+  }
+
+  if(d->data->offset <10 && d->data->offset > 0){
+    printf("          | Offset:      | %d             |\n", d->data->offset);
+  }
+  else if((d->data->offset >9 && d->data->offset<100) || (d->data->offset < 0)){
+    printf("          | Offset:      | %d            |\n", d->data->offset);
+  }
+  else if((d->data->offset > 99 && d->data->offset < 1000)){
+    printf("          | Offset:      | %d           |\n", d->data->offset);
   }
 
   if(d->data->linea <10){
@@ -486,6 +498,7 @@ void insertar_funcion(data_stack *d){
   newD->next = NULL;
   newD->nParams = countParams(d->formalParams);
   newD->formalParams = d->formalParams;
+  newD->stack_size = nVars;
   stack *aux = inicial;
 
   data_stack *res = buscar_id(inicial, d->data->nombre);
@@ -495,6 +508,7 @@ void insertar_funcion(data_stack *d){
     printErrors();
   }
   else{
+    nVars = 0;
     res = (data_stack *) aux->info;
     if(res != NULL){
       while((res->next) != NULL){
@@ -615,9 +629,18 @@ void insertar(data_stack *d){
       while((res->next) != NULL){
         res = (data_stack *) res->next;
       }
+      if(d->tipoOp == VARR){
+        nVars = nVars + 1;
+        newD->data->offset = nVars;
+      }
       res->next = (data_stack *)newD;
+
     }
     else{
+      if(d->tipoOp == VARR){
+        nVars = nVars + 1;
+        newD->data->offset = nVars;
+      }
       res = (data_stack *)newD;
       aux->info = res;
     }

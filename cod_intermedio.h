@@ -49,7 +49,7 @@ data_gen * eval_expr(node *n);
 
 void cargar_parametros_formales(formalParam *params);
 
-void cargar_parametros_actuales(paramList *params);
+void cargar_parametros_actuales(tresDirL *pos, paramList *pl);
 
 data_gen * getLastResult();
 
@@ -132,7 +132,7 @@ void generar_codigo(){
   }
 }
 
-void cargar_parametros_actuales(paramList *pl){
+void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
   paramList *aux = pl;
   node *n;
   if(aux!=NULL){
@@ -143,7 +143,7 @@ void cargar_parametros_actuales(paramList *pl){
       printf("VAMOS A CARGAR EL PARAMETRO: %s\n", param->nombre);
       instruccion->op = CARGAR_ACTUAL_PARAMS;
       instruccion->res = param;
-      agregar_instruccion(last_td, instruccion);
+      agregar_instruccion(pos, instruccion);
     }
     aux = aux->next;
     while(aux!=NULL){
@@ -153,7 +153,7 @@ void cargar_parametros_actuales(paramList *pl){
         printf("VAMOS A CARGAR EL PARAMETRO: %s\n", param->nombre);
         instruccion->op = CARGAR_ACTUAL_PARAMS;
         instruccion->res = param;
-        agregar_instruccion(last_td, instruccion);
+        agregar_instruccion(pos, instruccion);
       }
       aux = aux->next;
     }
@@ -203,14 +203,17 @@ void agregar_funcion(data_stack *d){
  */
 void agregar_instruccion(tresDirL *pos, tresDir *param){
   instrucciones = instrucciones + 1;
+  int contador;
   if(pos->fst == NULL){
     pos->fst = param;
   }
   else{
+    contador = 0;
     tresDir *aux = pos->fst;
-    while(aux->next != NULL){
+    while((aux->next != NULL) && (contador <= 1000)){
+      contador = contador + 1;
       aux = aux->next;
-      //printf("ESTAMOS EN EL WHILE EN AGREGAR INSTRUCCION: %d\n", aux->op);
+      printf("ESTAMOS EN EL WHILE EN AGREGAR INSTRUCCION: %s, CON VALOR: %s Ciclamos: %d veces\n/", opToString(aux->op), aux->res->nombre, contador);
     }
     aux->next = param;
   }
@@ -422,6 +425,7 @@ void crear_instrucciones(tresDirL *t, node *n){
 
         instruccion->op = LABEL_WHILE_INSTRUCCION;
         generate_label(labelWhile->nombre);
+        instruccion->res = labelWhile;
         agregar_instruccion(t, instruccion);
         
         tresDir *whileInstruccion = (tresDir *) malloc(sizeof(tresDir));
@@ -462,10 +466,13 @@ void crear_instrucciones(tresDirL *t, node *n){
       else if (op == INVOCC){
         printf("ENTRAMOS A INVOCACION\n");
         if(data->params != NULL){
-          printActualParams(data->params);
-          cargar_parametros_actuales(data->params);
+          
+          if(data->params != NULL){
+            printActualParams(data->params);
+            cargar_parametros_actuales(t, data->params);
+          }
+          //printLista();
           printf("SALIMOS DEL WHILE\n");
-          printLista();
         }
         tresDir *invocFunc = (tresDir *) malloc(sizeof(tresDir));
         invocFunc->op = CALL_WITH_PARAMS;
@@ -594,16 +601,17 @@ char * opToString(int op){
  * Esta funcion nos permite castear un nodeAux como un node.
  */
 void printInstruccion(tresDir *p){
-  if(p!= NULL){
-    data_gen *aux1 = p->op1;
-    data_gen *aux2 = p->op2;
-    data_gen *aux3 = p->res;
+  tresDir *aux = p;
+  if(aux!= NULL){
+    data_gen *aux1 = aux->op1;
+    data_gen *aux2 = aux->op2;
+    data_gen *aux3 = aux->res;
 
     printf("          |\n");
     printf("          |\n");
     printf("          |\n");
     printf("           ----------------------------- \n");
-    printf("          | Operacion:   | %s \n", opToString(p->op));
+    printf("          | Operacion:   | %s \n", opToString(aux->op));
     printf("          | Operador1:   | %s                 \n", aux1->nombre);
     printf("          | Operador2:   | %s                 \n", aux2->nombre);
     printf("          | Resultado:   | %s                 \n", aux3->nombre);
@@ -618,15 +626,16 @@ void printInstruccion(tresDir *p){
  * *d: Dato del nivel a imprimir.
  */
 void printFc(tresDir *d){
-  if(d != NULL){
-    if(d->next == NULL){
-      printInstruccion(d);
+  tresDir *aux = d;
+  if(aux != NULL){
+    if(aux->next == NULL){
+      printInstruccion(aux);
     }
     else{
-      printInstruccion(d);
-      while(d->next != NULL){
-        d = d->next;
-        printInstruccion(d);
+      printInstruccion(aux);
+      while(aux->next != NULL){
+        aux = aux->next;
+        printInstruccion(aux);
       }
     }
   }
@@ -641,8 +650,7 @@ void printFc(tresDir *d){
 void printLista(){
   printf("\n");
   printf("              Lista:\n");
-  tresDirL *t = (tresDirL *) malloc(sizeof(tresDirL));
-  t = head_td;
+  tresDirL *t = head_td;
   if(t == NULL){
     printf("Lista Vacia.\n");
   }
@@ -653,7 +661,7 @@ void printLista(){
     printf(" ----------------------------- \n");
     printFc(t->fst);
     printf(" ----------------------------- \n");
-    printf("|           fin_%s           |\n",t->nombre);
+    printf("|           fin_%s           |\n", t->nombre);
     printf("|                             | \n");
     printf(" ----------------------------- \n");
     t = t->next;
@@ -664,7 +672,7 @@ void printLista(){
       printf(" ----------------------------- \n");
       printFc(t->fst);
       printf(" ----------------------------- \n");
-      printf("|           fin_%s           |\n",t->nombre);
+      printf("|           fin_%s           |\n", t->nombre);
       printf("|                             | \n");
       printf(" ----------------------------- \n");
       t = t->next;
