@@ -20,7 +20,9 @@ void generar_codigo_assembler(){
   tresDirL *aux = head_td;
 
   if( aux!= NULL){
-    while 
+    while (){
+      
+    }
 
   }
 
