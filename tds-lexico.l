@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <time.h> 
 
-#include "calc-sintaxis.tab.h"
+#include "tds-sintaxis.tab.h"
 #define KRED  "\x1B[31m"
 #define KNRM  "\x1B[0m"
 

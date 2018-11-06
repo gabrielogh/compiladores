@@ -120,10 +120,10 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 12 "calc-sintaxis.y"
+#line 12 "tds-sintaxis.y"
 { int i; char *s; struct strings *st; struct nodes *n; struct nodeParams *np; struct Formalparams *pl; struct actualParams *ap;struct stacks *stk;}
 /* Line 1529 of yacc.c.  */
-#line 127 "calc-sintaxis.tab.h"
+#line 127 "tds-sintaxis.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

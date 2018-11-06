@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "cod_intermedio.h"
+#include "cod_assembler.c"
 
 extern int yylineno;
 
@@ -78,7 +78,7 @@ extern int yylineno;
 %%
 
 prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
-                                                    printStack();
+                                                    //printStack();
                                                     printf("Iniciando chequeo Sintactico...\n");
                                                     if(noErrors()){
                                                       printf(KGRN "%s\n", "Chequeo Sintactico satisfactorio. "); printf(KNRM);
@@ -92,6 +92,9 @@ prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
                                                         generar_codigo();
                                                         printLista();
                                                         printf(KGRN "%s\n", "Codigo intermedio generado. "); printf(KNRM);
+                                                        printf(KGRN "%s\n", "Generando codigo Assembler.... "); printf(KNRM);
+                                                        generar_codigo_assembler();
+                                                        printf(KGRN "%s\n", "Codigo Assembler generado. "); printf(KNRM);
                                                       }
                                                       else if (!noErrors() && (testType == 1)){
                                                       printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);

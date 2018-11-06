@@ -146,13 +146,13 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 1 "calc-sintaxis.y"
+#line 1 "tds-sintaxis.y"
 
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "lib.h"
+#include "cod_assembler.c"
 
 extern int yylineno;
 
@@ -178,10 +178,10 @@ extern int yylineno;
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 12 "calc-sintaxis.y"
+#line 12 "tds-sintaxis.y"
 { int i; char *s; struct strings *st; struct nodes *n; struct nodeParams *np; struct Formalparams *pl; struct actualParams *ap;struct stacks *stk;}
 /* Line 193 of yacc.c.  */
-#line 185 "calc-sintaxis.tab.c"
+#line 185 "tds-sintaxis.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -194,7 +194,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 198 "calc-sintaxis.tab.c"
+#line 198 "tds-sintaxis.tab.c"
 
 #ifdef short
 # undef short
@@ -509,13 +509,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    80,    80,    80,   106,   107,   108,   109,   112,   114,
-     115,   119,   121,   124,   125,   128,   130,   132,   134,   137,
-     141,   146,   147,   150,   150,   155,   156,   157,   158,   161,
-     162,   165,   168,   170,   172,   174,   176,   178,   180,   182,
-     186,   187,   191,   200,   210,   211,   214,   216,   218,   220,
-     222,   224,   226,   228,   230,   232,   234,   236,   238,   240,
-     242,   244,   246,   248,   251,   253,   256,   260,   261
+       0,    80,    80,    80,   115,   116,   117,   118,   121,   123,
+     124,   128,   130,   133,   134,   137,   139,   141,   143,   146,
+     150,   155,   156,   159,   159,   164,   165,   166,   167,   170,
+     171,   174,   177,   179,   181,   183,   185,   187,   189,   191,
+     195,   196,   200,   209,   219,   220,   223,   225,   227,   229,
+     231,   233,   235,   237,   239,   241,   243,   245,   247,   249,
+     251,   253,   255,   257,   260,   262,   265,   269,   270
 };
 #endif
 
@@ -1527,115 +1527,124 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 80 "calc-sintaxis.y"
-    {debug = 0; init();;}
+#line 80 "tds-sintaxis.y"
+    {init();;}
     break;
 
   case 3:
-#line 80 "calc-sintaxis.y"
-    {  printIndexList();
-                                                              printStack();
-                                                              printf("Iniciando chequeo Sintactico...\n");
-                                                              if(noErrors()){
-                                                                printf(KGRN "%s\n", "Chequeo Sintactico satisfactorio. "); printf(KNRM);
-                                                                printf("Iniciando chequeo Semantico...\n");
-                                                                checkFunctions(inicial);
-                                                                if(noErrors()){
-                                                                  printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
-                                                                }
-                                                                else{
-                                                                printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);
-                                                                printErrors();
-                                                                }
-                                                              }
-                                                              else{
-                                                                printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SINTATICOS: "); printf(KNRM);
-                                                                printErrors();
-                                                              }
+#line 80 "tds-sintaxis.y"
+    {  //printIndexList();
+                                                    //printStack();
+                                                    printf("Iniciando chequeo Sintactico...\n");
+                                                    if(noErrors()){
+                                                      printf(KGRN "%s\n", "Chequeo Sintactico satisfactorio. "); printf(KNRM);
+                                                      if(testType == 1){
+                                                        printf("Iniciando chequeo Semantico...\n");
+                                                        checkFunctions(inicial);
+                                                      }
+                                                      if(noErrors() && (testType == 1)){
+                                                        printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
+                                                        printf(KGRN "%s\n", "Generando codigo intermedio.... "); printf(KNRM);
+                                                        generar_codigo();
+                                                        printLista();
+                                                        printf(KGRN "%s\n", "Codigo intermedio generado. "); printf(KNRM);
+                                                        printf(KGRN "%s\n", "Generando codigo Assembler.... "); printf(KNRM);
+                                                        generar_codigo_assembler();
+                                                        printf(KGRN "%s\n", "Codigo Assembler generado. "); printf(KNRM);
+                                                      }
+                                                      else if (!noErrors() && (testType == 1)){
+                                                      printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);
+                                                      printErrors();
+                                                      }
+                                                    }
+                                                    else{
+                                                      printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SINTATICOS: "); printf(KNRM);
+                                                      printErrors();
+                                                    }
 
-                                                              printf("Tamaño del arbol antes de eliminar: %d\n", treeSize);
-                                                              deleteFuncitonBlocks();
-                                                              printf("Tamaño del arbol luego de eliminar: %d\n", treeSize);
-                                                            ;}
+                                                    printf("Tamaño del arbol antes de eliminar: %d\n", treeSize);
+                                                    deleteFuncitonBlocks();
+                                                    printf("Tamaño del arbol luego de eliminar: %d\n", treeSize);
+                                                 ;}
     break;
 
   case 4:
-#line 106 "calc-sintaxis.y"
+#line 115 "tds-sintaxis.y"
     {insertar_funcion(crearDataStack(toString("main"), VOIDD, -1, INSERTFUNC, yylineno, (yyvsp[(1) - (1)].n), NULL, true)); (yyval.n) = (yyvsp[(1) - (1)].n);;}
     break;
 
   case 5:
-#line 107 "calc-sintaxis.y"
+#line 116 "tds-sintaxis.y"
     {insertar_funcion(crearDataStack(toString("main"), VOIDD, -1, INSERTFUNC, yylineno, (yyvsp[(4) - (4)].n), NULL, true)); (yyval.n) = (yyvsp[(4) - (4)].n);;}
     break;
 
   case 6:
-#line 108 "calc-sintaxis.y"
+#line 117 "tds-sintaxis.y"
     {insertar_funcion(crearDataStack(toString("main"), VOIDD, -1, INSERTFUNC, yylineno, (yyvsp[(3) - (3)].n), NULL, true)); (yyval.n) = (yyvsp[(3) - (3)].n);;}
     break;
 
   case 7:
-#line 109 "calc-sintaxis.y"
+#line 118 "tds-sintaxis.y"
     {insertar_funcion(crearDataStack(toString("main"), VOIDD, -1, INSERTFUNC, yylineno, (yyvsp[(2) - (2)].n), NULL, true)); (yyval.n) = (yyvsp[(2) - (2)].n);;}
     break;
 
   case 8:
-#line 112 "calc-sintaxis.y"
+#line 121 "tds-sintaxis.y"
     {(yyval.n) = (yyvsp[(5) - (5)].n);;}
     break;
 
   case 9:
-#line 114 "calc-sintaxis.y"
+#line 123 "tds-sintaxis.y"
     {;}
     break;
 
   case 10:
-#line 115 "calc-sintaxis.y"
+#line 124 "tds-sintaxis.y"
     {;}
     break;
 
   case 11:
-#line 119 "calc-sintaxis.y"
+#line 128 "tds-sintaxis.y"
     {insertar(crearDataStack(getNombre((yyvsp[(2) - (2)].st)), (yyvsp[(1) - (2)].i), 0, VARR, yylineno, NULL, NULL, false));;}
     break;
 
   case 12:
-#line 121 "calc-sintaxis.y"
+#line 130 "tds-sintaxis.y"
     {insertar(crearDataStack(getNombre((yyvsp[(3) - (3)].st)), lastType(), 0, VARR, yylineno, NULL, NULL, false));;}
     break;
 
   case 13:
-#line 124 "calc-sintaxis.y"
+#line 133 "tds-sintaxis.y"
     {;}
     break;
 
   case 14:
-#line 125 "calc-sintaxis.y"
+#line 134 "tds-sintaxis.y"
     {;}
     break;
 
   case 15:
-#line 128 "calc-sintaxis.y"
+#line 137 "tds-sintaxis.y"
     {insertar_funcion(crearDataStack(getNombre((yyvsp[(2) - (6)].st)), (yyvsp[(1) - (6)].i), -1, INSERTFUNC, yylineno, (yyvsp[(6) - (6)].n), fstParam, true));cerrar_nivel(); resetParams();;}
     break;
 
   case 16:
-#line 130 "calc-sintaxis.y"
-    {insertar_funcion(crearDataStack(getNombre((yyvsp[(2) - (6)].st)), (yyvsp[(1) - (6)].i), -1, INSERTFUNC, yylineno, (yyvsp[(6) - (6)].n), fstParam, true));cerrar_nivel(); resetParams();;}
+#line 139 "tds-sintaxis.y"
+    {insertar_funcion(crearDataStack(getNombre((yyvsp[(2) - (6)].st)), VOIDD, -1, INSERTFUNC, yylineno, (yyvsp[(6) - (6)].n), fstParam, true));cerrar_nivel(); resetParams();;}
     break;
 
   case 17:
-#line 132 "calc-sintaxis.y"
+#line 141 "tds-sintaxis.y"
     {insertar_funcion(crearDataStack(getNombre((yyvsp[(2) - (5)].st)), (yyvsp[(1) - (5)].i), -1, INSERTFUNC, yylineno, (yyvsp[(5) - (5)].n), NULL, true));;}
     break;
 
   case 18:
-#line 134 "calc-sintaxis.y"
-    {insertar_funcion(crearDataStack(getNombre((yyvsp[(2) - (5)].st)), (yyvsp[(1) - (5)].i), -1, INSERTFUNC, yylineno, (yyvsp[(5) - (5)].n), NULL, true));;}
+#line 143 "tds-sintaxis.y"
+    {insertar_funcion(crearDataStack(getNombre((yyvsp[(2) - (5)].st)), VOIDD, -1, INSERTFUNC, yylineno, (yyvsp[(5) - (5)].n), NULL, true));;}
     break;
 
   case 19:
-#line 137 "calc-sintaxis.y"
+#line 146 "tds-sintaxis.y"
     { crear_nivel();
                                           insertar(crearDataStack(getNombre((yyvsp[(2) - (2)].st)), (yyvsp[(1) - (2)].i), -1, PARAMETRO, yylineno, NULL, NULL, false));
                                           (yyval.pl) = getFormalParams();
@@ -1643,123 +1652,123 @@ yyreduce:
     break;
 
   case 20:
-#line 141 "calc-sintaxis.y"
+#line 150 "tds-sintaxis.y"
     { insertar(crearDataStack(getNombre((yyvsp[(4) - (4)].st)), (yyvsp[(3) - (4)].i), -1, PARAMETRO, yylineno, NULL, NULL, false));
                                           (yyval.pl) = (yyvsp[(1) - (4)].pl);
                                         ;}
     break;
 
   case 21:
-#line 146 "calc-sintaxis.y"
+#line 155 "tds-sintaxis.y"
     {  (yyval.n)=(yyvsp[(1) - (1)].n);;}
     break;
 
   case 22:
-#line 147 "calc-sintaxis.y"
+#line 156 "tds-sintaxis.y"
     {  (yyval.n) = createNode(createNodeParam(toString("BLOCKNULL"), -1, -1, -1, BLOCKNULL, NULL, NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 23:
-#line 150 "calc-sintaxis.y"
+#line 159 "tds-sintaxis.y"
     {crear_nivel();;}
     break;
 
   case 24:
-#line 150 "calc-sintaxis.y"
+#line 159 "tds-sintaxis.y"
     { cerrar_nivel();
                                                       (yyval.n) = createNode(createNodeParam(toString("BLOCK"), 0, BLOCK, NONRETT, BLOCK, (yyvsp[(2) - (2)].n), NULL, NULL, false, NULL, yylineno));
                                                     ;}
     break;
 
   case 25:
-#line 155 "calc-sintaxis.y"
+#line 164 "tds-sintaxis.y"
     {(yyval.n) = createNode(createNodeParam(toString("EMPTYBLOCK"), -1, -1, -1, EMPTYBLOCK, NULL, NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 26:
-#line 156 "calc-sintaxis.y"
+#line 165 "tds-sintaxis.y"
     {(yyval.n) = createNode(createNodeParam(toString("BLOCKSINSTATEMENTS"), -1, -1, -1, BLOCKSINSTATEMENTS, NULL, NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 27:
-#line 157 "calc-sintaxis.y"
+#line 166 "tds-sintaxis.y"
     {(yyval.n) = (yyvsp[(2) - (3)].n);;}
     break;
 
   case 28:
-#line 158 "calc-sintaxis.y"
+#line 167 "tds-sintaxis.y"
     {(yyval.n) = (yyvsp[(4) - (5)].n);;}
     break;
 
   case 29:
-#line 161 "calc-sintaxis.y"
+#line 170 "tds-sintaxis.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n);;}
     break;
 
   case 30:
-#line 162 "calc-sintaxis.y"
+#line 171 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("STATEMENTS"), 0, UNKNOW, NONRETT, STATEMENTS, (yyvsp[(1) - (2)].n), (yyvsp[(2) - (2)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 31:
-#line 165 "calc-sintaxis.y"
-    { nodeParam *node = createNodeParam(toString("ASIGNACIONN"), 0, UNKNOW, NONRET, ASIGNACIONN, (yyvsp[(3) - (4)].n), createNode(createNodeParam(getNombre((yyvsp[(1) - (4)].st)), 0, 0, NONRETT, VARR, NULL, NULL, NULL, false, NULL, yylineno)), NULL, false, NULL,  yylineno);
+#line 174 "tds-sintaxis.y"
+    { nodeParam *node = createNodeParam(toString("ASIGNACIONN"), 0, UNKNOW, NONRET, ASIGNACIONN, createNode(createNodeParam(getNombre((yyvsp[(1) - (4)].st)), 0, 0, NONRETT, VARR, NULL, NULL, NULL, false, NULL, yylineno)), (yyvsp[(3) - (4)].n), NULL, false, NULL,  yylineno);
                                                           (yyval.n) = createNode(node);
                                                         ;}
     break;
 
   case 32:
-#line 168 "calc-sintaxis.y"
+#line 177 "tds-sintaxis.y"
     { (yyval.n) = (yyvsp[(1) - (2)].n);;}
     break;
 
   case 33:
-#line 170 "calc-sintaxis.y"
+#line 179 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("IFTHEN"), 0, UNKNOW, NONRETT, IFTHENN, (yyvsp[(3) - (6)].n), (yyvsp[(6) - (6)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 34:
-#line 172 "calc-sintaxis.y"
+#line 181 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("IFTHENELSE"), 0, UNKNOW, NONRETT, IFTHENELSEE, (yyvsp[(3) - (8)].n), (yyvsp[(6) - (8)].n), (yyvsp[(8) - (8)].n), false, NULL, yylineno));;}
     break;
 
   case 35:
-#line 174 "calc-sintaxis.y"
+#line 183 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("WHILE"), 0, UNKNOW, NONRETT, WHILEE, (yyvsp[(2) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 36:
-#line 176 "calc-sintaxis.y"
+#line 185 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("RETURN"), 0, UNKNOW, getTipo(getNodeData((yyvsp[(2) - (3)].n))), RETURNN, (yyvsp[(2) - (3)].n), NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 37:
-#line 178 "calc-sintaxis.y"
+#line 187 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("RETURN"), 0, UNKNOW, VOIDD, RETURNN, NULL, NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 38:
-#line 180 "calc-sintaxis.y"
+#line 189 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("PCOMA"), -1, -1, -1, PCOMA, NULL, NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 39:
-#line 182 "calc-sintaxis.y"
+#line 191 "tds-sintaxis.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n);;}
     break;
 
   case 40:
-#line 186 "calc-sintaxis.y"
+#line 195 "tds-sintaxis.y"
     { (yyval.i) = INTEGERR;;}
     break;
 
   case 41:
-#line 187 "calc-sintaxis.y"
+#line 196 "tds-sintaxis.y"
     { (yyval.i) = BOOLEAN;;}
     break;
 
   case 42:
-#line 191 "calc-sintaxis.y"
+#line 200 "tds-sintaxis.y"
     { data_stack *datas = buscar_func(getNombre((yyvsp[(1) - (3)].st)));
                                           if(datas == NULL){
                                             printNodeError(createError(yylineno, UNDEFINEDFUNC));
@@ -1771,7 +1780,7 @@ yyreduce:
     break;
 
   case 43:
-#line 200 "calc-sintaxis.y"
+#line 209 "tds-sintaxis.y"
     { data_stack *datas = buscar_func(getNombre((yyvsp[(1) - (4)].st)));
                                           if(datas == NULL){
                                             printNodeError(createError(yylineno, UNDEFINEDFUNC));
@@ -1783,133 +1792,133 @@ yyreduce:
     break;
 
   case 44:
-#line 210 "calc-sintaxis.y"
+#line 219 "tds-sintaxis.y"
     { paramList *param = (paramList *) malloc(sizeof(paramList)); newCall(param, (yyvsp[(1) - (1)].n)); (yyval.ap) = param;;}
     break;
 
   case 45:
-#line 211 "calc-sintaxis.y"
+#line 220 "tds-sintaxis.y"
     { newCall((yyvsp[(1) - (3)].ap), (yyvsp[(3) - (3)].n)); (yyval.ap) = (yyvsp[(1) - (3)].ap);;}
     break;
 
   case 46:
-#line 214 "calc-sintaxis.y"
+#line 223 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(getNombre((yyvsp[(1) - (1)].st)), 0, 0, NONRETT, VARR, NULL, NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 47:
-#line 216 "calc-sintaxis.y"
+#line 225 "tds-sintaxis.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n);;}
     break;
 
   case 48:
-#line 218 "calc-sintaxis.y"
+#line 227 "tds-sintaxis.y"
     { (yyval.n) = (yyvsp[(1) - (1)].n);;}
     break;
 
   case 49:
-#line 220 "calc-sintaxis.y"
+#line 229 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("SUMA"), 0, INTEGERR, NONRETT, SUMAA,(yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 50:
-#line 222 "calc-sintaxis.y"
+#line 231 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("RESTA"), 0, INTEGERR, NONRETT, RESTAA, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 51:
-#line 224 "calc-sintaxis.y"
+#line 233 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("PROD"), 0, INTEGERR, NONRETT, PRODD, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 52:
-#line 226 "calc-sintaxis.y"
+#line 235 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("DIV"), 0, INTEGERR, NONRETT, DIVV, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 53:
-#line 228 "calc-sintaxis.y"
+#line 237 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("MOD"), 0, INTEGERR, NONRETT, MODD, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 54:
-#line 230 "calc-sintaxis.y"
+#line 239 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("MAYOR"), 0, BOOLEAN, NONRETT, MAYORR, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 55:
-#line 232 "calc-sintaxis.y"
+#line 241 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("MENOR"), 0, BOOLEAN, NONRETT, MENORR, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 56:
-#line 234 "calc-sintaxis.y"
+#line 243 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("IGUALDAD"), 0, BOOLEAN, NONRETT, IGUALDADD, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 57:
-#line 236 "calc-sintaxis.y"
+#line 245 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("MENIGUAL"), 0, BOOLEAN, NONRETT, MENIGUALL, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 58:
-#line 238 "calc-sintaxis.y"
+#line 247 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("MAYIGUAL"), 0, BOOLEAN, NONRETT, MAYIGUALL, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 59:
-#line 240 "calc-sintaxis.y"
+#line 249 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("AND"), 0, BOOLEAN, NONRETT, ANDD, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 60:
-#line 242 "calc-sintaxis.y"
+#line 251 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("OR"), 0, BOOLEAN, NONRETT, ORR, (yyvsp[(1) - (3)].n), (yyvsp[(3) - (3)].n), NULL, false, NULL, yylineno));;}
     break;
 
   case 61:
-#line 244 "calc-sintaxis.y"
+#line 253 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("OPUESTO"), 0, INTEGERR, NONRETT, RESTAA, (yyvsp[(2) - (2)].n), NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 62:
-#line 246 "calc-sintaxis.y"
+#line 255 "tds-sintaxis.y"
     { (yyval.n) = createNode(createNodeParam(toString("NOT"), 0, BOOLEAN, NONRETT, NOTT, (yyvsp[(2) - (2)].n), NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 63:
-#line 248 "calc-sintaxis.y"
+#line 257 "tds-sintaxis.y"
     { (yyval.n) = (yyvsp[(2) - (3)].n);;}
     break;
 
   case 64:
-#line 251 "calc-sintaxis.y"
-    { (yyval.n) = createNode( createNodeParam(toString("int"), (yyvsp[(1) - (1)].i), INTEGERR, NONRETT, CONSTANTEE, NULL, NULL, NULL, false, NULL, yylineno));;}
+#line 260 "tds-sintaxis.y"
+    { (yyval.n) = createNode( createNodeParam(toString("int_cte"), (yyvsp[(1) - (1)].i), INTEGERR, NONRETT, CONSTANTEE, NULL, NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 65:
-#line 253 "calc-sintaxis.y"
-    { (yyval.n) = createNode(createNodeParam(toString("bool"), (yyvsp[(1) - (1)].i), BOOLEAN, NONRETT, CONSTANTEE, NULL, NULL, NULL, false, NULL, yylineno));;}
+#line 262 "tds-sintaxis.y"
+    { (yyval.n) = createNode(createNodeParam(toString("bool_cte"), (yyvsp[(1) - (1)].i), BOOLEAN, NONRETT, CONSTANTEE, NULL, NULL, NULL, false, NULL, yylineno));;}
     break;
 
   case 66:
-#line 256 "calc-sintaxis.y"
+#line 265 "tds-sintaxis.y"
     {(yyval.i) = (yyvsp[(1) - (1)].i);;}
     break;
 
   case 67:
-#line 260 "calc-sintaxis.y"
+#line 269 "tds-sintaxis.y"
     {(yyval.i) = 1;;}
     break;
 
   case 68:
-#line 261 "calc-sintaxis.y"
+#line 270 "tds-sintaxis.y"
     {(yyval.i) = 0;;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1913 "calc-sintaxis.tab.c"
+#line 1922 "tds-sintaxis.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2123,5 +2132,5 @@ yyreturn:
 }
 
 
-#line 264 "calc-sintaxis.y"
+#line 273 "tds-sintaxis.y"
 
