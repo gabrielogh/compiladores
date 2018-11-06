@@ -70,7 +70,7 @@ void initTresDirList(){
 
 void generate_temp(char c[32]){
   temp = temp + 1;
-  printf("CREAMOS EL Temp%d\n", temp);
+  //printf("CREAMOS EL Temp%d\n", temp);
 
   strcpy(c, "Temp");
   char aux[32];
@@ -80,7 +80,7 @@ void generate_temp(char c[32]){
 
 void generate_label(char c[32]){
   labels = labels + 1;
-  printf("CREAMOS EL LABEL%d\n", labels);
+  //printf("CREAMOS EL LABEL%d\n", labels);
   strcpy(c, "Label");
   char aux[32];
   sprintf(aux,"%d",labels);
@@ -144,7 +144,7 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
     n = aux->parametro;
     if(n!=NULL){
       data_gen *param = eval_expr(n);
-      printf("VAMOS A CARGAR EL PARAMETRO POR PRIMERA VEZ: %s\n", param->nombre);
+      //printf("VAMOS A CARGAR EL PARAMETRO POR PRIMERA VEZ: %s\n", param->nombre);
       instruccion->op = CARGAR_ACTUAL_PARAMS;
       instruccion->res = param;
       agregar_instruccion(pos, instruccion);
@@ -158,6 +158,7 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
         instruccion->op = CARGAR_ACTUAL_PARAMS;
         instruccion->res = param;
         agregar_instruccion(pos, instruccion);
+        printf("PARAMETRO %s CARGADO CON EXITO\n", param->nombre);
       }
       aux = aux->next;
 
@@ -211,34 +212,37 @@ void agregar_instruccion(tresDirL *pos, tresDir *param){
   int contador;
   if(pos->fst == NULL){
     pos->fst = param;
+    pos->fst->next = NULL;
   }
   else{
+    printf("ENTRA AL AELSE\n");
     contador = 0;
     tresDir *aux = pos->fst;
     while((aux->next != NULL) && (contador < 200)){
       contador = contador + 1;
       aux = aux->next;
-      printf("ESTAMOS EN EL WHILE EN AGREGAR INSTRUCCION: %s, CON VALOR: %s Ciclamos: %d veces\n/", opToString(aux->op), aux->res->nombre, contador);
+      printf("ESTAMOS EN EL WHILE EN AGREGAR INSTRUCCION: %s, CON VALOR: %s Ciclamos: %d veces\n", opToString(aux->op), aux->res->nombre, contador);
     }
     aux->next = param;
+    aux = aux->next;
   }
 
 }
 
 data_gen * eval_expr(node *n){
-  printf("ENTRAMOS A EVAL EXPR\n");
+  //printf("ENTRAMOS A EVAL EXPR\n");
   data_gen *aux = n->info->data;
   if(aux != NULL){
     if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
       return aux;
     }
     else{
-      printf("VAMOS A ENTRAR A CREAR_INSTRUCCION DESDE EVAL EXPR\n");
+      //printf("VAMOS A ENTRAR A CREAR_INSTRUCCION DESDE EVAL EXPR\n");
       crear_instrucciones(last_td, n);
       return getLastResult();
     }
   }
-  printf("SALIMOS DE EVAL EXPR CON NULL\n");
+  //printf("SALIMOS DE EVAL EXPR CON NULL\n");
   return NULL;
 }
 
@@ -253,7 +257,7 @@ void crear_instrucciones(tresDirL *t, node *n){
       string *s = getName(data);
       char cAux[32];
       strcpy(cAux, s->nombre);
-      printf("ENTRAMOS A CREAR INSTRUCCIONES CON: %s\n", cAux);
+      //printf("ENTRAMOS A CREAR INSTRUCCIONES CON: %s\n", cAux);
       if(op == CONSTANTEE){
         //printf("ENTRAMOS A CONSTANTE\n");
         instruccion->op = CTE_INSTRUCCION;
@@ -271,8 +275,9 @@ void crear_instrucciones(tresDirL *t, node *n){
       else if(op == ASIGNACIONN){
         //printf("ENTRAMOS A ASIGNACION A: %s\n", getName(getNodeFst(n)->info)->nombre);
         instruccion->op = ASIGN_INSTRUCCION;
-        instruccion->op1 = eval_expr(getNodeSnd(n));
         instruccion->res = eval_expr(getNodeFst(n));
+        instruccion->op1 = eval_expr(getNodeSnd(n));
+
         agregar_instruccion(t, instruccion);
       }
       else if(op == IGUALDADD){
@@ -464,29 +469,34 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if (op == RETURNN){
         node *auxNode = getNodeFst(n);
-        printf("ENTRAMOS A RETURN CON HIJO: %s DE TIPO: %d\n", auxNode->info->data->nombre, auxNode->info->data->tipo);
+        //printf("ENTRAMOS A RETURN CON HIJO: %s DE TIPO: %d\n", auxNode->info->data->nombre, auxNode->info->data->tipo);
         instruccion->op = RETURN_INSTRUCCION;
         instruccion->res = eval_expr(getNodeFst(n));
         agregar_instruccion(t, instruccion);
       }
       else if (op == INVOCC){
+        tresDir *invocFunc = (tresDir *) malloc(sizeof(tresDir));
         //printf("ENTRAMOS A INVOCACION\n");    
         if(data->params != NULL){
           //printActualParams(data->params);
+          invocFunc->op = CALL_WITH_PARAMS;
           cargar_parametros_actuales(t, data->params);
         }
-        tresDir *invocFunc = (tresDir *) malloc(sizeof(tresDir));
-        invocFunc->op = CALL_WITH_PARAMS;
+        else{
+          invocFunc->op = CALL;
+        }
+        
         data_gen *function = (data_gen *) malloc(sizeof(data_gen));
         strcpy(function->nombre, data->data->nombre);
         function->tipo = data->data->tipo;
         function->nParam = data->data->nParam;
         invocFunc->op1 = function;
-        generate_temp(res->nombre);
+        //generate_temp(res->nombre);
+        strcpy(res->nombre, "INVOCACION");
         invocFunc->res = res;
-        //printf("LA CANTIADD DE INSTRUCCIONES ES: %d\n", instrucciones);
-        agregar_instruccion(last_td, invocFunc);
-        //printf("VAMOS A SALIR DE INVOCC\n");
+        printf("LA CANTIADD DE INSTRUCCIONES ES: %d\n", instrucciones);
+        agregar_instruccion(t, invocFunc);
+        printf("VAMOS A SALIR DE INVOCC\n");
       }
     }
   }
