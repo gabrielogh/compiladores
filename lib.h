@@ -1173,5 +1173,3 @@ void eliminarArbol(node *n){
     free(n);
   }
 }
-
-
