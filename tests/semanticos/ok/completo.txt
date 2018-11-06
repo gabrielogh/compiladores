@@ -50,7 +50,7 @@ begin
     y = 10;
     z = 5;
     res2 = (x == z);
-    while(x<=100) begin
+    while(x<100) begin
       if(x < 50) then begin 
         if((x == 5) && (res2)) then begin
           x = 50;
@@ -62,7 +62,7 @@ begin
         integer n;
         emptyFunc();
         n = factorial(z);
-        x = mod(div(x,y),mod(y,div(x,z)));
+        x = mod(x, y);
       end
     end
   end
