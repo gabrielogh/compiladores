@@ -606,16 +606,16 @@ void printInstruccion(tresDir *p){
     data_gen *aux1 = aux->op1;
     data_gen *aux2 = aux->op2;
     data_gen *aux3 = aux->res;
-
-    printf("          |\n");
-    printf("          |\n");
-    printf("          |\n");
-    printf("           ----------------------------- \n");
-    printf("          | Operacion:   | %s \n", opToString(aux->op));
-    printf("          | Operador1:   | %s                 \n", aux1->nombre);
-    printf("          | Operador2:   | %s                 \n", aux2->nombre);
-    printf("          | Resultado:   | %s                 \n", aux3->nombre);
-    printf("           ----------------------------- \n");
+    if (aux1 == NULL){
+      aux1 = (data_gen *) malloc(sizeof(data_gen));
+      strcpy(aux1->nombre, "_" );
+    }
+    if (aux2 == NULL){
+      aux2 = (data_gen *) malloc(sizeof(data_gen));
+      strcpy(aux2->nombre, "_" );
+    }
+      printf("          |\n");
+      printf("          |%s  %s  %s %s \n", opToString(aux->op), aux1->nombre, aux2->nombre, aux3->nombre);
   }
 }
 
@@ -639,9 +639,6 @@ void printFc(tresDir *d){
       }
     }
   }
-  else{
-    printf("FC vacio");
-  }
 }
 
 /*
@@ -656,24 +653,20 @@ void printLista(){
   }
   else{
     printf(" ----------------------------- \n");
-    printf("|           inicio_%s           |\n", t->nombre);
-    printf("|                             | \n");
+    printf("    inicio_%s           \n", t->nombre);
     printf(" ----------------------------- \n");
     printFc(t->fst);
     printf(" ----------------------------- \n");
-    printf("|           fin_%s           |\n", t->nombre);
-    printf("|                             | \n");
+    printf("    fin_%s           \n", t->nombre);
     printf(" ----------------------------- \n");
     t = t->next;
     while(t != NULL){
       printf(" ----------------------------- \n");
-      printf("|           inicio_%s           |\n", t->nombre);
-      printf("|                             | \n");
+      printf("    inicio_%s           \n", t->nombre);
       printf(" ----------------------------- \n");
       printFc(t->fst);
       printf(" ----------------------------- \n");
-      printf("|           fin_%s           |\n", t->nombre);
-      printf("|                             | \n");
+      printf("    fin_%s           \n", t->nombre);
       printf(" ----------------------------- \n");
       t = t->next;
     }
