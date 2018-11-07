@@ -95,6 +95,8 @@ prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
                                                         printf(KGRN "%s\n", "Generando codigo Assembler.... "); printf(KNRM);
                                                         generar_codigo_assembler();
                                                         printf(KGRN "%s\n", "Codigo Assembler generado. "); printf(KNRM);
+                                                        //printf("Mostrando codigo Assembler:\n");
+                                                        //print_asm_code();
                                                       }
                                                       else if (!noErrors() && (testType == 1)){
                                                       printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);
