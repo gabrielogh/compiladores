@@ -1,0 +1,12 @@
+program
+begin
+integer z;
+void main()
+begin
+  z = 5;
+  while (z <= 100;) 
+  begin
+    z = z + 1
+                   {Falta el END del while}
+end
+end
