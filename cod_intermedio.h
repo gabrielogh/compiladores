@@ -209,7 +209,6 @@ void agregar_funcion(data_stack *d){
  */
 void agregar_instruccion(tresDirL *pos, tresDir *param){
   instrucciones = instrucciones + 1;
-  int contador;
   if(pos->fst == NULL){
     pos->fst = param;
     pos->fst->next = NULL;
@@ -219,7 +218,6 @@ void agregar_instruccion(tresDirL *pos, tresDir *param){
     tresDir *aux = pos->fst;
     while(aux->next != NULL){
       aux = aux->next;
-      printf("ESTAMOS EN EL WHILE EN AGREGAR INSTRUCCION: %s, CON VALOR: %s Ciclamos: %d veces\n", opToString(aux->op), aux->res->nombre, contador);
     }
     aux->next = param;
     param->next = NULL;

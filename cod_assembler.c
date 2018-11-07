@@ -2,6 +2,12 @@
 
 FILE *asm_code;
 
+#ifdef __linux__
+#define sis  1
+#elif __APPLE__
+#define sis 2
+#endif
+
 void generar_codigo_assembler();
 
 void crear_archivo();
@@ -18,12 +24,45 @@ void crear_archivo(){
 }
 
 void crear_label_funcion(tresDirL *intr){
-  if(s)
-  char c[32];
-  strcpy(c, intr->nombre);
-  strcat(c, ":\n");
-  fputs(c, asm_code);
-  printf("%s:\n",intr->nombre);
+  if(sis == 1){
+    //printf("SISTEMA OPERATIVO LINUX\n");
+    if(strcmp(intr->nombre,"main")== 0){
+      fputs("    .globl  main\n", asm_code); 
+    }
+    char c[32];
+    strcpy(c, intr->nombre);
+    strcat(c, ":\n");
+    fputs(c, asm_code);
+    printf("%s:\n",intr->nombre);
+
+    char p[32];
+    strcpy(p, "  pushq  %rbp\n");
+    fputs(p, asm_code);
+    printf("%s\n", "  pushq  %rbp");
+  }
+  else if(sis == 2){
+    //printf("SISTEMA OPERATIVO MAC\n");
+    if(strcmp(intr->nombre,"main")== 0){
+      fputs("    .globl  _main\n", asm_code); 
+    }
+    char c[32];
+    strcpy(c, "_");
+    strcat(c, intr->nombre);
+    strcat(c, ":\n");
+    fputs(c, asm_code);
+    printf("_%s:\n",intr->nombre);
+
+    char p[32];
+    strcpy(p, "  pushq  %rbp\n");
+    fputs(p, asm_code);
+
+    char q[32];
+    strcpy(q, "  .cfi_def_cfa_offset 16\n");
+    fputs(q, asm_code);
+    strcpy(q, "  .cfi_offset %rbp, -16\n");
+    fputs(q, asm_code);
+    printf("%s\n", "  pushq  %rbp");
+  }
 }
 
 void generar_codigo_assembler(){
@@ -35,6 +74,7 @@ void generar_codigo_assembler(){
     while(Listaux !=  NULL){
       crear_label_funcion(Listaux);
       cargar_instrcciones(Listaux->fst);
+      fputs("\n", asm_code);
       Listaux = Listaux->next;
     }
 
@@ -68,9 +108,36 @@ void cargar_instrcciones(tresDir *instr){
             
             break;
          case CALL  :
-            
+              if(sis == 1){
+                char c[32];
+                strcpy(c, "  call ");
+                strcat(c, auxInstr->op1->nombre);
+                strcat(c, "\n");
+                fputs(c, asm_code);
+              }
+              else{
+                char c[32];
+                strcpy(c, "  call _");
+                strcat(c, auxInstr->op1->nombre);
+                strcat(c, "\n");
+                fputs(c, asm_code);
+              }
             break;
          case CALL_WITH_PARAMS  :
+              if(sis == 1){
+                char c[32];
+                strcpy(c, "  call ");
+                strcat(c, auxInstr->op1->nombre);
+                strcat(c, "\n");
+                fputs(c, asm_code);
+              }
+              else{
+                char c[32];
+                strcpy(c, "  call _");
+                strcat(c, auxInstr->op1->nombre);
+                strcat(c, "\n");
+                fputs(c, asm_code);
+              }
             
             break;
          case ASIGN_INSTRUCCION  :
@@ -104,7 +171,27 @@ void cargar_instrcciones(tresDir *instr){
             
             break;
          case PROD_INSTRUCCION  :
-            
+              if(true){
+                char res[32];
+                char aux[32];
+                strcpy(res, "  movq -");
+                sprintf(aux,"%d", (auxInstr->op1->offset)*4);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+
+                strcpy(res, "  imulq -");
+                sprintf(aux,"%d", (auxInstr->op2->offset)*4);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+
+                strcpy(res, "  movq %rax, -");
+                sprintf(aux,"%d", (auxInstr->res->offset)*4);
+                strcat(res, aux);
+                strcat(res, "(%rbp)\n");
+                fputs(res, asm_code);
+              }
             break;
          case DIV_INSTRUCCION  :
             
@@ -113,7 +200,27 @@ void cargar_instrcciones(tresDir *instr){
             
             break;
          case AND_INSTRUCCION  :
-            
+              if(true){
+                char res[32];
+                char aux[32];
+                strcpy(res, "  movq -");
+                sprintf(aux,"%d", (auxInstr->op1->offset)*4);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+
+                strcpy(res, "  andq -");
+                sprintf(aux,"%d", (auxInstr->op2->offset)*4);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+
+                strcpy(res, "  movq %rax, -");
+                sprintf(aux,"%d", (auxInstr->res->offset)*4);
+                strcat(res, aux);
+                strcat(res, "(%rbp)\n");
+                fputs(res, asm_code);
+              } 
             break;
          case OR_INSTRUCCION  :
             

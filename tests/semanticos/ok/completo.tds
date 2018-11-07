@@ -5,7 +5,7 @@ begin
   void dec(integer soyX) extern;
 
   integer inc(integer x) begin
-    return x + 4;
+    return (x + 4);
   end
 
   integer div(integer m, integer y) begin
@@ -18,7 +18,7 @@ begin
   end
 
   integer mod(integer k, integer l) begin
-    if(l>0) then begin
+    if((l>0) && (true)) then begin
       return k%l;
     end
     else begin
