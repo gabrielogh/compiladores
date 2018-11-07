@@ -18,6 +18,7 @@ void crear_archivo(){
 }
 
 void crear_label_funcion(tresDirL *intr){
+  if(s)
   char c[32];
   strcpy(c, intr->nombre);
   strcat(c, ":\n");
