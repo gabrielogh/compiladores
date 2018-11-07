@@ -216,15 +216,13 @@ void agregar_instruccion(tresDirL *pos, tresDir *param){
   }
   else{
     printf("ENTRA AL AELSE\n");
-    contador = 0;
     tresDir *aux = pos->fst;
-    while((aux->next != NULL) && (contador < 200)){
-      contador = contador + 1;
+    while(aux->next != NULL){
       aux = aux->next;
       printf("ESTAMOS EN EL WHILE EN AGREGAR INSTRUCCION: %s, CON VALOR: %s Ciclamos: %d veces\n", opToString(aux->op), aux->res->nombre, contador);
     }
     aux->next = param;
-    aux = aux->next;
+    param->next = NULL;
   }
 
 }
@@ -491,8 +489,8 @@ void crear_instrucciones(tresDirL *t, node *n){
         function->tipo = data->data->tipo;
         function->nParam = data->data->nParam;
         invocFunc->op1 = function;
-        //generate_temp(res->nombre);
-        strcpy(res->nombre, "INVOCACION");
+        generate_temp(res->nombre);
+        //strcpy(res->nombre, "INVOCACION");
         invocFunc->res = res;
         printf("LA CANTIADD DE INSTRUCCIONES ES: %d\n", instrucciones);
         agregar_instruccion(t, invocFunc);
