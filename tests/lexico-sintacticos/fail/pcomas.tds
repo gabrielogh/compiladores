@@ -1,0 +1,29 @@
+program
+begin
+  integer x, y, z;
+  void dec(integer x) extern;
+
+  integer inc(integer x, bool res) begin
+    return x + 1;
+  end
+  void main() begin
+    bool res;
+    x = 1;
+    res = true;
+    while(x<=100) begin
+
+      if(x <= 50) then begin 
+
+        if((x == 5) && (res)) then begin
+          x = 50;
+        end
+        x = inc(x);
+
+      end
+
+      else begin
+        x = dec(x)
+      end
+    end
+  end
+end
