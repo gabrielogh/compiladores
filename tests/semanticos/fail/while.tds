@@ -1,0 +1,9 @@
+program begin
+integer z;
+void main() begin
+  z = 5;
+  while (z +1) begin
+    z = z + 1;
+  end
+end
+end
