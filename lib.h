@@ -37,6 +37,7 @@ typedef struct data_generic{
   int const_var;
   int linea;
   int offset;
+  bool global;
   bool param;
   bool inic;
   int nParam;
@@ -136,6 +137,7 @@ typedef struct actualParams{
 typedef struct Formalparams{
   char nombre[32];
   int tipo;
+  int numero;
   struct Formalparams *next;
 } formalParam;
 
@@ -330,7 +332,13 @@ void printDataStack(data_stack *d, int id, int padre){
   }
   else{
     printf("          | Tipo:       | %d            |\n", d->data->tipo);
+  }
 
+  if(d->data->global){
+    printf("          | Global: True     |           |\n");
+  }
+  else{
+    printf("          | Global: False    |           |\n");
   }
 
   if(d->data->offset <10 && d->data->offset > 0){
@@ -594,7 +602,7 @@ void insertar(data_stack *d){
   }
   else{
     res = (data_stack *) aux->info;
-    if(res != NULL){
+    if(res != NULL){ //Nivel corriente no vacio.
       if(res->tipoOp == PARAMETRO){
         formalParam *auxP = lastParam;
         formalParam *fp = (formalParam *) malloc(sizeof(formalParam));
@@ -603,23 +611,25 @@ void insertar(data_stack *d){
         fp->tipo = d->data->tipo;
 
         if(auxP == NULL){
+          fp->numero = 1;
           lastParam = fp;
           lastParam->next = NULL;
           fstParam->next = lastParam;
         }
         else{
+          fp->numero = (lastParam->numero) + 1;
           lastParam->next = fp;
           lastParam = fp;
         }
       }
     }
-    else{
+    else{ //Nivel corriente vacio
       if(d->tipoOp == PARAMETRO){
         formalParam *auxP = lastParam;
         formalParam *fp = (formalParam *) malloc(sizeof(formalParam));
         strcpy(fp->nombre, d->data->nombre);
         fp->tipo = d->data->tipo;
-
+        fp->numero = 1;
         fstParam = fp;
         fstParam->next = NULL;
         lastParam = fstParam;
@@ -631,6 +641,9 @@ void insertar(data_stack *d){
       }
       if(d->tipoOp == VARR){
         nVars = nVars + 1;
+        if((tope()->id) == (1)){
+          newD->data->global = true;
+        }
         newD->data->offset = nVars;
       }
       res->next = (data_stack *)newD;
@@ -639,6 +652,9 @@ void insertar(data_stack *d){
     else{
       if(d->tipoOp == VARR){
         nVars = nVars + 1;
+        if((tope()->id) == (1)){
+          newD->data->global = true;
+        }
         newD->data->offset = nVars;
       }
       res = (data_stack *)newD;

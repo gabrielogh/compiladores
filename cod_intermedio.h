@@ -81,7 +81,7 @@ void generate_temp(char c[32]){
 void generate_label(char c[32]){
   labels = labels + 1;
   //printf("CREAMOS EL LABEL%d\n", labels);
-  strcpy(c, "Label");
+  strcpy(c, "LBB_");
   char aux[32];
   sprintf(aux,"%d",labels);
   strcat(c, aux);
@@ -176,7 +176,7 @@ void cargar_parametros_formales(formalParam *params){
       strcpy(dataAux->nombre, auxParam->nombre);
       
       instruccion->op = CARGAR_PARAMS;
-      instruccion->op1 = dataAux;
+      //instruccion->op1 = dataAux;
       instruccion->res = dataAux;
       agregar_instruccion(last_td, instruccion);
       auxParam = auxParam->next;
