@@ -4,6 +4,10 @@ begin
 
   void dec(integer soyX) extern;
 
+  integer suma(integer a, integer b, integer c, integer d, integer e, integer f, integer g, integer h, integer i, integer j) begin
+    return (a+b+c+d+e+f+g+h+i+j);
+  end
+
   integer inc(integer x) begin
     return (x + 4);
   end

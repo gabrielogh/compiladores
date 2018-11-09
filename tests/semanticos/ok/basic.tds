@@ -1,17 +1,18 @@
 program begin
 
-  integer inc(integer x) begin
-    return x + 1;
+  integer suma(integer a, integer b, integer c, integer d, integer e, integer f, integer g, integer h, integer i, integer j) begin
+    return (a+b+c+d+e+f+g+h+i+j);
   end
 
   void main() begin
-    integer y, z, x;
-    y = inc(0);
-    if (y == 1) then begin
-      inc(x);
+    integer a,b,c,d,e,f,g,h,i,j,k;
+    a=0;b=1;c=2;d=3;e=4;f=5;g=6;h=7;i=8;j=9;
+    k = suma(a,b,c,d,e,f,g,h,i,j);
+    if (k == 1) then begin
+      suma(1,b,c,d,e,f,g,h,i,j);
     end 
     else begin
-      inc(z);
+      suma(j,i,h,g,f,e,d,c,b,a);
     end
   end
 end
