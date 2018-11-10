@@ -20,6 +20,7 @@ void cargar_instrcciones(tresDir *instr);
 
 void cargar_param(int fp);
 
+void cargar_actual_params(tresDir *auxInstr);
 
 //IMPLEMENTACION DE METODOS.
 
@@ -34,9 +35,16 @@ void crear_label_funcion(tresDirL *intr){
   if(sis == 1){
     //printf("SISTEMA OPERATIVO LINUX\n");
     if(strcmp(intr->nombre,"main")== 0){
-      fputs("    .globl  main\n", asm_code); 
+      fputs("    .globl  main\n", asm_code);
+      fputs("    .type  main, @function\n", asm_code);
     }
     char c[32];
+    strcpy(c, "    .type  ");
+    strcat(c, intr->nombre);
+    strcat(c, ", @function\n");
+    fputs(c, asm_code);
+    printf("%s", c);
+
     strcpy(c, intr->nombre);
     strcat(c, ":\n");
     fputs(c, asm_code);
@@ -398,18 +406,7 @@ void cargar_instrcciones(tresDir *instr){
             }
             break;
         case CARGAR_ACTUAL_PARAMS  :
-              if(true){
-                char res[32];
-                char aux[32];
-                strcpy(res, "  movq  $");
-                sprintf(aux,"%d", auxInstr->res->valor);
-                strcat(res, aux);
-                sprintf(aux,"%d", (auxInstr->res->offset)*8);
-                strcat(res, aux);
-                strcat(res, "(%rbp)\n");
-                fputs(res, asm_code);
-                printf("%s", res);
-              }
+              cargar_actual_params(instr);
             break;
          default :
          break;
@@ -472,6 +469,77 @@ void cargar_param(int parametro){
   }
 }
 
+void cargar_actual_params(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  //printf("EL ID DEL PARAMETRO ES: %d\n", parametro);
+  switch (parametro){
+    case 1:
+          strcpy(res, "  movq  ");
+          sprintf(aux, "%d", (auxInstr->res->offset)*8);
+          strcat(res, aux);
+          strcat(res, "%(ebp), %rdi\n");
+          fputs(res, asm_code);
+          printf("%s", res);
+    break;
+    case 2:
+          strcpy(res, "  movq  ");
+          sprintf(aux,"%d", (auxInstr->res->offset)*8);
+          strcat(res, aux);
+          strcat(res, "%(ebp), %rsi\n");
+          fputs(res, asm_code);
+          printf("%s", res);
+    break;
+    case 3:
+          strcpy(res, "  movq  ");
+          sprintf(aux,"%d", (auxInstr->res->offset)*8);
+          strcat(res, aux);
+          strcat(res, "%(ebp), %rdx\n");
+          fputs(res, asm_code);
+          printf("%s", res);
+    break;
+    case 4:
+          strcpy(res, "  movq  ");
+          sprintf(aux,"%d", (auxInstr->res->offset)*8);
+          strcat(res, aux);
+          strcat(res, "%(ebp), %rcx\n");
+          fputs(res, asm_code);
+          printf("%s", res);
+    break;
+    case 5:
+          strcpy(res, "  movq  ");
+          sprintf(aux,"%d", (auxInstr->res->offset)*8);
+          strcat(res, aux);
+          strcat(res, "%(ebp), %r8\n");
+          fputs(res, asm_code);
+          printf("%s", res);
+    break;
+    case 6:
+          strcpy(res, "  movq  ");
+          sprintf(aux,"%d", (auxInstr->res->offset)*8);
+          strcat(res, aux);
+          strcat(res, "%(ebp), %r9\n");
+          fputs(res, asm_code);
+          printf("%s", res);
+    break;
+    default:
+          strcpy(res, "  movq  ");
+          sprintf(aux,"%d", (parametro-5)*8);
+          strcat(res, aux);
+          strcat(res, "(%rbp), %rax\n");
+          fputs(res, asm_code);
+          printf("%s", res);
+
+          strcpy(res, "  movq  %rax, -");
+          sprintf(aux,"%d", (parametro-5)*8);
+          strcat(res, aux);
+          strcat(res, "(%rbp)\n");
+          fputs(res, asm_code);
+          printf("%s", res);
+    break;
+  }
+}
 
 
 

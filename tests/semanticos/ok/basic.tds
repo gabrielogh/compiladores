@@ -9,7 +9,7 @@ program begin
     a=0;b=1;c=2;d=3;e=4;f=5;g=6;h=7;i=8;j=9;
     k = suma(a,b,c,d,e,f,g,h,i,j);
     if (k == 1) then begin
-      suma(1,b,c,d,e,f,g,h,i,j);
+      suma(a,b,c,d,e,f,g,h,i,j);
     end 
     else begin
       suma(j,i,h,g,f,e,d,c,b,a);
