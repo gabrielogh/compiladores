@@ -102,7 +102,11 @@ void cargar_instrcciones(tresDir *instr){
       switch(op) {
 
          case JMP  :
-            
+              strcpy(c, "  jmp ");
+              strcat(c, auxInstr->res->nombre);
+              strcat(c, "\n");
+              fputs(c, asm_code);
+              printf("%s\n", c);
             break;
 
          case CARGAR_PARAMS  :
@@ -110,6 +114,18 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case IF_INSTRUCCION  :
+            if(true){
+              char c[32];
+              strcpy(c, "  cmpl $0, -4(%rbp)\n");
+              fputs(c, asm_code);
+              printf("%s\n", "  cmpl $0, -4(%rbp)\n");
+
+              strcpy(c, "  je ");
+              strcat(c, auxInstr->op2->nombre);
+              strcat(c, "\n");
+              fputs(c, asm_code);
+              printf("%s\n", c);
+            }
             
             break;
 
@@ -168,7 +184,24 @@ void cargar_instrcciones(tresDir *instr){
             
             break;
          case ASIGN_INSTRUCCION  :
-            
+              if(true){
+                char res[32];
+                char aux[32];
+                strcpy(res, "  movq  -");
+                sprintf(aux,"%d", (auxInstr->res->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp)\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+
+                strcpy(res, "  movq  %rax, -");
+                sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+              }
+
             break;
          case CTE_INSTRUCCION  :
               if(true){
@@ -186,6 +219,30 @@ void cargar_instrcciones(tresDir *instr){
               }
             break;
          case EQ_INSTRUCCION  :
+              if(true){
+                char res[32];
+                char aux[32];
+                strcpy(res, "  movq  -");
+                sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+
+                strcpy(res, "  cmpq  -");
+                sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+
+                strcpy(res, "  movq  %rax, -");
+                sprintf(aux,"%d", (auxInstr->res->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp)\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+              } 
             
             break;
          case ADD_INSTRUCCION  :
@@ -247,9 +304,58 @@ void cargar_instrcciones(tresDir *instr){
             
             break;
          case NEG_INSTRUCCION  :
+              if(true){
+                char res[32];
+                char aux[32];
+                strcpy(res, "  movq  -");
+                sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+
+                strcpy(res, "  negq  -");
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+
+                strcpy(res, "  movq  %rax, -");
+                sprintf(aux,"%d", (auxInstr->res->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp)\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+              }
             
             break;
          case NOT_INSTRUCCION  :
+              if(true){
+                char res[32];
+                char aux[32];
+                strcpy(res, "  movq  -");
+                sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+
+                strcpy(res, "  xorq  -");
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+
+                strcpy(res, "  andq  -");
+                strcat(res, "(%rbp), %rax\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+
+                strcpy(res, "  movq  %rax, -");
+                sprintf(aux,"%d", (auxInstr->res->offset)*8);
+                strcat(res, aux);
+                strcat(res, "(%rbp)\n");
+                fputs(res, asm_code);
+                printf("%s", res);
+              }
             
             break;
          case OPUESTO_INSTRUCCION  :
