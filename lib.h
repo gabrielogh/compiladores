@@ -608,18 +608,21 @@ void insertar(data_stack *d){
       if(res->tipoOp == PARAMETRO){
         formalParam *auxP = lastParam;
         formalParam *fp = (formalParam *) malloc(sizeof(formalParam));
-
         strcpy(fp->nombre, d->data->nombre);
         fp->tipo = d->data->tipo;
 
         if(auxP == NULL){
           fp->numero = 1;
+          fp->offset = fp->numero;
+          newD->data->offset = fp->offset;
           lastParam = fp;
           lastParam->next = NULL;
           fstParam->next = lastParam;
         }
         else{
           fp->numero = (lastParam->numero) + 1;
+          fp->offset = fp->numero;
+          newD->data->offset = fp->offset;
           lastParam->next = fp;
           lastParam = fp;
         }
@@ -632,6 +635,8 @@ void insertar(data_stack *d){
         strcpy(fp->nombre, d->data->nombre);
         fp->tipo = d->data->tipo;
         fp->numero = 1;
+        fp->offset = fp->numero;
+        newD->data->offset = fp->offset;
         fstParam = fp;
         fstParam->next = NULL;
         lastParam = fstParam;
@@ -682,9 +687,16 @@ data_stack * crearDataStack(string *s, int tipo, int valor, int tipoOp, int line
   auxGen->tipo = tipo;
   auxGen->valor = valor;
   auxGen->linea = linea;
+  if(PARAMETRO == PARAMETRO){
+    auxGen->param = true;
+  }
+  else{
+    auxGen->param = false;
+  }
   data_stack *aux = (data_stack *) malloc(sizeof(data_stack));
   aux->data = auxGen;
   aux->tipoOp = tipoOp;
+
   aux->block = block;
   aux->formalParams = params;
   aux->nParams = countParams(params);

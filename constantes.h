@@ -73,7 +73,6 @@ int treeSize, testType;
 #define BLOCKNULL 51
 
 //CODIGO DE TRES DIRECCIONES. 200-299
-#define JMP 200
 #define MOV 201
 #define CMP 202
 #define CARGAR_PARAMS 203
@@ -105,4 +104,9 @@ int treeSize, testType;
 #define LABEL_END_WHILE_INSTRUCCION 229
 #define CARGAR_ACTUAL_PARAMS 230
 
+//JUMPS
+#define JMP 300
+#define JE 301
+#define JLE 302
+#define JGE 303
 

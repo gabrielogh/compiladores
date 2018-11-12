@@ -79,7 +79,7 @@ void generate_temp(char c[32]){
   sprintf(aux,"%d",temp);
   strcat(c, aux);
   stackPos = stackPos + 1;
-  printf("EL STACK POS AHORA ES: %d\n", stackPos);
+  //printf("EL STACK POS AHORA ES: %d\n", stackPos);
 }
 
 void generate_label(char c[32]){
@@ -128,7 +128,7 @@ void generar_codigo(){
       if(d->es_funcion){
         //printf("TEMPORALES INICIA CON: %d\n", temp);
         stackPos = d->stack_size;
-        printf("Els STACKPOS DE LA FUNCION %s inicia con: %d\n", d->data->nombre, stackPos);
+        //printf("Els STACKPOS DE LA FUNCION %s inicia con: %d\n", d->data->nombre, stackPos);
         agregar_funcion(d);
         cargar_parametros_formales(d->formalParams);
         crear_instrucciones(last_td, d->block);
@@ -136,7 +136,7 @@ void generar_codigo(){
       }
       d = d->next;
     }
-    printf("EL ULTIMO TEMPORAL GENERADO FUE EL: %d\n", temp);
+    //printf("EL ULTIMO TEMPORAL GENERADO FUE EL: %d\n", temp);
   }
 }
 
@@ -165,7 +165,7 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
         //printf("VAMOS A CARGAR EL PARAMETRO: %s\n", param->nombre);
         instruccion->op = CARGAR_ACTUAL_PARAMS;
         instruccion->res = param;
-        printf("EL NUMERO DE PARAMETRO ACTUAL ES: %d\n", param->nParam);
+        //printf("EL NUMERO DE PARAMETRO ACTUAL ES: %d\n", param->nParam);
         agregar_instruccion(pos, instruccion);
         //printf("PARAMETRO %s CARGADO CON EXITO\n", param->nombre);
       }
@@ -186,7 +186,7 @@ void cargar_parametros_formales(formalParam *params){
       stackPos = stackPos + 1;
       dataAux->offset = stackPos;
       strcpy(dataAux->nombre, auxParam->nombre);
-      
+      //printf("OFFSET DEL PARAMETRO FORMAL: %d\n", stackPos*8);
       instruccion->op = CARGAR_PARAMS;
       //instruccion->op1 = dataAux;
       instruccion->res = dataAux;
@@ -241,6 +241,7 @@ data_gen * eval_expr(node *n){
   data_gen *aux = n->info->data;
   if(aux != NULL){
     if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
+      //printf("Entramos por VARR o PARAMETRO en eval \n");
       return aux;
     }
     else{
@@ -264,7 +265,7 @@ void crear_instrucciones(tresDirL *t, node *n){
 
       //printf("ENTRAMOS A CREAR INSTRUCCIONES CON: %s\n", cAux);
       if(op == CONSTANTEE){
-        printf("ENTRAMOS A CONSTANTE con: %d\n", data->data->valor);
+        //printf("ENTRAMOS A CONSTANTE con: %d\n", data->data->valor);
         instruccion->op = CTE_INSTRUCCION;
         instruccion->op1 = data->data;
         generate_temp(res->nombre);
@@ -322,10 +323,15 @@ void crear_instrucciones(tresDirL *t, node *n){
         //printf("ENTRAMOS A SUMA\n");
         instruccion->op = ADD_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
+        //printf("Datos op1: Nombre: %s, offset: %d, tipo: %d, valor:%d, param: %d \n", instruccion->op1->nombre, instruccion->op1->offset, instruccion->op1->tipo, instruccion->op1->valor, instruccion->op1->param);
+        //printf("EL OFFSET DE LA OP 1 EN SUMA ES: %d\n", instruccion->op1->offset);
         instruccion->op2 = eval_expr(getNodeSnd(n));
+        //printf("Datos op2: Nombre: %s, offset: %d, tipo: %d, valor:%d, param: %d \n", instruccion->op2->nombre, instruccion->op2->offset, instruccion->op2->tipo, instruccion->op2->valor, instruccion->op1->param);
+
+        //printf("EL OFFSET DE LA OP 2 EN SUMA ES: %d\n", instruccion->op2->offset);
         res->valor = 0;
         generate_temp(res->nombre);
-        printf("OFFSET DEL RESULTADO DE LA SUMA ES: %d\n", stackPos);
+        //printf("OFFSET DEL RESULTADO DE LA SUMA ES: %d\n", stackPos);
         res->offset = stackPos;
         instruccion->res = res;
         agregar_instruccion(t, instruccion);
@@ -406,6 +412,16 @@ void crear_instrucciones(tresDirL *t, node *n){
 
         agregar_instruccion(t, instruccion);
 
+        if((getNodeFst(n)->info->tipoOp) == MAYORR){
+          createJmp(JLE,endLabel);
+        }
+        else if((getNodeFst(n)->info->tipoOp) == MENORR){
+          createJmp(JGE,endLabel);
+        }
+        else{
+          createJmp(JE,endLabel);
+        }
+
         crear_instrucciones(t, getNodeSnd(n));
 
         tresDir *endIf = (tresDir *) malloc(sizeof(tresDir));
@@ -424,6 +440,16 @@ void crear_instrucciones(tresDirL *t, node *n){
         generate_label(elseJmp->nombre);
         instruccion->op2 = elseJmp;
         agregar_instruccion(t, instruccion);
+        //printf("OPERACION: %d\n", getNodeFst(getNodeFst(n))->info->tipoOp);
+        if((getNodeFst(n)->info->tipoOp) == MAYORR){
+          createJmp(JLE,elseJmp);
+        }
+        else if((getNodeFst(n)->info->tipoOp) == MENORR){
+          createJmp(JGE,elseJmp);
+        }
+        else{
+          createJmp(JE,elseJmp);
+        }
 
         crear_instrucciones(t, getNodeSnd(n));
 
@@ -459,6 +485,16 @@ void crear_instrucciones(tresDirL *t, node *n){
         whileInstruccion->op2 = endLabel;
         agregar_instruccion(t, whileInstruccion);
 
+        if((getNodeFst(n)->info->tipoOp) == MAYORR){
+          createJmp(JLE,endLabel);
+        }
+        else if((getNodeFst(n)->info->tipoOp) == MENORR){
+          createJmp(JGE,endLabel);
+        }
+        else{
+          createJmp(JE, endLabel);
+        }
+
         crear_instrucciones(t, getNodeSnd(n));
 
         createJmp(JMP,labelWhile);
@@ -492,7 +528,7 @@ void crear_instrucciones(tresDirL *t, node *n){
         if(data->params != NULL){
           //printActualParams(data->params);
           invocFunc->op = CALL_WITH_PARAMS;
-          printf("VAMOS A CARGAR LOS PARAMETROS DE LA FUNCION: %s\n", data->data->nombre);
+          //printf("VAMOS A CARGAR LOS PARAMETROS DE LA FUNCION: %s\n", data->data->nombre);
           cargar_parametros_actuales(t, data->params);
         }
         else{
