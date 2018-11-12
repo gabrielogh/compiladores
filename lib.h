@@ -125,6 +125,7 @@ typedef struct nodeParams{
  * *next: Puntero al proximo parametro.
  */
 typedef struct actualParams{
+  int numero;
   node *parametro;
   struct actualParams *next;
 } paramList;
@@ -138,6 +139,7 @@ typedef struct Formalparams{
   char nombre[32];
   int tipo;
   int numero;
+  int offset;
   struct Formalparams *next;
 } formalParam;
 
@@ -951,15 +953,21 @@ node * createNode(nodeParam *param){
 void newCall(paramList *p, node *n){
   paramList *newParam = (paramList *) malloc(sizeof(paramList));
   paramList *aux = p;
-  newParam->parametro = n;
+
 
   if(aux == NULL){
+    n->info->data->nParam = 1;
+    newParam->parametro = n;
     aux = newParam;
   }
   else{
+    int i = 0;
     while(aux->next != NULL){
       aux = aux->next;
+      i = i+1;
     }
+    n->info->data->nParam = i + 1;
+    newParam->parametro = n;
     aux->next = newParam;
   }
 }

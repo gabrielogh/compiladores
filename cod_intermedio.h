@@ -74,7 +74,7 @@ void generate_temp(char c[32]){
   temp = temp + 1;
   //printf("CREAMOS EL Temp%d\n", temp);
 
-  strcpy(c, "Temp");
+  strcpy(c, "TMP");
   char aux[32];
   sprintf(aux,"%d",temp);
   strcat(c, aux);
@@ -165,6 +165,7 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
         //printf("VAMOS A CARGAR EL PARAMETRO: %s\n", param->nombre);
         instruccion->op = CARGAR_ACTUAL_PARAMS;
         instruccion->res = param;
+        printf("EL NUMERO DE PARAMETRO ACTUAL ES: %d\n", param->nParam);
         agregar_instruccion(pos, instruccion);
         //printf("PARAMETRO %s CARGADO CON EXITO\n", param->nombre);
       }
@@ -182,6 +183,8 @@ void cargar_parametros_formales(formalParam *params){
       data_gen *dataAux = (data_gen *) malloc(sizeof(data_gen));
       dataAux->tipo = auxParam->tipo;
       dataAux->nParam = auxParam->numero;
+      stackPos = stackPos + 1;
+      dataAux->offset = stackPos;
       strcpy(dataAux->nombre, auxParam->nombre);
       
       instruccion->op = CARGAR_PARAMS;
@@ -258,12 +261,10 @@ void crear_instrucciones(tresDirL *t, node *n){
       int op = data->tipoOp;
       tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
       data_gen *res = (data_gen *) malloc(sizeof(data_gen));
-      string *s = getName(data);
-      char cAux[32];
-      strcpy(cAux, s->nombre);
+
       //printf("ENTRAMOS A CREAR INSTRUCCIONES CON: %s\n", cAux);
       if(op == CONSTANTEE){
-        //printf("ENTRAMOS A CONSTANTE\n");
+        printf("ENTRAMOS A CONSTANTE con: %d\n", data->data->valor);
         instruccion->op = CTE_INSTRUCCION;
         instruccion->op1 = data->data;
         generate_temp(res->nombre);
@@ -398,10 +399,9 @@ void crear_instrucciones(tresDirL *t, node *n){
       else if (op == IFTHENN){
         //printf("ENTRAMOS A IF THEN\n");
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
-        instruccion->op = IF_INSTRUCCION;
         generate_label(endLabel->nombre);
+        instruccion->op = IF_INSTRUCCION;
         instruccion->op2 = endLabel;
-
         instruccion->res = eval_expr(getNodeFst(n));
 
         agregar_instruccion(t, instruccion);
@@ -416,11 +416,10 @@ void crear_instrucciones(tresDirL *t, node *n){
       else if (op == IFTHENELSEE){
        // printf("ENTRAMOS A IF IFTHENELSEE\n");
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
-
-        instruccion->op = IF_ELSE_INSTRUCCION;
         generate_label(endLabel->nombre);
-
+        instruccion->op = IF_ELSE_INSTRUCCION;
         instruccion->res = eval_expr(getNodeFst(n));
+
         data_gen *elseJmp = (data_gen *) malloc(sizeof(data_gen));
         generate_label(elseJmp->nombre);
         instruccion->op2 = elseJmp;
@@ -493,6 +492,7 @@ void crear_instrucciones(tresDirL *t, node *n){
         if(data->params != NULL){
           //printActualParams(data->params);
           invocFunc->op = CALL_WITH_PARAMS;
+          printf("VAMOS A CARGAR LOS PARAMETROS DE LA FUNCION: %s\n", data->data->nombre);
           cargar_parametros_actuales(t, data->params);
         }
         else{

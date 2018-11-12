@@ -5,9 +5,10 @@ integer z, y, x;
 void main()
 begin
   z = 5;
-  while (true)
+  x = 1;
+  while (z>x)
   begin
-    z = z + 1;
+    x = x + 1;
   end
 end
 end

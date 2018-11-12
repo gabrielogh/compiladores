@@ -67,6 +67,9 @@ begin
         emptyFunc();
         n = factorial(z);
         x = mod(x, y);
+        if(n == 1) then begin
+          n = 2;
+        end
       end
     end
   end
