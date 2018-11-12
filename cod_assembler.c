@@ -239,16 +239,17 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case ASIGN_INSTRUCCION  :
-              //printf("LE ASIGNAMOS %s a %s \n", auxInstr->op1->nombre, auxInstr->res->nombre);
               strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
+              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
+              strcat(res, "(%rbp), ");
+              strcat(res, "(%rax)\n");
               fputs(res, asm_code);
               printf("%s", res);
 
+              //printf("LE ASIGNAMOS %s a %s \n", auxInstr->op1->nombre, auxInstr->res->nombre);
               strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+              sprintf(aux,"%d", (auxInstr->res->offset)*8);
               strcat(res, aux);
               strcat(res, "(%rbp)\n");
               fputs(res, asm_code);
@@ -275,12 +276,21 @@ void cargar_instrcciones(tresDir *instr){
               fputs(res, asm_code);
               printf("%s", res);
 
-              strcpy(res, "  cmpq  -");
+              strcpy(res, "  cmpq  %rax, -");
               sprintf(aux,"%d", (auxInstr->op2->offset)*8);
               strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
+              strcat(res, "(%rbp)\n");
               fputs(res, asm_code);
               printf("%s", res);
+
+              strcpy(res, "  sete %dl\n");
+              fputs(res, asm_code);
+
+              strcpy(res, "  andb $1, %dl\n");
+              fputs(res, asm_code); 
+
+              strcpy(res, "  movzbl %dl, %rax\n");
+              fputs(res, asm_code);
 
               strcpy(res, "  movq  %rax, -");
               sprintf(aux,"%d", (auxInstr->res->offset)*8);
@@ -587,7 +597,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
         case CARGAR_ACTUAL_PARAMS  :
-              cargar_actual_params(instr);
+              cargar_actual_params(auxInstr);
             break;
 
          default :
@@ -602,7 +612,6 @@ void cargar_param(tresDir *auxInstr){
   char res[32];
   char aux[32];
   int parametro = auxInstr->res->nParam;
-  //printf("EL ID DEL PARAMETRO ES: %d\n", parametro);
   switch (parametro){
     case 1:
           strcpy(res, "  movq  %rdi, -");
@@ -675,10 +684,9 @@ void cargar_actual_params(tresDir *auxInstr){
   char res[32];
   char aux[32];
   int parametro = auxInstr->res->nParam;
-  //printf("EL ID DEL PARAMETRO ES: %d\n", parametro);
   switch (parametro){
     case 1:
-          strcpy(res, "  movq  ");
+          strcpy(res, "  movq  -");
           sprintf(aux, "%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
           strcat(res, "%(ebp), %rdi\n");
@@ -686,7 +694,7 @@ void cargar_actual_params(tresDir *auxInstr){
           printf("%s", res);
     break;
     case 2:
-          strcpy(res, "  movq  ");
+          strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
           strcat(res, "%(ebp), %rsi\n");
@@ -694,7 +702,7 @@ void cargar_actual_params(tresDir *auxInstr){
           printf("%s", res);
     break;
     case 3:
-          strcpy(res, "  movq  ");
+          strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
           strcat(res, "%(ebp), %rdx\n");
@@ -702,7 +710,7 @@ void cargar_actual_params(tresDir *auxInstr){
           printf("%s", res);
     break;
     case 4:
-          strcpy(res, "  movq  ");
+          strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
           strcat(res, "%(ebp), %rcx\n");
@@ -710,7 +718,7 @@ void cargar_actual_params(tresDir *auxInstr){
           printf("%s", res);
     break;
     case 5:
-          strcpy(res, "  movq  ");
+          strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
           strcat(res, "%(ebp), %r8\n");
@@ -718,7 +726,7 @@ void cargar_actual_params(tresDir *auxInstr){
           printf("%s", res);
     break;
     case 6:
-          strcpy(res, "  movq  ");
+          strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
           strcat(res, "%(ebp), %r9\n");
@@ -726,8 +734,8 @@ void cargar_actual_params(tresDir *auxInstr){
           printf("%s", res);
     break;
     default:
-          //printf("ENTRA A DEFAULT\n");
-          strcpy(res, "  pushq ");
+          printf("ENTRA A DEFAULT\n");
+          strcpy(res, "  pushq -");
           sprintf(aux,"%d", (parametro-5)*8);
           strcat(res, aux);
           strcat(res, "(%rbp)\n");

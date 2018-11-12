@@ -16,6 +16,7 @@ typedef struct tresDirList{
   int stackSize;
   char nombre[32];
   tresDir *fst;
+  tresDir *last;
   struct tresDirList *next;
 } tresDirL;
 
@@ -66,6 +67,7 @@ void initTresDirList(){
   instrucciones = 0;
   stackPos = 0;
   head_td = (tresDirL *) malloc(sizeof(tresDirL));
+  head_td->fst = NULL;
   head_td->next = NULL;
   last_td = head_td;
 }
@@ -140,38 +142,82 @@ void generar_codigo(){
   }
 }
 
-void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
+/*
+ * Esta funcion se encarga de generar un nuevo nodo en la lista general para insertar una nueva funcion.
+ * *d: Datos de la funcion
+ */
+void agregar_funcion(data_stack *d){
+  tresDirL *param = (tresDirL *) malloc(sizeof(tresDirL));
+  strcpy(param->nombre, d->data->nombre);
+  param->fst = NULL;
+  param->last = param->fst;
+  if(head_td == NULL){
+    head_td = param;
+    last_td = head_td;
+  }
+  else{
+    last_td->next = param;
+    last_td = param;
+  }
+}
 
+/*
+ * Esta funcion se encarga de agregar una instruccion, es utilizada en la funcion crear_instrucciones().
+ * *pos: Posicion en la lista general donde se va a insertar la instruccion.
+ * *param: Instruccion que se va a insertar.
+ */
+void agregar_instruccion(tresDirL *pos, tresDir *param){
+  tresDir *aux = pos->fst;
+  if(aux == NULL){
+    pos->fst = param;
+    pos->fst->next = NULL;
+    pos->last = pos->fst;
+  }
+  else{
+    pos->last->next = (tresDir *) malloc(sizeof(tresDir));
+    pos->last->next = param;
+    pos->last = pos->last->next;
+  }
+
+}
+
+void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
   paramList *aux = pl;
   node *n;
   if(aux==NULL){
     printf("No hay parametros para cargar\n");
   }
   else{
-    tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+    //printActualParams(pl);
+    int i = 0;
+
     n = aux->parametro;
     if(n!=NULL){
+      tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+      instruccion->next = NULL;
       data_gen *param = eval_expr(n);
-      //printf("VAMOS A CARGAR EL PARAMETRO POR PRIMERA VEZ: %s\n", param->nombre);
+      param->nParam = i + 1;
       instruccion->op = CARGAR_ACTUAL_PARAMS;
       instruccion->res = param;
-      agregar_instruccion(pos, instruccion);
+      agregar_instruccion(last_td, instruccion);
     }
     aux = aux->next;
     while(aux!=NULL){
+      tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+      instruccion->next = NULL;
       n = aux->parametro;
       if(n!=NULL){
         data_gen *param = eval_expr(n);
-        //printf("VAMOS A CARGAR EL PARAMETRO: %s\n", param->nombre);
+        param->nParam = i + 1;
+        
         instruccion->op = CARGAR_ACTUAL_PARAMS;
         instruccion->res = param;
-        //printf("EL NUMERO DE PARAMETRO ACTUAL ES: %d\n", param->nParam);
-        agregar_instruccion(pos, instruccion);
-        //printf("PARAMETRO %s CARGADO CON EXITO\n", param->nombre);
+        agregar_instruccion(last_td, instruccion);
+        i = i + 1;
       }
       aux = aux->next;
-
     }
+    //printf("LISTO\n");
   }
 }
 
@@ -194,46 +240,6 @@ void cargar_parametros_formales(formalParam *params){
       auxParam = auxParam->next;
     }
   }
-}
-
-/*
- * Esta funcion se encarga de generar un nuevo nodo en la lista general para insertar una nueva funcion.
- * *d: Datos de la funcion
- */
-void agregar_funcion(data_stack *d){
-  tresDirL *param = (tresDirL *) malloc(sizeof(tresDirL));
-  strcpy(param->nombre, d->data->nombre);
-  param->fst = NULL;
-  if(head_td == NULL){
-    head_td = param;
-    last_td = head_td;
-  }
-  else{
-    last_td->next = param;
-    last_td = param;
-  }
-}
-
-/*
- * Esta funcion se encarga de agregar una instruccion, es utilizada en la funcion crear_instrucciones().
- * *pos: Posicion en la lista general donde se va a insertar la instruccion.
- * *param: Instruccion que se va a insertar.
- */
-void agregar_instruccion(tresDirL *pos, tresDir *param){
-  instrucciones = instrucciones + 1;
-  if(pos->fst == NULL){
-    pos->fst = param;
-    pos->fst->next = NULL;
-  }
-  else{
-    tresDir *aux = pos->fst;
-    while(aux->next != NULL){
-      aux = aux->next;
-    }
-    aux->next = param;
-    param->next = NULL;
-  }
-
 }
 
 data_gen * eval_expr(node *n){
@@ -431,13 +437,15 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if (op == IFTHENELSEE){
        // printf("ENTRAMOS A IF IFTHENELSEE\n");
+        data_gen *elseJmp = (data_gen *) malloc(sizeof(data_gen));
+        generate_label(elseJmp->nombre);
+
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
         generate_label(endLabel->nombre);
+
         instruccion->op = IF_ELSE_INSTRUCCION;
         instruccion->res = eval_expr(getNodeFst(n));
 
-        data_gen *elseJmp = (data_gen *) malloc(sizeof(data_gen));
-        generate_label(elseJmp->nombre);
         instruccion->op2 = elseJmp;
         agregar_instruccion(t, instruccion);
         //printf("OPERACION: %d\n", getNodeFst(getNodeFst(n))->info->tipoOp);
@@ -529,6 +537,7 @@ void crear_instrucciones(tresDirL *t, node *n){
           //printActualParams(data->params);
           invocFunc->op = CALL_WITH_PARAMS;
           //printf("VAMOS A CARGAR LOS PARAMETROS DE LA FUNCION: %s\n", data->data->nombre);
+          //printActualParams(data->params);
           cargar_parametros_actuales(t, data->params);
         }
         else{

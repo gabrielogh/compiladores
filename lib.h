@@ -544,13 +544,15 @@ int counActualParams(paramList *pl){
     paramList *aux = pl;
     node *n = aux->parametro;
     if(aux != NULL){
-     if(n!= NULL){
+      if(n!= NULL){
         params = params + 1;
-     }
-     while(aux->next != NULL){
+        pl->numero = params;
+      }
+      while(aux->next != NULL){
       aux = aux->next;
       n = aux->parametro;
       if(n!= NULL){
+        pl->numero = params;
         params = params + 1;
       }
      }
@@ -834,7 +836,7 @@ void printActualParams(paramList *pl){
     while(aux!=NULL){
       n = aux->parametro;
       if(n!=NULL){
-        printf("Nombre: %s - Tipo: %d\n", n->info->data->nombre, n->info->data->tipo);
+        printf("Nombre: %s - Tipo: %d  -Numero: %d\n", n->info->data->nombre, n->info->data->tipo, aux->numero);
       }
       aux = aux->next;
 
@@ -968,8 +970,9 @@ void newCall(paramList *p, node *n){
 
 
   if(aux == NULL){
-    n->info->data->nParam = 1;
+    //n->info->data->nParam = 1;
     newParam->parametro = n;
+    newParam->numero = 1;
     aux = newParam;
   }
   else{
@@ -978,8 +981,9 @@ void newCall(paramList *p, node *n){
       aux = aux->next;
       i = i+1;
     }
-    n->info->data->nParam = i + 1;
+    //n->info->data->nParam = i + 1;
     newParam->parametro = n;
+    newParam->numero = i +1;
     aux->next = newParam;
   }
 }

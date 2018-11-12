@@ -1,7 +1,7 @@
 program begin
 
-  integer suma(integer a, integer b) begin
-    return (a+b);
+  integer suma(integer a, integer b, integer c) begin
+    return (a+b+c);
   end
 
   integer resta(integer c, integer d) begin
@@ -14,23 +14,28 @@ program begin
     return res;
   end
 
+  bool equals(integer x, integer y) begin
+    return (x==y);
+  end
+
   void main() begin
     integer a,b,k;
-
+    k=0;
     a=10;
     b=5;
 
-    k = suma(a,b);
+    k = suma(a,b,k);
 
     if (k > b) then begin
-      suma(a,b);
+      suma(a,b,k);
     end 
     else begin
       resta(a,b);
     end
-    
-    while(k > b) begin
-      suma(a,b);
+    b = 1;
+    a = b;
+    while(equals(a,b)) begin
+      suma(a,b,k);
     end
 
   end
