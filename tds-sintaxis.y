@@ -82,19 +82,17 @@ prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
                                                     printf("Iniciando chequeo Sintactico...\n");
                                                     if(noErrors()){
                                                       printf(KGRN "%s\n", "Chequeo Sintactico satisfactorio. "); printf(KNRM);
-                                                      if(testType == 1){
-                                                        printf("Iniciando chequeo Semantico...\n");
-                                                        checkFunctions(inicial);
-                                                      }
-                                                      if(noErrors() && (testType == 1)){
+                                                      printf("Iniciando chequeo Semantico...\n");
+                                                      checkFunctions(inicial);
+                                                      if(noErrors()){
                                                         printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
                                                         printf(KGRN "%s\n", "Generando codigo intermedio.... "); printf(KNRM);
                                                         generar_codigo();
-                                                        printLista();
+                                                        //printLista();
                                                         printf(KGRN "%s\n", "Codigo intermedio generado. "); printf(KNRM);
                                                         generar_codigo_assembler();
                                                       }
-                                                      else if (!noErrors() && (testType == 1)){
+                                                      else if (!noErrors()){
                                                       printf(KRED "%s\n", "TODO MAL, TU CODIGO NO SIRVE, TIENE ERRORES SEMANTICOS: "); printf(KNRM);
                                                       printErrors();
                                                       }

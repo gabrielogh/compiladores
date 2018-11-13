@@ -36,7 +36,6 @@ void crear_label_funcion(tresDirL *intr){
   char aux[256];
   char p[256];
   if(sis == 1){
-    //printf("SISTEMA OPERATIVO LINUX\n");
     if(strcmp(intr->nombre,"main")== 0){
       fputs("    .globl  main\n", asm_code);
       fputs("    .type  main, @function\n", asm_code);
@@ -62,11 +61,9 @@ void crear_label_funcion(tresDirL *intr){
     printf("\n");
   }
   else if(sis == 2){
-    //printf("SISTEMA OPERATIVO MAC\n");
     if(strcmp(intr->nombre,"main")== 0){
       fputs("    .globl  _main\n", asm_code);
     }
-
     strcpy(c, "_");
     strcat(c, intr->nombre);
     strcat(c, ":");
@@ -157,51 +154,6 @@ void cargar_instrcciones(tresDir *instr){
 
          case CARGAR_PARAMS  :
               cargar_param(auxInstr);
-            break;
-
-         case IF_INSTRUCCION  :
-             /* strcpy(c, "  cmpl $0, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(c, aux);
-              strcat(c, "(%rbp)\n");
-              fputs(c, asm_code);
-              printf("%s\n", c);*/
-
-             /* strcpy(c, "  je ");
-              strcat(c, auxInstr->op2->nombre);
-              strcat(c, "\n");
-              fputs(c, asm_code);
-              printf("%s\n", c);*/
-            break;
-
-         case IF_ELSE_INSTRUCCION  :
-              /*strcpy(c, "  cmpl $0, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(c, aux);
-              strcat(c, "(%rbp)\n");
-              fputs(c, asm_code);
-              printf("%s\n", c);*/
-              /*
-              strcpy(c, "  je ");
-              strcat(c, auxInstr->op2->nombre);
-              strcat(c, "\n");
-              fputs(c, asm_code);
-              printf("%s\n", c);*/
-            break;
-
-         case WHILE_INSTRUCCION  :/*
-              strcpy(c, "  cmpl $0, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(c, aux);
-              strcat(c, "(%rbp)\n");
-              fputs(c, asm_code);
-              printf("%s\n", c);
-
-              strcpy(c, "  je ");
-              strcat(c, auxInstr->op2->nombre);
-              strcat(c, "\n");
-              fputs(c, asm_code);
-              printf("%s\n", c);*/
             break;
 
          case CALL  :
@@ -733,11 +685,16 @@ void cargar_actual_params(tresDir *auxInstr){
           printf("%s", res);
     break;
     default:
-          strcpy(res, "  pushq -");
-          sprintf(aux,"%d", (parametro-5)*8);
+          strcpy(res, "  movq  -");
+          sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
-          strcat(res, "(%rbp)\n");
+          strcat(res, "%(ebp), %rdi\n");
           fputs(res, asm_code);
+          printf("%s", res);
+
+          strcpy(res, "  pushq %rdi\n");
+          fputs(res, asm_code);
+          printf("%s", res);
     break;
   }
 }

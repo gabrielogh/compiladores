@@ -17,6 +17,7 @@ int treeSize, testType;
 #define INVOCPARAMS 107
 #define EVALERROR 108
 #define WRONGTYPEPARAM 109
+#define UNINITIALIZENVAR 110
 #define UNKNOW 999
 
 //TOKENS 1-99.

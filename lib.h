@@ -72,10 +72,11 @@ typedef struct data_stacks{
  * *trd: Nodo que representa el tercer hijo en caso de tenerlo, sino es NULL.
  */
 typedef struct nodes{ 
-    data_stack *info;
-    struct nodes *fst;
-    struct nodes *snd;
-    struct nodes *trd;
+  int linea;
+  data_stack *info;
+  struct nodes *fst;
+  struct nodes *snd;
+  struct nodes *trd;
 }node;
 
 /* Tipo utilizado para implementar la pila que representa los niveles de alcance (scope).
@@ -85,10 +86,10 @@ typedef struct nodes{
  * *next: Puntero al proximo nivel del scope.
  */
 typedef struct stacks{
-    int id;
-    int parent;
-    data_stack *info;
-    struct stacks *next;
+  int id;
+  int parent;
+  data_stack *info;
+  struct stacks *next;
 }stack;
 
 /*
@@ -106,18 +107,18 @@ typedef struct stacks{
  * *params: Lista de parametros actuales de una funcion.
  */
 typedef struct nodeParams{ 
-    char nombre[32];
-    int valor;
-    int tipoVar;
-    int tipoRet;
-    int oper;
-    int linea;
-    node *fst;
-    node *snd;
-    node *trd;
-    node *block;
-    bool es_funcion;
-    paramList *params;
+  char nombre[32];
+  int valor;
+  int tipoVar;
+  int tipoRet;
+  int oper;
+  int linea;
+  node *fst;
+  node *snd;
+  node *trd;
+  node *block;
+  bool es_funcion;
+  paramList *params;
 }nodeParam;
 
 /* Tipo utilizado para representar los parametros actuales de las funciones.
@@ -219,6 +220,10 @@ void deleteCalls(paramList *pl);
 
 //Esta funcion elimina un arbol o sub-arbol.
 void eliminarArbol(node *n);
+
+void initVar(stack *s, char c[32]);
+
+int buscar_var_id(stack *s, char c[32]);
 
 //IMPLEMENTACION DE METODOS.
 
@@ -351,6 +356,13 @@ void printDataStack(data_stack *d, int id, int padre){
   }
   else if((d->data->offset > 99 && d->data->offset < 1000)){
     printf("          | Offset:      | %d           |\n", d->data->offset);
+  }
+
+  if(d->data->inic){
+    printf("          | Inic: True     |           |\n");
+  }
+  else{
+    printf("          | Inic: False    |           |\n");
   }
 
   if(d->data->linea <10){
@@ -498,6 +510,46 @@ data_stack * buscar_por_niveles(stack *s, char c[32]){
 }
 
 /*
+ * Esta funcion busca un ID en un nivel determinado.
+ * *s: Nivel en el cual buscar.
+ * c[10]: ID a buscar.
+ */
+int buscar_var_id(stack *s, char c[32]){
+  if(s->info != NULL){
+    data_stack *aux = s->info;
+    char name[32];
+    strcpy(name, aux->data->nombre);
+    while(((aux->next) !=  NULL)  && (strcmp(name,c)!= 0)){
+      aux = (data_stack *) aux->next;
+      strcpy(name, aux->data->nombre);
+    }
+    if(strcmp(name, c) == 0){aux->data->inic = true; return 1;}
+    else{return -1;}
+  }
+  else{ return -1;}
+}
+
+void initVar(stack *s, char c[32]){
+  int id = s->parent;
+  int res;
+  stack *auxS = s;
+
+  res = buscar_var_id(auxS,c);
+  if(res == -1){
+    auxS = buscar_niv(inicial, id);
+    res = buscar_var_id(auxS,c);
+    if(res == -1){
+      id = auxS->parent;
+      while(id != -1 && res == -1){
+        auxS = buscar_niv(inicial, id);
+        res = buscar_var_id(auxS,c);
+        id = auxS->parent;
+      }
+    }
+  }
+}
+
+/*
  * Este metodo inserta una funcion en el primer nivel de la pila (ya que solo se pueden declarar al inicio del codigo).
  * *d: Informacion de la funcion representada en un data_stack.
  */
@@ -617,6 +669,7 @@ void insertar(data_stack *d){
           fp->numero = 1;
           fp->offset = fp->numero;
           newD->data->offset = fp->offset;
+          newD->data->inic = true;
           lastParam = fp;
           lastParam->next = NULL;
           fstParam->next = lastParam;
@@ -625,6 +678,7 @@ void insertar(data_stack *d){
           fp->numero = (lastParam->numero) + 1;
           fp->offset = fp->numero;
           newD->data->offset = fp->offset;
+          newD->data->inic = true;
           lastParam->next = fp;
           lastParam = fp;
         }
@@ -639,6 +693,7 @@ void insertar(data_stack *d){
         fp->numero = 1;
         fp->offset = fp->numero;
         newD->data->offset = fp->offset;
+        newD->data->inic = true;
         fstParam = fp;
         fstParam->next = NULL;
         lastParam = fstParam;
@@ -654,9 +709,9 @@ void insertar(data_stack *d){
           newD->data->global = true;
         }
         newD->data->offset = nVars;
+        newD->data->inic = false;
       }
       res->next = (data_stack *)newD;
-
     }
     else{
       if(d->tipoOp == VARR){
@@ -665,6 +720,7 @@ void insertar(data_stack *d){
           newD->data->global = true;
         }
         newD->data->offset = nVars;
+        newD->data->inic = false;
       }
       res = (data_stack *)newD;
       aux->info = res;
@@ -932,6 +988,7 @@ node * createNode(nodeParam *param){
         createError(param->linea, UNDECLAREDVAR);
       }
       else{
+        initVar(tope(), param->fst->info->data->nombre);
         dataS = crearDataStack(toString(param->nombre), param->tipoVar, param->valor, param->oper, param->linea, NULL, NULL, false);
       }
     }
@@ -953,6 +1010,7 @@ node * createNode(nodeParam *param){
     }
     treeSize = treeSize + 1;
     n->info = dataS;
+    n->linea = param->linea;
     n->fst = param->fst; n->snd = param->snd; n->trd = param->trd;
   }
   return n;
@@ -1024,6 +1082,14 @@ int evalExpr(node *n, int tipoRet){
       char cAux[32];
       strcpy(cAux, s->nombre);
       if(op == VARR || op == CONSTANTEE || op == PARAMETRO){
+        if(op == VARR){
+          if(!(data->data->inic)){
+            char c[256];
+            strcpy(c, " variable no inicializada: ");
+            strcat(c, cAux);
+            createNewError(data->data->linea, c, UNINITIALIZENVAR);
+          }
+        }
         return (getTipo(data));
       }
       if(op == INVOCC){
@@ -1116,8 +1182,9 @@ int evalExpr(node *n, int tipoRet){
         return tipoRet;
       }
       else if (op == STATEMENTS){
-        evalExpr(getNodeSnd(n), tipoRet);
         evalExpr(getNodeFst(n), tipoRet);
+        evalExpr(getNodeSnd(n), tipoRet);
+        
       }
       else if (op == RETURNN){
         int res = evalExpr(getNodeFst(n), tipoRet);
