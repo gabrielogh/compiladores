@@ -662,7 +662,6 @@ void cargar_param(tresDir *auxInstr){
           printf("%s", res);
     break;
     default:
-          //printf("Entramos a cargar el parametro formal numero %d\n", parametro);
           strcpy(res, "  movq  ");
           sprintf(aux,"%d", (parametro-5)*8);
           strcat(res, aux);
@@ -734,27 +733,11 @@ void cargar_actual_params(tresDir *auxInstr){
           printf("%s", res);
     break;
     default:
-          printf("ENTRA A DEFAULT\n");
           strcpy(res, "  pushq -");
           sprintf(aux,"%d", (parametro-5)*8);
           strcat(res, aux);
           strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
-          //printf("parametro actual: %s", auxInstr->res->nombre);printf("%s", res);
-          /*
-          strcpy(res, "  movq  ");
-          sprintf(aux,"%d", (parametro-5)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %rax\n");
-          fputs(res, asm_code);
-          printf("%s", res);
-
-          strcpy(res, "  movq  %rax, ");
-          sprintf(aux,"%d", (parametro-5)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp)\n");
-          fputs(res, asm_code);
-          printf("%s", res);*/
     break;
   }
 }

@@ -74,19 +74,15 @@ void initTresDirList(){
 
 void generate_temp(char c[32]){
   temp = temp + 1;
-  //printf("CREAMOS EL Temp%d\n", temp);
-
   strcpy(c, "TMP");
   char aux[32];
   sprintf(aux,"%d",temp);
   strcat(c, aux);
   stackPos = stackPos + 1;
-  //printf("EL STACK POS AHORA ES: %d\n", stackPos);
 }
 
 void generate_label(char c[32]){
   labels = labels + 1;
-  //printf("CREAMOS EL LABEL%d\n", labels);
   strcpy(c, "LBB_");
   char aux[32];
   sprintf(aux,"%d",labels);
@@ -101,17 +97,14 @@ void createJmp(int p, data_gen *res){
 }
 
 data_gen * getLastResult(){
-  //printf("ENTRAMOS A GET LASR RESULT\n");
   if(last_td->fst != NULL){
     tresDir *aux = last_td->fst;
     while(aux->next != NULL){
       aux = aux->next;
-    }    
-    //printf("SALIMOS DE GET LAST RESULT CON AUX\n");
+    }
     return aux->res;
   }
   else{
-    //printf("SALIMOS DE GET LAST RESULT CON NULL\n");
     return NULL;
   }
 }
@@ -128,9 +121,7 @@ void generar_codigo(){
     data_stack *d = aux->info;
     while(d!=NULL){
       if(d->es_funcion){
-        //printf("TEMPORALES INICIA CON: %d\n", temp);
         stackPos = d->stack_size;
-        //printf("Els STACKPOS DE LA FUNCION %s inicia con: %d\n", d->data->nombre, stackPos);
         agregar_funcion(d);
         cargar_parametros_formales(d->formalParams);
         crear_instrucciones(last_td, d->block);
@@ -138,7 +129,6 @@ void generar_codigo(){
       }
       d = d->next;
     }
-    //printf("EL ULTIMO TEMPORAL GENERADO FUE EL: %d\n", temp);
   }
 }
 
@@ -188,9 +178,7 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
     printf("No hay parametros para cargar\n");
   }
   else{
-    //printActualParams(pl);
     int i = 0;
-
     n = aux->parametro;
     if(n!=NULL){
       tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
@@ -209,7 +197,6 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
       if(n!=NULL){
         data_gen *param = eval_expr(n);
         param->nParam = i + 1;
-        
         instruccion->op = CARGAR_ACTUAL_PARAMS;
         instruccion->res = param;
         agregar_instruccion(last_td, instruccion);
@@ -217,7 +204,6 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
       }
       aux = aux->next;
     }
-    //printf("LISTO\n");
   }
 }
 
@@ -232,9 +218,7 @@ void cargar_parametros_formales(formalParam *params){
       stackPos = stackPos + 1;
       dataAux->offset = stackPos;
       strcpy(dataAux->nombre, auxParam->nombre);
-      //printf("OFFSET DEL PARAMETRO FORMAL: %d\n", stackPos*8);
       instruccion->op = CARGAR_PARAMS;
-      //instruccion->op1 = dataAux;
       instruccion->res = dataAux;
       agregar_instruccion(last_td, instruccion);
       auxParam = auxParam->next;
@@ -243,20 +227,16 @@ void cargar_parametros_formales(formalParam *params){
 }
 
 data_gen * eval_expr(node *n){
-  //printf("ENTRAMOS A EVAL EXPR\n");
   data_gen *aux = n->info->data;
   if(aux != NULL){
     if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
-      //printf("Entramos por VARR o PARAMETRO en eval \n");
       return aux;
     }
     else{
-      //printf("VAMOS A ENTRAR A CREAR_INSTRUCCION DESDE EVAL EXPR\n");
       crear_instrucciones(last_td, n);
       return getLastResult();
     }
   }
-  //printf("SALIMOS DE EVAL EXPR CON NULL\n");
   return NULL;
 }
 
@@ -269,9 +249,7 @@ void crear_instrucciones(tresDirL *t, node *n){
       tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
       data_gen *res = (data_gen *) malloc(sizeof(data_gen));
 
-      //printf("ENTRAMOS A CREAR INSTRUCCIONES CON: %s\n", cAux);
       if(op == CONSTANTEE){
-        //printf("ENTRAMOS A CONSTANTE con: %d\n", data->data->valor);
         instruccion->op = CTE_INSTRUCCION;
         instruccion->op1 = data->data;
         generate_temp(res->nombre);
@@ -284,7 +262,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if(op == ASIGNACIONN){
-        //printf("ENTRAMOS A ASIGNACION A: %s\n", getName(getNodeFst(n)->info)->nombre);
         instruccion->op = ASIGN_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeSnd(n));
         instruccion->res = eval_expr(getNodeFst(n));
@@ -292,7 +269,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if(op == IGUALDADD){
-        //printf("ENTRAMOS A IGUALDAD\n");
         instruccion->op = EQ_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
         instruccion->op2 = eval_expr(getNodeSnd(n));
@@ -304,7 +280,6 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
 
       else if (op == RESTAA && (getNodeSnd(n) != NULL)){
-        //printf("ENTRAMOS A RESTA\n");
         instruccion->op = SUB_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
         instruccion->op2 = eval_expr(getNodeSnd(n));
@@ -315,7 +290,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if (op == RESTAA && (getNodeSnd(n) == NULL)){
-        //printf("ENTRAMOS A OPEUSTO\n");
         instruccion->op = OPUESTO_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
         res->valor = 0;
@@ -326,24 +300,18 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if (op == SUMAA){
-        //printf("ENTRAMOS A SUMA\n");
         instruccion->op = ADD_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
-        //printf("Datos op1: Nombre: %s, offset: %d, tipo: %d, valor:%d, param: %d \n", instruccion->op1->nombre, instruccion->op1->offset, instruccion->op1->tipo, instruccion->op1->valor, instruccion->op1->param);
-        //printf("EL OFFSET DE LA OP 1 EN SUMA ES: %d\n", instruccion->op1->offset);
         instruccion->op2 = eval_expr(getNodeSnd(n));
-        //printf("Datos op2: Nombre: %s, offset: %d, tipo: %d, valor:%d, param: %d \n", instruccion->op2->nombre, instruccion->op2->offset, instruccion->op2->tipo, instruccion->op2->valor, instruccion->op1->param);
 
-        //printf("EL OFFSET DE LA OP 2 EN SUMA ES: %d\n", instruccion->op2->offset);
         res->valor = 0;
         generate_temp(res->nombre);
-        //printf("OFFSET DEL RESULTADO DE LA SUMA ES: %d\n", stackPos);
+
         res->offset = stackPos;
         instruccion->res = res;
         agregar_instruccion(t, instruccion);
       }
       else if (op == PRODD){
-        //printf("ENTRAMOS A PROD\n");
         instruccion->op = PROD_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
         instruccion->op2 = eval_expr(getNodeSnd(n));
@@ -354,7 +322,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if (op == DIVV){
-        //printf("ENTRAMOS A DIV\n");
         instruccion->op = DIV_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
         instruccion->op2 = eval_expr(getNodeSnd(n));
@@ -365,7 +332,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if (op == MODD){
-        //printf("ENTRAMOS A MOD\n");
         instruccion->op = MOD_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
         instruccion->op2 = eval_expr(getNodeSnd(n));
@@ -376,7 +342,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if ((op == ANDD) || (op == ORR)){
-        //printf("ENTRAMOS A OR U AND\n");
         instruccion->op1 = eval_expr(getNodeFst(n));
         instruccion->op2 = eval_expr(getNodeSnd(n));
         if(op == ANDD){
@@ -392,7 +357,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if ((op == MAYORR) ||(op == MENORR)){
-        //printf("ENTRAMOS A MAYOR O MENOR\n");
         instruccion->op1 = eval_expr(getNodeFst(n));
         instruccion->op2 = eval_expr(getNodeSnd(n));
         if(op == MAYORR){
@@ -409,14 +373,13 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, instruccion);
       }
       else if (op == IFTHENN){
-        //printf("ENTRAMOS A IF THEN\n");
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
         generate_label(endLabel->nombre);
         instruccion->op = IF_INSTRUCCION;
         instruccion->op2 = endLabel;
         instruccion->res = eval_expr(getNodeFst(n));
 
-        agregar_instruccion(t, instruccion);
+        agregar_instruccion(t, instruccion); //Condicion.
 
         if((getNodeFst(n)->info->tipoOp) == MAYORR){
           createJmp(JLE,endLabel);
@@ -428,15 +391,14 @@ void crear_instrucciones(tresDirL *t, node *n){
           createJmp(JE,endLabel);
         }
 
-        crear_instrucciones(t, getNodeSnd(n));
+        crear_instrucciones(t, getNodeSnd(n)); //Cuerpo del then.
 
-        tresDir *endIf = (tresDir *) malloc(sizeof(tresDir));
+        tresDir *endIf = (tresDir *) malloc(sizeof(tresDir)); //End del if
         endIf->op = END_IF;
         endIf->res = endLabel;
         agregar_instruccion(t, endIf);
       }
       else if (op == IFTHENELSEE){
-       // printf("ENTRAMOS A IF IFTHENELSEE\n");
         data_gen *elseJmp = (data_gen *) malloc(sizeof(data_gen));
         generate_label(elseJmp->nombre);
 
@@ -448,7 +410,6 @@ void crear_instrucciones(tresDirL *t, node *n){
 
         instruccion->op2 = elseJmp;
         agregar_instruccion(t, instruccion);
-        //printf("OPERACION: %d\n", getNodeFst(getNodeFst(n))->info->tipoOp);
         if((getNodeFst(n)->info->tipoOp) == MAYORR){
           createJmp(JLE,elseJmp);
         }
@@ -476,7 +437,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, elseEnd);
       }
       else if (op == WHILEE){
-        //printf("ENTRAMOS A WHILEE\n");
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
         data_gen *labelWhile = (data_gen *) malloc(sizeof(data_gen));
 
@@ -515,29 +475,22 @@ void crear_instrucciones(tresDirL *t, node *n){
 
       else if (op == BLOCK){
         node *auxNode = getNodeFst(n);
-        //printf("ENTRAMOS A BOCK CON HIJO: %s DE TIPO: %d\n", auxNode->info->data->nombre, auxNode->info->data->tipo);
         crear_instrucciones(t, auxNode);
       }
       else if (op == STATEMENTS){
-        //printf("ENTRAMOS A STATEMENTS\n");
         crear_instrucciones(t, getNodeFst(n));
         crear_instrucciones(t, getNodeSnd(n));
       }
       else if (op == RETURNN){
         node *auxNode = getNodeFst(n);
-        //printf("ENTRAMOS A RETURN CON HIJO: %s DE TIPO: %d\n", auxNode->info->data->nombre, auxNode->info->data->tipo);
         instruccion->op = RETURN_INSTRUCCION;
         instruccion->res = eval_expr(getNodeFst(n));
         agregar_instruccion(t, instruccion);
       }
       else if (op == INVOCC){
         tresDir *invocFunc = (tresDir *) malloc(sizeof(tresDir));
-        //printf("ENTRAMOS A INVOCACION\n");    
         if(data->params != NULL){
-          //printActualParams(data->params);
           invocFunc->op = CALL_WITH_PARAMS;
-          //printf("VAMOS A CARGAR LOS PARAMETROS DE LA FUNCION: %s\n", data->data->nombre);
-          //printActualParams(data->params);
           cargar_parametros_actuales(t, data->params);
         }
         else{
@@ -551,11 +504,8 @@ void crear_instrucciones(tresDirL *t, node *n){
         invocFunc->op1 = function;
         generate_temp(res->nombre);
         res->offset = stackPos;
-        //strcpy(res->nombre, "INVOCACION");
         invocFunc->res = res;
-        //printf("LA CANTIADD DE INSTRUCCIONES ES: %d\n", instrucciones);
         agregar_instruccion(t, invocFunc);
-        //printf("VAMOS A SALIR DE INVOCC\n");
       }
     }
   }
