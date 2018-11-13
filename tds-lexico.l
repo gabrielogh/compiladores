@@ -246,7 +246,7 @@ return                        { yylval.i = yylineno;
                                 }
                                 return PCOMA;}
 
-"//".*\n                       {}
+"//".*\n                      
 
 
 {entero}+                     { yylval.i = atoi(yytext);
