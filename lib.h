@@ -89,6 +89,7 @@ typedef struct stacks{
   int id;
   int parent;
   data_stack *info;
+  data_stack *last;
   struct stacks *next;
 }stack;
 
@@ -235,6 +236,8 @@ void init(){
   nVars = 0;
   current = (stack *) malloc(sizeof(stack));
   inicial = (stack *) malloc(sizeof(stack));
+  inicial->info = (data_stack *) malloc(sizeof(data_stack));
+  inicial->last = inicial->info;
   fstParam =  (formalParam *) malloc(sizeof(formalParam));
   lastParam =  (formalParam *) malloc(sizeof(formalParam));
   current->next = NULL;
@@ -289,6 +292,8 @@ int getParent(){
  */
 void crear_nivel(){
   stack *newLevel = (stack *) malloc(sizeof(stack));
+  newLevel->info = NULL;
+  newLevel->last = newLevel->info;
   current->next = newLevel;
   current = newLevel;
   niveles = niveles + 1;
@@ -639,7 +644,8 @@ formalParam * getParams(data_stack *d){
 }
 
 /*
- * Esta funcion nos permite obtener la informacion de un node.
+ * Esta funcion nos permite insertar un simbolo en la tabla de simbolos
+ * la cual esta representada como una lista de listas. La lista principal representa una "pila".
  */
 void insertar(data_stack *d){
   data_stack *newD = (data_stack *) malloc(sizeof(data_stack));
@@ -683,6 +689,16 @@ void insertar(data_stack *d){
           lastParam = fp;
         }
       }
+      if(d->tipoOp == VARR){
+        nVars = nVars + 1;
+        if((tope()->id) == (1)){
+          newD->data->global = true;
+        }
+        newD->data->offset = nVars;
+        newD->data->inic = false;
+      }
+      aux->last->next = (data_stack *)newD;
+      aux->last = aux->last->next;
     }
     else{ //Nivel corriente vacio
       if(d->tipoOp == PARAMETRO){
@@ -698,22 +714,6 @@ void insertar(data_stack *d){
         fstParam->next = NULL;
         lastParam = fstParam;
       }
-    }
-    if(res != NULL){
-      while((res->next) != NULL){
-        res = (data_stack *) res->next;
-      }
-      if(d->tipoOp == VARR){
-        nVars = nVars + 1;
-        if((tope()->id) == (1)){
-          newD->data->global = true;
-        }
-        newD->data->offset = nVars;
-        newD->data->inic = false;
-      }
-      res->next = (data_stack *)newD;
-    }
-    else{
       if(d->tipoOp == VARR){
         nVars = nVars + 1;
         if((tope()->id) == (1)){
@@ -724,6 +724,7 @@ void insertar(data_stack *d){
       }
       res = (data_stack *)newD;
       aux->info = res;
+      aux->last = aux->info;
     }
   }
 }
