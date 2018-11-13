@@ -52,7 +52,7 @@ begin
     bool res2, res3;
     x = 5;
     y = 10;
-    z = 5;
+    z = 6;
     res2 = (x == z);
     while(x<100) begin
       if(x < 50) then begin 

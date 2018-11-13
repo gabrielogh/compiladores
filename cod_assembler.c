@@ -195,7 +195,7 @@ void cargar_instrcciones(tresDir *instr){
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
               strcat(res, "(%rbp), ");
-              strcat(res, "(%rax)\n");
+              strcat(res, "%rax\n");
               fputs(res, asm_code);
               printf("%s", res);
 
@@ -241,10 +241,10 @@ void cargar_instrcciones(tresDir *instr){
               strcpy(res, "  andb $1, %dl\n");
               fputs(res, asm_code); 
 
-              strcpy(res, "  movzbl %dl, %rax\n");
+              strcpy(res, "  movzbl %dl, %esi\n");
               fputs(res, asm_code);
 
-              strcpy(res, "  movq  %rax, -");
+              strcpy(res, "  movq  %rsi, -");
               sprintf(aux,"%d", (auxInstr->res->offset)*8);
               strcat(res, aux);
               strcat(res, "(%rbp)\n");
@@ -640,7 +640,7 @@ void cargar_actual_params(tresDir *auxInstr){
           strcpy(res, "  movq  -");
           sprintf(aux, "%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
-          strcat(res, "%(ebp), %rdi\n");
+          strcat(res, "(%rbp), %rdi\n");
           fputs(res, asm_code);
           printf("%s", res);
     break;
@@ -648,7 +648,7 @@ void cargar_actual_params(tresDir *auxInstr){
           strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
-          strcat(res, "%(ebp), %rsi\n");
+          strcat(res, "(%rbp), %rsi\n");
           fputs(res, asm_code);
           printf("%s", res);
     break;
@@ -656,7 +656,7 @@ void cargar_actual_params(tresDir *auxInstr){
           strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
-          strcat(res, "%(ebp), %rdx\n");
+          strcat(res, "(%rbp), %rdx\n");
           fputs(res, asm_code);
           printf("%s", res);
     break;
@@ -664,7 +664,7 @@ void cargar_actual_params(tresDir *auxInstr){
           strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
-          strcat(res, "%(ebp), %rcx\n");
+          strcat(res, "(%rbp), %rcx\n");
           fputs(res, asm_code);
           printf("%s", res);
     break;
@@ -672,7 +672,7 @@ void cargar_actual_params(tresDir *auxInstr){
           strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
-          strcat(res, "%(ebp), %r8\n");
+          strcat(res, "(%rbp), %r8\n");
           fputs(res, asm_code);
           printf("%s", res);
     break;
@@ -680,7 +680,7 @@ void cargar_actual_params(tresDir *auxInstr){
           strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
-          strcat(res, "%(ebp), %r9\n");
+          strcat(res, "(%rbp), %r9\n");
           fputs(res, asm_code);
           printf("%s", res);
     break;
@@ -688,7 +688,7 @@ void cargar_actual_params(tresDir *auxInstr){
           strcpy(res, "  movq  -");
           sprintf(aux,"%d", (auxInstr->res->offset)*8);
           strcat(res, aux);
-          strcat(res, "%(ebp), %rdi\n");
+          strcat(res, "(%rbp), %rdi\n");
           fputs(res, asm_code);
           printf("%s", res);
 
