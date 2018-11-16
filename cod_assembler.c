@@ -97,6 +97,12 @@ void generar_codigo_assembler(){
       crear_label_funcion(Listaux);
       cargar_instrcciones(Listaux->fst);
       printf("\n");
+      if(sis == 2){
+        fputs("  leaq  L_.str(%rip), %rdi\n", asm_code);
+        fputs("  movq  %rax, %rsi\n", asm_code);
+        fputs("  movq  $0, %rax\n", asm_code);
+        fputs("  callq _printf\n", asm_code);
+      }
       fputs("  leave\n", asm_code);
       printf("  leave\n");
       fputs("  ret                      ## -- End function\n", asm_code);
@@ -105,6 +111,27 @@ void generar_codigo_assembler(){
       fputs("\n", asm_code);
       Listaux = Listaux->next;
     }
+    if(sis == 2){
+      char comillas[1];
+      char barra[1];
+      char n[1];
+      comillas[0] = 34;
+      barra[0] = 92;
+      n[0] = 110;
+      char msg[64];
+      strcpy(msg, "  .asciz  ");
+      strcat(msg, comillas);
+      strcat(msg, "resultado suma: %d");
+      strcat(msg, barra);
+      strcat(msg, n);
+      strcat(msg, comillas);
+      strcat(msg, "\n");
+      fputs("  .section  __TEXT,__cstring,cstring_literals)\n", asm_code);
+      fputs("L_.str:                                 ## @.str\n", asm_code);
+      fputs(msg, asm_code);
+      fputs("L_.str.1:                               ## @.str.1\n", asm_code);
+    }
+
     printf(KGRN "%s\n", "Codigo Assembler generado. "); printf(KNRM);
   }
 
@@ -121,6 +148,7 @@ void cargar_instrcciones(tresDir *instr){
       switch(op) {
 
          case JMP  :
+            printf("JMP\n");
             strcpy(c, "  jmp ");
             strcat(c, auxInstr->res->nombre);
             strcat(c, "\n");
@@ -129,6 +157,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case JE  :
+            printf("JE\n");
             strcpy(c, "  je ");
             strcat(c, auxInstr->res->nombre);
             strcat(c, "\n");
@@ -137,6 +166,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case JLE  :
+            printf("JLE\n");
             strcpy(c, "  jle ");
             strcat(c, auxInstr->res->nombre);
             strcat(c, "\n");
@@ -145,6 +175,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case JGE  :
+            printf("JGE\n");
             strcpy(c, "  jge ");
             strcat(c, auxInstr->res->nombre);
             strcat(c, "\n");
@@ -153,10 +184,12 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case CARGAR_PARAMS  :
+              printf("CARGAR_PARAMS\n");
               cargar_param(auxInstr);
             break;
 
          case CALL  :
+              printf("CALL\n");
               if(sis == 1){
                 strcpy(c, "  call ");
                 strcat(c, auxInstr->op1->nombre);
@@ -174,6 +207,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case CALL_WITH_PARAMS  :
+              printf("CALL_WITH_PARAMS\n");
               if(sis == 1){
                 strcpy(c, "  call  ");
                 strcat(c, auxInstr->op1->nombre);
@@ -191,6 +225,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case ASIGN_INSTRUCCION  :
+              printf("ASIGN_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -199,8 +234,21 @@ void cargar_instrcciones(tresDir *instr){
               fputs(res, asm_code);
               printf("%s", res);
 
-              //printf("LE ASIGNAMOS %s a %s \n", auxInstr->op1->nombre, auxInstr->res->nombre);
               strcpy(res, "  movq  %rax, -");
+              sprintf(aux,"%d", (auxInstr->res->offset)*8);
+              strcat(res, aux);
+              strcat(res, "(%rbp)\n");
+              fputs(res, asm_code);
+              printf("%s", res);
+              printf("EN LA ASIGNACION EL OFFSET ES DE %d\n", auxInstr->res->offset);
+            break;
+
+         case CTE_INSTRUCCION  :
+              printf("CTE_INSTRUCCION\n");
+              strcpy(res, "  movq  $");
+              sprintf(aux,"%d", (auxInstr->op1->valor));
+              strcat(res, aux);
+              strcat(res, ", -");
               sprintf(aux,"%d", (auxInstr->res->offset)*8);
               strcat(res, aux);
               strcat(res, "(%rbp)\n");
@@ -208,19 +256,8 @@ void cargar_instrcciones(tresDir *instr){
               printf("%s", res);
             break;
 
-         case CTE_INSTRUCCION  :
-              strcpy(res, "  movq  $");
-              sprintf(aux,"%d", (auxInstr->op1->valor));
-              strcat(res, aux);
-              strcat(res, ", ");
-              sprintf(aux,"%d", (auxInstr->res->offset)*(-8));
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-              printf("%s", res);
-            break;
-
          case EQ_INSTRUCCION  :
+              printf("EQ_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -253,6 +290,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case ADD_INSTRUCCION  :
+              printf("ADD_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -276,6 +314,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case SUB_INSTRUCCION  :
+              printf("SUB_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -299,6 +338,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case MAY_INSTRUCCION  :
+              printf("MAY_INSTRUCCION\n");
               strcpy(res, "  movq -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -320,6 +360,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case NEG_INSTRUCCION  :
+              printf("NEG_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -341,6 +382,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case NOT_INSTRUCCION  :
+              printf("NOT_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -367,6 +409,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case OPUESTO_INSTRUCCION  :
+              printf("OPUESTO_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -387,6 +430,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case PROD_INSTRUCCION  :
+              printf("PROD_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -410,6 +454,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case DIV_INSTRUCCION  :
+              printf("DIV_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -432,6 +477,7 @@ void cargar_instrcciones(tresDir *instr){
               printf("%s", res);
             break;
          case MOD_INSTRUCCION  :
+              printf("MOD_INSTRUCCION\n");
               strcpy(res, "  movq -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -443,14 +489,14 @@ void cargar_instrcciones(tresDir *instr){
               printf("  cqto\n");
 
               strcpy(res, "  idivq -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
               strcat(res, aux);
               strcat(res, "(%rbp)\n");
               fputs(res, asm_code);
               printf("%s", res);
 
               strcpy(res, "  movq %rdx, -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+              sprintf(aux,"%d", (auxInstr->res->offset)*8);
               strcat(res, aux);
               strcat(res, "(%rbp)\n");
               fputs(res, asm_code);
@@ -459,6 +505,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case AND_INSTRUCCION  :
+              printf("ADD_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -482,6 +529,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case OR_INSTRUCCION  :
+              printf("OR_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->op1->offset)*8);
               strcat(res, aux);
@@ -505,6 +553,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case RETURN_INSTRUCCION  :
+              printf("RETURN_INSTRUCCION\n");
               strcpy(res, "  movq  -");
               sprintf(aux,"%d", (auxInstr->res->offset)*8);
               strcat(res, aux);
@@ -514,6 +563,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case ELSE_INSTRUCCION  :
+            printf("ELSE_INSTRUCCION\n");
             strcpy(c, auxInstr->res->nombre);
             strcat(c, ":\n");
             fputs(c, asm_code);
@@ -521,6 +571,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case END_IF  :
+            printf("END_IF\n");
             strcpy(c, auxInstr->res->nombre);
             strcat(c, ":\n");
             fputs(c, asm_code);
@@ -528,6 +579,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case END_ELSE  :
+            printf("END_ELSE\n");
             strcpy(c, auxInstr->res->nombre);
             strcat(c, ":\n");
             fputs(c, asm_code);
@@ -535,6 +587,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
         case LABEL_WHILE_INSTRUCCION  :
+            printf("LABEL_WHILE_INSTRUCCION\n");
             strcpy(c, auxInstr->res->nombre);
             strcat(c, ":\n");
             fputs(c, asm_code);
@@ -542,6 +595,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
         case LABEL_END_WHILE_INSTRUCCION  :
+            printf("LABEL_END_WHILE_INSTRUCCION\n");
             strcpy(c, auxInstr->res->nombre);
             strcat(c, ":\n");
             fputs(c, asm_code);
@@ -549,6 +603,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
         case CARGAR_ACTUAL_PARAMS  :
+              printf("CARGAR_ACTUAL_PARAMS\n");
               cargar_actual_params(auxInstr);
             break;
 

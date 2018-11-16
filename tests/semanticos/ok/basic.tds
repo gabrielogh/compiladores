@@ -1,7 +1,17 @@
 program begin
 
-  integer suma(integer a, integer b, integer c) begin
-    return (a+b+c);
+  integer factorial(integer x) begin
+    integer aux;
+    aux = 1;
+    while(x>0) begin
+      aux = aux * x;
+      x = x-1;
+    end
+    return aux;
+  end
+
+  integer suma(integer a, integer b) begin
+    return (a+b);
   end
 
   integer resta(integer c, integer d) begin
@@ -10,7 +20,7 @@ program begin
 
   integer mod(integer x) begin
     integer res;
-    res = -x%2;
+    res = x%2;
     return res;
   end
 
@@ -19,24 +29,28 @@ program begin
   end
 
   void main() begin
-    integer a,b,k;
-    k=0;
-    a=10;
-    b=5;
+    integer a,b,c,d,k;
+    a=1;b=2;c=3;d=4;k=11;
 
-    k = suma(a,b,k);
+    k = suma(a,b);
 
     if (k > b) then begin
-      suma(a,b,k);
+      suma(a,k);
     end 
     else begin
       resta(a,b);
     end
     b = 1;
     a = b;
-    while(equals(a,b)) begin
-      suma(a,b,k);
+
+    while(a<7) begin
+      b = factorial(a);
+      a = a-1;
     end
+
+    resta(a,b);
+    
+    a = factorial(5);
 
   end
 end

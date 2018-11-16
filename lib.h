@@ -666,6 +666,7 @@ void insertar(data_stack *d){
     res = (data_stack *) aux->info;
     if(res != NULL){ //Nivel corriente no vacio.
       if(res->tipoOp == PARAMETRO){
+        nVars = nVars + 1;
         formalParam *auxP = lastParam;
         formalParam *fp = (formalParam *) malloc(sizeof(formalParam));
         strcpy(fp->nombre, d->data->nombre);
@@ -702,6 +703,7 @@ void insertar(data_stack *d){
     }
     else{ //Nivel corriente vacio
       if(d->tipoOp == PARAMETRO){
+        nVars = nVars + 1;
         formalParam *auxP = lastParam;
         formalParam *fp = (formalParam *) malloc(sizeof(formalParam));
         strcpy(fp->nombre, d->data->nombre);

@@ -23,7 +23,7 @@ typedef struct tresDirList{
 
 //VARIABLES GLOBALES:
 
-int temp,labels, instrucciones, stackPos;
+int temp,labels, instrucciones, stackPos, stackParams;
 tresDirL *head_td, *last_td;
 
 //DECLARACION DE METODOS:
@@ -66,6 +66,7 @@ void initTresDirList(){
   labels = 0;
   instrucciones = 0;
   stackPos = 0;
+  stackParams = 0;
   head_td = (tresDirL *) malloc(sizeof(tresDirL));
   head_td->fst = NULL;
   head_td->next = NULL;
@@ -79,6 +80,7 @@ void generate_temp(char c[32]){
   sprintf(aux,"%d",temp);
   strcat(c, aux);
   stackPos = stackPos + 1;
+  printf("LA POSICION DEL %s es %d\n",c, stackPos*8);
 }
 
 void generate_label(char c[32]){
@@ -121,11 +123,14 @@ void generar_codigo(){
     data_stack *d = aux->info;
     while(d!=NULL){
       if(d->es_funcion){
-        stackPos = d->stack_size;
         agregar_funcion(d);
         cargar_parametros_formales(d->formalParams);
+        stackPos = d->stack_size;
+        printf("EL STACK DE LA FUNCION %s ES %d\n", d->data->nombre, d->stack_size);
         crear_instrucciones(last_td, d->block);
+        printf("EL STACK FINAL DE LA FUNCION ES: %d\n", stackPos);
         last_td->stackSize = stackPos;
+        temp = 0;
       }
       d = d->next;
     }
@@ -215,9 +220,10 @@ void cargar_parametros_formales(formalParam *params){
       data_gen *dataAux = (data_gen *) malloc(sizeof(data_gen));
       dataAux->tipo = auxParam->tipo;
       dataAux->nParam = auxParam->numero;
-      stackPos = stackPos + 1;
-      dataAux->offset = stackPos;
+      stackPos = auxParam->numero;
+      dataAux->offset = auxParam->numero;
       strcpy(dataAux->nombre, auxParam->nombre);
+      printf("EL OFFSET DEL PARAMETRO %s es %d\n", auxParam->nombre, (auxParam->numero * -8));
       instruccion->op = CARGAR_PARAMS;
       instruccion->res = dataAux;
       agregar_instruccion(last_td, instruccion);
@@ -230,6 +236,10 @@ data_gen * eval_expr(node *n){
   data_gen *aux = n->info->data;
   if(aux != NULL){
     if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
+      if(n->info->tipoOp == VARR){
+        aux->offset = aux->offset;
+        printf("EL OFFSET DE LA VARIABLE LOCAL %s es %d\n", aux->nombre, aux->offset);
+      }
       return aux;
     }
     else{
@@ -517,7 +527,19 @@ char * opToString(int op){
      case JMP  :
         return "JMP";
         break;
-    
+
+     case JLE  :
+        return "JLE";
+        break;
+
+     case JGE  :
+        return "JGE";
+        break;
+
+     case JE  :
+        return "JE";
+        break;
+
      case MOV  :
         return "MOV";
         break;
