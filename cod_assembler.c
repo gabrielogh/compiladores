@@ -113,21 +113,18 @@ void generar_codigo_assembler(){
     }
     if(sis == 2){
       char comillas[1];
-      char barra[1];
-      char n[1];
       comillas[0] = 34;
-      barra[0] = 92;
-      n[0] = 110;
-      char msg[64];
-      strcpy(msg, "  .asciz  ");
-      strcat(msg, comillas);
-      strcat(msg, "resultado suma: %d");
-      strcat(msg, barra);
-      strcat(msg, n);
-      strcat(msg, comillas);
-      strcat(msg, "\n");
+      char msg[128];
       fputs("  .section  __TEXT,__cstring,cstring_literals)\n", asm_code);
       fputs("L_.str:                                 ## @.str\n", asm_code);
+      strcpy(msg, "  .asciz  ");
+      strcat(msg, comillas);
+      strcat(msg, "resultado: %d");
+      strcat(msg, "\\");
+      strcat(msg, "n");
+      strcat(msg, comillas);
+      strcat(msg, "\n");
+      printf("%s\n", msg);
       fputs(msg, asm_code);
       fputs("L_.str.1:                               ## @.str.1\n", asm_code);
     }
