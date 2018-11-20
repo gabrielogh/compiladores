@@ -56,6 +56,7 @@ typedef struct data_generic{
 typedef struct data_stacks{
   data_gen *data;
   bool es_funcion;
+  bool es_extern;
   int tipoOp;
   int nParams;
   int stack_size;
@@ -566,7 +567,16 @@ void insertar_funcion(data_stack *d){
   newD->nParams = countParams(d->formalParams);
   newD->formalParams = d->formalParams;
   newD->stack_size = nVars;
+  if(newD->block == NULL){
+    newD->es_extern = true;
+    printf("LA FUNCION %s ES EXTERNA\n", d->data->nombre);
+  }
+  else{
+    newD->es_extern = false;
+    printf("LA FUNCION %s NO ES EXTERNA\n", d->data->nombre);
+  }
   stack *aux = inicial;
+
 
   data_stack *res = buscar_id(inicial, d->data->nombre);
 
@@ -1181,9 +1191,9 @@ int evalExpr(node *n, int tipoRet){
       else if (op == BLOCK){
         evalExpr(getNodeFst(n), tipoRet);
       }
-      else if (op == BLOCKNULL){
+      /*else if (op == BLOCKNULL){
         return tipoRet;
-      }
+      }*/
       else if (op == STATEMENTS){
         evalExpr(getNodeFst(n), tipoRet);
         evalExpr(getNodeSnd(n), tipoRet);

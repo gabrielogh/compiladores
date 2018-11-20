@@ -122,7 +122,7 @@ void generar_codigo(){
     stack *aux = inicial;
     data_stack *d = aux->info;
     while(d!=NULL){
-      if(d->es_funcion){
+      if((d->es_funcion) && !(d->es_extern)){
         agregar_funcion(d);
         cargar_parametros_formales(d->formalParams);
         stackPos = d->stack_size;
@@ -469,6 +469,15 @@ void crear_instrucciones(tresDirL *t, node *n){
         else if((getNodeFst(n)->info->tipoOp) == MENORR){
           createJmp(JGE,endLabel);
         }
+        else if((getNodeFst(n)->info->tipoOp) == ANDD){
+          createJmp(JNE,endLabel);
+        }
+        else if((getNodeFst(n)->info->tipoOp) == ORR){
+          createJmp(JGE,endLabel);
+        }
+        else if((getNodeFst(n)->info->tipoOp) == NOTT){
+          createJmp(JNE,endLabel);
+        }
         else{
           createJmp(JE, endLabel);
         }
@@ -526,6 +535,10 @@ char * opToString(int op){
 
      case JMP  :
         return "JMP";
+        break;
+
+     case JNE  :
+        return "JNE";
         break;
 
      case JLE  :

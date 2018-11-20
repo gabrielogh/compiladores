@@ -88,7 +88,7 @@ prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
                                                         printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
                                                         printf(KGRN "%s\n", "Generando codigo intermedio.... "); printf(KNRM);
                                                         generar_codigo();
-                                                        //printLista();
+                                                        printLista();
                                                         printf(KGRN "%s\n", "Codigo intermedio generado. "); printf(KNRM);
                                                         generar_codigo_assembler();
                                                       }
@@ -149,7 +149,7 @@ param_list: type ID                     { crear_nivel();
 ;
 
 block_type: block                                   {  $$=$1;} 
-          | EXTERN PCOMA                            {  $$ = createNode(createNodeParam(toString("BLOCKNULL"), -1, -1, -1, BLOCKNULL, NULL, NULL, NULL, false, NULL, yylineno));} 
+          | EXTERN PCOMA                            {  $$ = NULL;} 
 ;
 
 block:{crear_nivel();} block_def                    { cerrar_nivel();
@@ -237,10 +237,6 @@ expr:  ID                         { $$ = createNode(createNodeParam(getNombre($1
      | expr MENOR expr            { $$ = createNode(createNodeParam(toString("MENOR"), 0, BOOLEAN, NONRETT, MENORR, $1, $3, NULL, false, NULL, yylineno));}
 
      | expr IGUALDAD expr         { $$ = createNode(createNodeParam(toString("IGUALDAD"), 0, BOOLEAN, NONRETT, IGUALDADD, $1, $3, NULL, false, NULL, yylineno));}
-
-     | expr MENIGUAL expr         { $$ = createNode(createNodeParam(toString("MENIGUAL"), 0, BOOLEAN, NONRETT, MENIGUALL, $1, $3, NULL, false, NULL, yylineno));}
-
-     | expr MAYIGUAL expr         { $$ = createNode(createNodeParam(toString("MAYIGUAL"), 0, BOOLEAN, NONRETT, MAYIGUALL, $1, $3, NULL, false, NULL, yylineno));}
 
      | expr AND expr              { $$ = createNode(createNodeParam(toString("AND"), 0, BOOLEAN, NONRETT, ANDD, $1, $3, NULL, false, NULL, yylineno));}
 

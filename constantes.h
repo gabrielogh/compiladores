@@ -110,4 +110,5 @@ int treeSize, testType;
 #define JE 301
 #define JLE 302
 #define JGE 303
+#define JNE 304
 
