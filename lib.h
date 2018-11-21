@@ -569,11 +569,9 @@ void insertar_funcion(data_stack *d){
   newD->stack_size = nVars;
   if(newD->block == NULL){
     newD->es_extern = true;
-    printf("LA FUNCION %s ES EXTERNA\n", d->data->nombre);
   }
   else{
     newD->es_extern = false;
-    printf("LA FUNCION %s NO ES EXTERNA\n", d->data->nombre);
   }
   stack *aux = inicial;
 

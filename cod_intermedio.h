@@ -80,7 +80,6 @@ void generate_temp(char c[32]){
   sprintf(aux,"%d",temp);
   strcat(c, aux);
   stackPos = stackPos + 1;
-  printf("LA POSICION DEL %s es %d\n",c, stackPos*8);
 }
 
 void generate_label(char c[32]){
@@ -126,9 +125,7 @@ void generar_codigo(){
         agregar_funcion(d);
         cargar_parametros_formales(d->formalParams);
         stackPos = d->stack_size;
-        printf("EL STACK DE LA FUNCION %s ES %d\n", d->data->nombre, d->stack_size);
         crear_instrucciones(last_td, d->block);
-        printf("EL STACK FINAL DE LA FUNCION ES: %d\n", stackPos);
         last_td->stackSize = stackPos;
         temp = 0;
       }
@@ -223,7 +220,6 @@ void cargar_parametros_formales(formalParam *params){
       stackPos = auxParam->numero;
       dataAux->offset = auxParam->numero;
       strcpy(dataAux->nombre, auxParam->nombre);
-      printf("EL OFFSET DEL PARAMETRO %s es %d\n", auxParam->nombre, (auxParam->numero * -8));
       instruccion->op = CARGAR_PARAMS;
       instruccion->res = dataAux;
       agregar_instruccion(last_td, instruccion);
@@ -238,7 +234,6 @@ data_gen * eval_expr(node *n){
     if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
       if(n->info->tipoOp == VARR){
         aux->offset = aux->offset;
-        printf("EL OFFSET DE LA VARIABLE LOCAL %s es %d\n", aux->nombre, aux->offset);
       }
       return aux;
     }
