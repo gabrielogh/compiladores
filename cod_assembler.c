@@ -22,6 +22,47 @@ void cargar_param(tresDir *auxInstr);
 
 void cargar_actual_params(tresDir *auxInstr);
 
+void crear_constante_instruccion(tresDir *auxInstr);
+
+void crear_while_instruccion(tresDir *auxInstr);
+
+void crear_if_instruccion(tresDir *auxInstr);
+
+void crear_if_else_instruccion(tresDir *auxInstr);
+
+void crear_return_instruccion(tresDir *auxInstr);
+
+void crear_not_instruccion(tresDir *auxInstr);
+
+void crear_or_instruccion(tresDir *auxInstr);
+
+void crear_and_instruccion(tresDir *auxInstr);
+
+void crear_mod_instruccion(tresDir *auxInstr);
+
+void crear_div_instruccion(tresDir *auxInstr);
+
+void create_prod_instruccion(tresDir *auxInstr);
+
+void crear_opuesto_instruccion(tresDir *auxInstr);
+
+void crear_menor_instruccion(tresDir *auxInstr);
+
+void crear_mayor_instruccion(tresDir *auxInstr);
+
+void crear_sub_instruccion(tresDir *auxInstr);
+
+void crear_add_instruccion(tresDir *auxInstr);
+
+void crear_equals_instruccion(tresDir *auxInstr);
+
+void crear_asignacion_instruccion(tresDir *auxInstr);
+
+void crear_call_cp_instruccion(tresDir *auxInstr);
+
+void crear_call_sp_instruccion(tresDir *auxInstr);
+
+
 //IMPLEMENTACION DE METODOS.
 
 void crear_archivo(){
@@ -124,8 +165,6 @@ void generar_codigo_assembler(){
 
 void cargar_instrcciones(tresDir *instr){
   char c[32];
-  char aux[32];
-  char res[32];
   tresDir *auxInstr = instr;
   if(auxInstr != NULL){
     while(auxInstr != NULL){
@@ -139,403 +178,83 @@ void cargar_instrcciones(tresDir *instr){
             fputs(c, asm_code);
             break;
 
-         case JNE  :
-            strcpy(c, "  jne ");
-            strcat(c, auxInstr->res->nombre);
-            strcat(c, "\n");
-            fputs(c, asm_code);
-            break;
-
-         case JE  :
-            strcpy(c, "  je ");
-            strcat(c, auxInstr->res->nombre);
-            strcat(c, "\n");
-            fputs(c, asm_code);
-            break;
-
-         case JLE  :
-            strcpy(c, "  jle ");
-            strcat(c, auxInstr->res->nombre);
-            strcat(c, "\n");
-            fputs(c, asm_code);
-            break;
-
-         case JGE  :
-            strcpy(c, "  jge ");
-            strcat(c, auxInstr->res->nombre);
-            strcat(c, "\n");
-            fputs(c, asm_code);
-            break;
-
          case CARGAR_PARAMS  :
               cargar_param(auxInstr);
             break;
 
          case CALL  :
-              if(sis == 1){
-                strcpy(c, "  call ");
-                strcat(c, auxInstr->op1->nombre);
-                strcat(c, "\n");
-                fputs(c, asm_code);
-              }
-              else{
-                strcpy(c, "  call _");
-                strcat(c, auxInstr->op1->nombre);
-                strcat(c, "\n");
-                fputs(c, asm_code);
-              }
-              strcpy(c, "  movq %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(c, aux);
-              strcat(c, "(%rbp)\n");
-              fputs(c, asm_code);
+              crear_call_sp_instruccion(auxInstr);
             break;
 
          case CALL_WITH_PARAMS  :
-              if(sis == 1){
-                strcpy(c, "  call  ");
-                strcat(c, auxInstr->op1->nombre);
-                strcat(c, "\n");
-                fputs(c, asm_code);
-              }
-              else{
-                strcpy(c, "  call  _");
-                strcat(c, auxInstr->op1->nombre);
-                strcat(c, "\n");
-                fputs(c, asm_code);
-              }
-              strcpy(c, "  movq %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(c, aux);
-              strcat(c, "(%rbp)\n");
-              fputs(c, asm_code);
+              crear_call_cp_instruccion(auxInstr);
             break;
 
          case ASIGN_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), ");
-              strcat(res, "%rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_asignacion_instruccion(auxInstr);
             break;
 
          case CTE_INSTRUCCION  :
-              strcpy(res, "  movq  $");
-              sprintf(aux,"%d", (auxInstr->op1->valor));
-              strcat(res, aux);
-              strcat(res, ", -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_constante_instruccion(auxInstr);
             break;
 
          case EQ_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  cmpq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  sete %dl\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  andb $1, %dl\n");
-              fputs(res, asm_code); 
-
-              strcpy(res, "  movzbl %dl, %esi\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rsi, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_equals_instruccion(auxInstr);
             break;
 
          case ADD_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  addq  -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_add_instruccion(auxInstr);
             break;
 
          case SUB_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  subq  -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_sub_instruccion(auxInstr);
             break;
 
          case MAY_INSTRUCCION  :
-              strcpy(res, "  movq -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  cmpq %rax, -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  setl %dl\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  andb $1, %dl\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movzbl %dl, %esi\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq %rsi, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code); 
+              crear_mayor_instruccion(auxInstr);
             break;
 
          case MEN_INSTRUCCION  :
-              strcpy(res, "  movq -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  cmpq %rax, -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  setg %dl\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  andb $1, %dl\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movzbl %dl, %esi\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq %rsi, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);           
+              crear_menor_instruccion(auxInstr);          
             break;
 
          case OPUESTO_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  negq %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_opuesto_instruccion(auxInstr);
             break;
 
          case PROD_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  imulq  -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              create_prod_instruccion(auxInstr);
             break;
 
          case DIV_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  idivq  -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_div_instruccion(auxInstr);
             break;
          case MOD_INSTRUCCION  :
-              strcpy(res, "  movq -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              fputs("  cqto\n",asm_code);
-
-              strcpy(res, "  idivq -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq %rdx, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-            
+              crear_mod_instruccion(auxInstr);
             break;
 
          case AND_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  andq  -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_and_instruccion(auxInstr);
             break;
 
          case OR_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  orq  -");
-              sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-
+              crear_or_instruccion(auxInstr);
             break;
 
          case NOT_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  xorq  $-1, %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  andq  $1, %rax\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  movq  %rax, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
+              crear_not_instruccion(auxInstr);
             break;
 
          case RETURN_INSTRUCCION  :
-              strcpy(res, "  movq  -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp), %rax\n");
-              fputs(res, asm_code);
+              crear_return_instruccion(auxInstr);
             break;
 
          case IF_INSTRUCCION  :
-              strcpy(res, "  cmpl  $0, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  je ");
-              strcat(res, auxInstr->op2->nombre);
-              strcat(res, "\n");
-              fputs(res, asm_code);
+              crear_if_instruccion(auxInstr);
             break;
 
          case IF_ELSE_INSTRUCCION  :
-              strcpy(res, "  cmpl  $0, -");
-              sprintf(aux,"%d", (auxInstr->res->offset)*8);
-              strcat(res, aux);
-              strcat(res, "(%rbp)\n");
-              fputs(res, asm_code);
-
-              strcpy(res, "  je ");
-              strcat(res, auxInstr->op2->nombre);
-              strcat(res, "\n");
-              fputs(res, asm_code);
+              crear_if_else_instruccion(auxInstr);
             break;
 
          case ELSE_INSTRUCCION  :
@@ -563,16 +282,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
         case WHILE_INSTRUCCION  :
-            strcpy(res, "  cmpl  $0, -");
-            sprintf(aux,"%d", (auxInstr->res->offset)*8);
-            strcat(res, aux);
-            strcat(res, "(%rbp)\n");
-            fputs(res, asm_code);
-
-            strcpy(res, "  je ");
-            strcat(res, auxInstr->op2->nombre);
-            strcat(res, "\n");
-            fputs(res, asm_code);
+            crear_while_instruccion(auxInstr);
             break;
 
         case LABEL_END_WHILE_INSTRUCCION  :
@@ -715,3 +425,447 @@ void cargar_actual_params(tresDir *auxInstr){
     break;
   }
 }
+
+void crear_constante_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  $");
+  sprintf(aux,"%d", (auxInstr->op1->valor));
+  strcat(res, aux);
+  strcat(res, ", -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_while_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  cmpl  $0, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  je ");
+  strcat(res, auxInstr->op2->nombre);
+  strcat(res, "\n");
+  fputs(res, asm_code);
+}
+
+void crear_if_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  cmpl  $0, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  je ");
+  strcat(res, auxInstr->op2->nombre);
+  strcat(res, "\n");
+  fputs(res, asm_code);
+}
+
+void crear_if_else_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  cmpl  $0, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  je ");
+  strcat(res, auxInstr->op2->nombre);
+  strcat(res, "\n");
+  fputs(res, asm_code);
+}
+
+void crear_return_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+}
+
+void crear_not_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  xorq  $-1, %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  andq  $1, %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_or_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  orq  -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_and_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  andq  -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_mod_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  fputs("  cqto\n",asm_code);
+
+  strcpy(res, "  idivq -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq %rdx, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_div_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  idivq  -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void create_prod_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  imulq  -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_opuesto_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  negq %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_menor_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  cmpq %rax, -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  setg %dl\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  andb $1, %dl\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movzbl %dl, %esi\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq %rsi, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code); 
+}
+
+void crear_mayor_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  cmpq %rax, -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  setl %dl\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  andb $1, %dl\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movzbl %dl, %esi\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq %rsi, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code); 
+}
+
+void crear_sub_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  subq  -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_add_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  addq  -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_equals_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), %rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  cmpq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  sete %dl\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  andb $1, %dl\n");
+  fputs(res, asm_code); 
+
+  strcpy(res, "  movzbl %dl, %esi\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rsi, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_asignacion_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  int parametro = auxInstr->res->nParam;
+  strcpy(res, "  movq  -");
+  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp), ");
+  strcat(res, "%rax\n");
+  fputs(res, asm_code);
+
+  strcpy(res, "  movq  %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(res, aux);
+  strcat(res, "(%rbp)\n");
+  fputs(res, asm_code);
+}
+
+void crear_call_cp_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  char c[32];
+  int parametro = auxInstr->res->nParam;
+  if(sis == 1){
+    strcpy(c, "  call  ");
+    strcat(c, auxInstr->op1->nombre);
+    strcat(c, "\n");
+    fputs(c, asm_code);
+  }
+  else{
+    strcpy(c, "  call  _");
+    strcat(c, auxInstr->op1->nombre);
+    strcat(c, "\n");
+    fputs(c, asm_code);
+  }
+  strcpy(c, "  movq %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(c, aux);
+  strcat(c, "(%rbp)\n");
+  fputs(c, asm_code);
+}
+
+void crear_call_sp_instruccion(tresDir *auxInstr){
+  char res[32];
+  char aux[32];
+  char c[32];
+  int parametro = auxInstr->res->nParam;
+  if(sis == 1){
+    strcpy(c, "  call ");
+    strcat(c, auxInstr->op1->nombre);
+    strcat(c, "\n");
+    fputs(c, asm_code);
+  }
+  else{
+    strcpy(c, "  call _");
+    strcat(c, auxInstr->op1->nombre);
+    strcat(c, "\n");
+    fputs(c, asm_code);
+  }
+  strcpy(c, "  movq %rax, -");
+  sprintf(aux,"%d", (auxInstr->res->offset)*8);
+  strcat(c, aux);
+  strcat(c, "(%rbp)\n");
+  fputs(c, asm_code);
+}
+
+
+
