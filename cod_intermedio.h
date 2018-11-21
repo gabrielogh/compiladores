@@ -288,7 +288,15 @@ void crear_instrucciones(tresDirL *t, node *n){
         instruccion->res = res;
         agregar_instruccion(t, instruccion);
       }
-
+      else if(op == NOTT){
+        instruccion->op = NOT_INSTRUCCION;
+        instruccion->op1 = eval_expr(getNodeFst(n));
+        res->valor = 0;
+        generate_temp(res->nombre);
+        res->offset = stackPos;
+        instruccion->res = res;
+        agregar_instruccion(t, instruccion);
+      }
       else if (op == RESTAA && (getNodeSnd(n) != NULL)){
         instruccion->op = SUB_INSTRUCCION;
         instruccion->op1 = eval_expr(getNodeFst(n));
@@ -391,16 +399,6 @@ void crear_instrucciones(tresDirL *t, node *n){
 
         agregar_instruccion(t, instruccion); //Condicion.
 
-        if((getNodeFst(n)->info->tipoOp) == MAYORR){
-          createJmp(JLE,endLabel);
-        }
-        else if((getNodeFst(n)->info->tipoOp) == MENORR){
-          createJmp(JGE,endLabel);
-        }
-        else{
-          createJmp(JE,endLabel);
-        }
-
         crear_instrucciones(t, getNodeSnd(n)); //Cuerpo del then.
 
         tresDir *endIf = (tresDir *) malloc(sizeof(tresDir)); //End del if
@@ -420,15 +418,6 @@ void crear_instrucciones(tresDirL *t, node *n){
 
         instruccion->op2 = elseJmp;
         agregar_instruccion(t, instruccion);
-        if((getNodeFst(n)->info->tipoOp) == MAYORR){
-          createJmp(JLE,elseJmp);
-        }
-        else if((getNodeFst(n)->info->tipoOp) == MENORR){
-          createJmp(JGE,elseJmp);
-        }
-        else{
-          createJmp(JE,elseJmp);
-        }
 
         crear_instrucciones(t, getNodeSnd(n));
 
@@ -462,25 +451,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         whileInstruccion->res = eval_expr(getNodeFst(n));
         whileInstruccion->op2 = endLabel;
         agregar_instruccion(t, whileInstruccion);
-
-        if((getNodeFst(n)->info->tipoOp) == MAYORR){
-          createJmp(JLE,endLabel);
-        }
-        else if((getNodeFst(n)->info->tipoOp) == MENORR){
-          createJmp(JGE,endLabel);
-        }
-        else if((getNodeFst(n)->info->tipoOp) == ANDD){
-          createJmp(JNE,endLabel);
-        }
-        else if((getNodeFst(n)->info->tipoOp) == ORR){
-          createJmp(JGE,endLabel);
-        }
-        else if((getNodeFst(n)->info->tipoOp) == NOTT){
-          createJmp(JNE,endLabel);
-        }
-        else{
-          createJmp(JE, endLabel);
-        }
 
         crear_instrucciones(t, getNodeSnd(n));
 
@@ -601,9 +571,6 @@ char * opToString(int op){
         break;
      case MEN_INSTRUCCION  :
         return "MEN_INSTRUCCION";
-        break;
-     case NEG_INSTRUCCION  :
-        return "NEG_INSTRUCCION";
         break;
      case NOT_INSTRUCCION  :
         return "NOT_INSTRUCCION";

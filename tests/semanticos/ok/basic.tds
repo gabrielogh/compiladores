@@ -1,5 +1,7 @@
 program begin
 
+  void print(integer x) extern;
+
   integer factorial(integer x) begin
     integer aux;
     aux = 1;
@@ -9,6 +11,8 @@ program begin
     end
     return aux;
   end
+
+  integer potencia(integer x) extern;
 
   integer suma(integer a, integer b) begin
     return (a+b);
@@ -20,7 +24,7 @@ program begin
 
   integer mod(integer x) begin
     integer res;
-    res = x%2;
+    res = x%3;
     return res;
   end
 
@@ -29,28 +33,35 @@ program begin
   end
 
   void main() begin
-    integer a,b,c,d,k;
+    integer a,b,c,d,k,i;
+        bool res;
     a=1;b=2;c=3;d=4;k=11;
+
+    res = true;
 
     k = suma(a,b);
 
-    if (k > b) then begin
+    if (k>b) then begin
       suma(a,k);
     end 
     else begin
       resta(a,b);
     end
     b = 1;
-    a = b;
 
-    while(a<7) begin
-      b = factorial(a);
-      a = a-1;
+    while((c<10) && (!(b==5000))) begin
+      while(a<7) begin
+        b = factorial(a);
+        a = a+1;
+      end
+      c = c+1;
     end
 
-    resta(a,b);
+    print(resta(a,b));
     
-    a = factorial(5);
+    a = factorial(6);
 
+    i = 2;
+    print(i);
   end
 end

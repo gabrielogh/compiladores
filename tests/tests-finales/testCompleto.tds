@@ -5,7 +5,7 @@ begin
     void print(integer n) extern;
 
 
-    //Muestra los primenos "n" numeros de la serie de Fibonacci. 
+    {Muestra los primenos "n" numeros de la serie de Fibonacci.}
     integer fibonacci(integer n)
       begin
         integer i, term1, term2, nextTerm;
@@ -22,7 +22,7 @@ begin
         return term2;
       end
 
-    // potencia de  x^n
+    { potencia de  x^n}
       integer potencia (integer x, integer n)
       begin
         integer i,r;
@@ -36,7 +36,7 @@ begin
         return r;
       end
 
-    // retorna el factorial de v
+    { retorna el factorial de v}
     integer factorial (integer v)
     	begin
       	integer limit,c,fact;
@@ -58,7 +58,7 @@ begin
         	end
     	end
 
-    // retorna el n esimo primo
+    {retorna el n esimo primo}
     integer nthprime (integer n) 
       begin
         integer i, divs;
@@ -70,7 +70,7 @@ begin
           begin
             divides = false; 
             i = i + 1;
-            while ( (! divides) && (divs < i)) 
+            while ( (! divides) && (divs < i))
               begin
                 if ((i%divs) == 0) then
                   begin
