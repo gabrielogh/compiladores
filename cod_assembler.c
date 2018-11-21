@@ -38,7 +38,6 @@ void crear_label_funcion(tresDirL *intr){
   if(sis == 1){
     if(strcmp(intr->nombre,"main")== 0){
       fputs("    .globl  main\n", asm_code);
-      fputs("    .type  main, @function\n", asm_code);
     }
     strcpy(c, "    .type  ");
     strcat(c, intr->nombre);
