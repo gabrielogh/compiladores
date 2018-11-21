@@ -4,7 +4,7 @@ begin
     void printGuiones( ) extern;
     void print(integer n) extern;
 
-    { retorna el n esimo primo}
+    //retorna el n esimo primo
     integer nthprime (integer n) 
       begin
         integer i, divs;
@@ -41,13 +41,13 @@ begin
         integer x, i, aux, res;
         {test nthprime entero}
         
-        x=3; { cantidad de veces que ejecutara la funcion}
+        x=3; // cantidad de veces que ejecutara la funcion
         i = 0;
         aux = 4;
         while (i<x)begin
           res = nthprime(aux);
           aux = aux + 1;
-          print(aux);
+          print(aux); //print
           i=i+1;
         end
     end

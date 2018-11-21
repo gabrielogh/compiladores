@@ -1,5 +1,6 @@
 program begin
 
+  void printGuiones( ) extern;
   void print(integer x) extern;
 
   integer factorial(integer x) begin
@@ -53,15 +54,16 @@ program begin
       while(a<7) begin
         b = factorial(a);
         a = a+1;
+        printGuiones();
       end
       c = c+1;
     end
 
-    print(resta(a,b));
     
-    a = factorial(6);
+    printGuiones();
+    //a = factorial(6);
 
     i = 2;
-    print(i);
+   
   end
 end
