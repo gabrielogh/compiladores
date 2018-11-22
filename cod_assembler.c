@@ -80,6 +80,7 @@ void crear_label_funcion(tresDirL *intr){
     if(strcmp(intr->nombre,"main")== 0){
       fputs("    .globl  main\n", asm_code);
     }
+
     strcpy(c, "    .type  ");
     strcat(c, intr->nombre);
     strcat(c, ", @function\n");
@@ -100,6 +101,7 @@ void crear_label_funcion(tresDirL *intr){
     if(strcmp(intr->nombre,"main")== 0){
       fputs("    .globl  _main\n", asm_code);
     }
+
     strcpy(c, "_");
     strcat(c, intr->nombre);
     strcat(c, ":");
@@ -107,6 +109,8 @@ void crear_label_funcion(tresDirL *intr){
     strcat(c, intr->nombre);
     strcat(c, "\n");
     fputs(c, asm_code);
+
+    fputs("  .cfi_startproc\n", asm_code);
 
     strcpy(p, "  enter $");
     sprintf(aux,"%d", (intr->stackSize)*8);
@@ -130,34 +134,12 @@ void generar_codigo_assembler(){
     while(Listaux !=  NULL){
       crear_label_funcion(Listaux);
       cargar_instrcciones(Listaux->fst);
-      /*if(sis == 2 && (strcmp(Listaux->nombre, "main")!=0)){
-        fputs("  leaq  L_.str(%rip), %rdi\n", asm_code);
-        fputs("  movq  %rax, %rsi\n", asm_code);
-        fputs("  movq  $0, %rax\n", asm_code);
-        fputs("  callq _printf\n", asm_code);
-      }*/
       fputs("  leave\n", asm_code);
-      fputs("  ret                      ## -- End function\n", asm_code);
+      fputs("  retq                      ## -- End function\n", asm_code);
+      fputs("  .cfi_endproc\n", asm_code);
       fputs("\n", asm_code);
       Listaux = Listaux->next;
     }
-    /*if(sis == 2){
-      char comillas[1];
-      comillas[0] = 34;
-      char msg[128];
-      fputs("  .section  __TEXT,__cstring,cstring_literals\n", asm_code);
-      fputs("L_.str:                                 ## @.str\n", asm_code);
-      strcpy(msg, "  .asciz  ");
-      strcat(msg, comillas);
-      strcat(msg, "resultado: %d");
-      strcat(msg, "\\");
-      strcat(msg, "n");
-      strcat(msg, comillas);
-      strcat(msg, "\n");
-      printf("%s\n", msg);
-      fputs(msg, asm_code);
-    }*/
-
     printf(KGRN "%s\n", "Codigo Assembler generado. "); printf(KNRM);
   }
 
@@ -170,7 +152,6 @@ void cargar_instrcciones(tresDir *instr){
     while(auxInstr != NULL){
       int op = auxInstr->op;
       switch(op) {
-
          case JMP  :
             strcpy(c, "  jmp ");
             strcat(c, auxInstr->res->nombre);
@@ -258,26 +239,22 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case ELSE_INSTRUCCION  :
-              strcpy(c, auxInstr->res->nombre);
-              strcat(c, ":\n");
+              strcpy(c, auxInstr->res->nombre);strcat(c, ":\n");
               fputs(c, asm_code);
             break;
 
          case END_IF  :
-              strcpy(c, auxInstr->res->nombre);
-              strcat(c, ":\n");
+              strcpy(c, auxInstr->res->nombre);strcat(c, ":\n");
               fputs(c, asm_code);
             break;
 
          case END_ELSE  :
-              strcpy(c, auxInstr->res->nombre);
-              strcat(c, ":\n");
+              strcpy(c, auxInstr->res->nombre);strcat(c, ":\n");
               fputs(c, asm_code);
             break;
 
         case LABEL_WHILE_INSTRUCCION  :
-              strcpy(c, auxInstr->res->nombre);
-              strcat(c, ":\n");
+              strcpy(c, auxInstr->res->nombre);strcat(c, ":\n");
               fputs(c, asm_code);
             break;
 
@@ -286,8 +263,7 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
         case LABEL_END_WHILE_INSTRUCCION  :
-            strcpy(c, auxInstr->res->nombre);
-            strcat(c, ":\n");
+            strcpy(c, auxInstr->res->nombre);strcat(c, ":\n");
             fputs(c, asm_code);
             break;
 
@@ -309,58 +285,34 @@ void cargar_param(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   switch (parametro){
     case 1:
-          strcpy(res, "  movq  %rdi, -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp)\n");
+          strcpy(res, "  movq  %rdi, -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
     break;
     case 2:
-          strcpy(res, "  movq  %rsi, -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp)\n");
+          strcpy(res, "  movq  %rsi, -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
     break;
     case 3:
-          strcpy(res, "  movq  %rdx, -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp)\n");
+          strcpy(res, "  movq  %rdx, -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
     break;
     case 4:
-          strcpy(res, "  movq  %rcx, -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp)\n");
+          strcpy(res, "  movq  %rcx, -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
     break;
     case 5:
-          strcpy(res, "  movq  %r8, -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp)\n");
+          strcpy(res, "  movq  %r8, -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
     break;
     case 6:
-          strcpy(res, "  movq  %r9, -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp)\n");
+          strcpy(res, "  movq  %r9, -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
     break;
     default:
-          strcpy(res, "  movq  ");
-          sprintf(aux,"%d", (parametro-5)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %rax\n");
+          strcpy(res, "  movq  ");sprintf(aux,"%d", (parametro-5)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
           fputs(res, asm_code);
 
-          strcpy(res, "  movq  %rax, -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp)\n");
+          strcpy(res, "  movq  %rax, -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
     break;
   }
@@ -372,55 +324,31 @@ void cargar_actual_params(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   switch (parametro){
     case 1:
-          strcpy(res, "  movq  -");
-          sprintf(aux, "%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %rdi\n");
+          strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rdi\n");
           fputs(res, asm_code);
     break;
     case 2:
-          strcpy(res, "  movq  -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %rsi\n");
+          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rsi\n");
           fputs(res, asm_code);
     break;
     case 3:
-          strcpy(res, "  movq  -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %rdx\n");
+          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rdx\n");
           fputs(res, asm_code);
     break;
     case 4:
-          strcpy(res, "  movq  -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %rcx\n");
+          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rcx\n");
           fputs(res, asm_code);
     break;
     case 5:
-          strcpy(res, "  movq  -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %r8\n");
+          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %r8\n");
           fputs(res, asm_code);
     break;
     case 6:
-          strcpy(res, "  movq  -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %r9\n");
+          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %r9\n");
           fputs(res, asm_code);
     break;
     default:
-          strcpy(res, "  movq  -");
-          sprintf(aux,"%d", (auxInstr->res->offset)*8);
-          strcat(res, aux);
-          strcat(res, "(%rbp), %rdi\n");
-          fputs(res, asm_code);
-
-          strcpy(res, "  pushq %rdi\n");
+          strcpy(res, "  pushq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           fputs(res, asm_code);
     break;
   }

@@ -480,7 +480,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         else{
           invocFunc->op = CALL;
         }
-        
         data_gen *function = (data_gen *) malloc(sizeof(data_gen));
         strcpy(function->nombre, data->data->nombre);
         function->tipo = data->data->tipo;
