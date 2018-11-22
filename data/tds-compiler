@@ -3,4 +3,4 @@ clear && printf '\e[3J'
 flex tds-lexico.l 
 bison -d tds-sintaxis.y
 gcc lex.yy.c tds-sintaxis.tab.c
-mv a.out compiler.out
+mv a.out ../compiler
