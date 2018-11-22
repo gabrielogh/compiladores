@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-void printGuiones( ){
+void printGuiones(){
   printf("----------------------------------------------------------\n");
 }
 

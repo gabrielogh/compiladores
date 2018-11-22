@@ -466,10 +466,12 @@ void crear_instrucciones(tresDirL *t, node *n){
         crear_instrucciones(t, getNodeSnd(n));
       }
       else if (op == RETURNN){
-        node *auxNode = getNodeFst(n);
-        instruccion->op = RETURN_INSTRUCCION;
-        instruccion->res = eval_expr(getNodeFst(n));
-        agregar_instruccion(t, instruccion);
+        if(n->tipoRet != VOIDD){
+          node *auxNode = getNodeFst(n);
+          instruccion->res = eval_expr(auxNode);
+          instruccion->op = RETURN_INSTRUCCION;
+          agregar_instruccion(t, instruccion);
+        }
       }
       else if (op == INVOCC){
         tresDir *invocFunc = (tresDir *) malloc(sizeof(tresDir));

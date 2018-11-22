@@ -74,6 +74,7 @@ typedef struct data_stacks{
  */
 typedef struct nodes{ 
   int linea;
+  int tipoRet;
   data_stack *info;
   struct nodes *fst;
   struct nodes *snd;
@@ -1007,8 +1008,9 @@ node * createNode(nodeParam *param){
       dataS = buscar_por_niveles(current, param->nombre);
       if(dataS == NULL){
         char c[256];
-        strcpy(c, " variable no declarada: ");
+        strcpy(c, " variable '");
         strcat(c, param->nombre);
+        strcat(c, "' no declarada");
         createNewError(param->linea, c, UNDECLAREDVAR);
       }
     }
@@ -1020,6 +1022,7 @@ node * createNode(nodeParam *param){
       dataS = crearDataStack(toString(param->nombre), param->tipoVar, param->valor, param->oper, param->linea, NULL, NULL, false);
     }
     treeSize = treeSize + 1;
+    n->tipoRet = param->tipoRet;
     n->info = dataS;
     n->linea = param->linea;
     n->fst = param->fst; n->snd = param->snd; n->trd = param->trd;
