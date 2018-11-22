@@ -112,6 +112,9 @@ void crear_label_funcion(tresDirL *intr){
 
     fputs("  .cfi_startproc\n", asm_code);
 
+    if((intr->stackSize%2)!=0){
+      intr->stackSize = intr->stackSize + 1;
+    }
     strcpy(p, "  enter $");
     sprintf(aux,"%d", (intr->stackSize)*8);
     strcat(p, aux);
@@ -753,22 +756,24 @@ void crear_call_cp_instruccion(tresDir *auxInstr){
   char c[32];
   int parametro = auxInstr->res->nParam;
   if(sis == 1){
-    strcpy(c, "  call  ");
+    strcpy(c, "  callq  ");
     strcat(c, auxInstr->op1->nombre);
     strcat(c, "\n");
     fputs(c, asm_code);
   }
   else{
-    strcpy(c, "  call  _");
+    strcpy(c, "  callq  _");
     strcat(c, auxInstr->op1->nombre);
     strcat(c, "\n");
     fputs(c, asm_code);
   }
-  strcpy(c, "  movq %rax, -");
-  sprintf(aux,"%d", (auxInstr->res->offset)*8);
-  strcat(c, aux);
-  strcat(c, "(%rbp)\n");
-  fputs(c, asm_code);
+  if(auxInstr->op1->tipo != VOIDD){
+    strcpy(c, "  movq %rax, -");
+    sprintf(aux,"%d", (auxInstr->res->offset)*8);
+    strcat(c, aux);
+    strcat(c, "(%rbp)\n");
+    fputs(c, asm_code);
+  }
 }
 
 void crear_call_sp_instruccion(tresDir *auxInstr){
@@ -777,13 +782,13 @@ void crear_call_sp_instruccion(tresDir *auxInstr){
   char c[32];
   int parametro = auxInstr->res->nParam;
   if(sis == 1){
-    strcpy(c, "  call ");
+    strcpy(c, "  callq ");
     strcat(c, auxInstr->op1->nombre);
     strcat(c, "\n");
     fputs(c, asm_code);
   }
   else{
-    strcpy(c, "  call _");
+    strcpy(c, "  callq _");
     strcat(c, auxInstr->op1->nombre);
     strcat(c, "\n");
     fputs(c, asm_code);
