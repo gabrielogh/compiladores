@@ -65,6 +65,10 @@ void crear_call_sp_instruccion(tresDir *auxInstr);
 
 //IMPLEMENTACION DE METODOS.
 
+/*
+ * Esta funcion genera el archivo donde se cargara el codigo assembler generado.
+ * El nombre del archivo es estatico, no es parametro del sistema.
+ */
 void crear_archivo(){
   asm_code = fopen("assembler.s","w");
   if(asm_code == NULL){
@@ -72,6 +76,11 @@ void crear_archivo(){
   }
 }
 
+
+/*
+ * Esta funcion genera el label de cada funcion del programa segun el sistema operativo.
+ * *intr: Instruccion que representa una funcion.
+ */
 void crear_label_funcion(tresDirL *intr){
   char c[256];
   char aux[256];
@@ -123,6 +132,10 @@ void crear_label_funcion(tresDirL *intr){
   }
 }
 
+/*
+ * Funcion principal que genera el codigo assembler.
+ * Esta funcion utiliza a crear_archivo(), crear_label_funcion(), cargar_instrcciones().
+ */
 void generar_codigo_assembler(){
   if(sis == 1){
     printf(KGRN "%s\n", "Generando codigo Assembler para LINUX.... "); printf(KNRM);
@@ -148,6 +161,10 @@ void generar_codigo_assembler(){
 
 }
 
+/*
+ * Esta funcion recorre y genera el codigo assembler todas las instrucciones de cada funcion.
+ * *instr: Puntero al primer elemento de la lista de instrucciones de una funcion.
+ */
 void cargar_instrcciones(tresDir *instr){
   char c[32];
   tresDir *auxInstr = instr;
@@ -282,6 +299,10 @@ void cargar_instrcciones(tresDir *instr){
   }
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la carga de parametros formales desde sus registros al stack reservado
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void cargar_param(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -321,6 +342,10 @@ void cargar_param(tresDir *auxInstr){
   }
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la carga de parametros actuales a sus registros
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void cargar_actual_params(tresDir *auxInstr){
   char res[32];
   char aux[32];

@@ -29,6 +29,11 @@ typedef struct strings{
  * valor: En caso de tenerlo.
  * tipo: Tipo de la variable (integer, bool) o tipo de retorno (VOID, integer, bool) en caso de ser una funcion
  * linea: Numero de linea.
+ * offset: Representa la posicion en el stack.
+ * global: Campo utilizado para saber si una variable es local (false) o global (true);
+ * param: Campo utilizado apra saber si un indentificador es un parametro.
+ * inic: Campo utilizado para verificar si una variable esta inicializada antes de ser utilizada, se inicializa en las asignaciones.
+ * nParam: En caso de que el identificador sea un parametro formal, este campo nos indica que numero de parametro es (1..2..3..).
  */
 typedef struct data_generic{
   char nombre[32];
@@ -44,13 +49,17 @@ typedef struct data_generic{
 } data_gen;
 
 /* Tipo utilizado para representar los posibles datos en el scope (cada nivel de la pila)
- * nombre: nombre de la variable o funcion.
- * valor: En caso de tenerlo.
+ * *data: Este campo nos permite representar tanto datos de variables como de funciones (su nombre, tipo de retorno, etc).
+ * es_extern: Nos indica si una funcion es externa o local.
+ * tipoOp: Campo utilizado para representar datos en el arbol y saber que tipo de operacion se va a realizar.
  * tipo: Tipo de la variable (integer, bool) o tipo de retorno (VOID, integer, bool) en caso de ser una funcion
  * linea: Numero de linea.
  * es_funcion: Nos indica si el data_stack esta representando una funcion.
+ * nParams: En caso de representar una funcion, este campo nos indica la cantidad de parametros formales de la misma.
+ * stack_size: Nos indica el tamaño del stack utilizado por la funcion, entre parametros y variables locales (luego se agregan los temporales).
  * *params: Lista de parametros actuales de una funcion.
  * *formalParams: Lista de parametros formales de una funcion
+ * *block: Cuerpo de la funcion representado con un arbol.
  * *next: Puntero al proximo elemento del scope.
  */
 typedef struct data_stacks{
@@ -67,6 +76,8 @@ typedef struct data_stacks{
 } data_stack;
 
 /* Tipo utilizado para implementar el AST.
+ * linea: Numero de linea leida.
+ * tipoRet: Este campo se utiliza para verificar los return void e ignorarlos luego.
  * *info: Es un struct que representa la informacion del nodo.
  * *fst: Nodo que representa el primer hijo en caso de tenerlo, sino es NULL.
  * *snd: Nodo que representa el segundo hijo en caso de tenerlo, sino es NULL.
@@ -83,8 +94,9 @@ typedef struct nodes{
 
 /* Tipo utilizado para implementar la pila que representa los niveles de alcance (scope).
  * id: representa el ID del nivel.
- * parent: Hace referencia al ID del bloque en el que esta contenido (si es el principal, parent==NULL).
- * info: Puntero al primer elemento del scope.
+ * parent: Hace referencia al ID del bloque en el que esta contenido (si es el principal, parent es -1).
+ * *info: Puntero al primer elemento de un determinado nivel del scope.
+ * *last: Puntero al ultimo elemento de un determinado nivel del scope.
  * *next: Puntero al proximo nivel del scope.
  */
 typedef struct stacks{
@@ -98,7 +110,7 @@ typedef struct stacks{
 /*
  * Tipo utilizado para representar los parametros de la funcion createNodeParam, con el fin de modularizar y simplificar los cambios.
  * c[32]: Identificador de variable o funcion.
- * val: Valor entero en caso de tenerlo.
+ * valor: Valor entero en caso de tenerlo.
  * tipoVar: Tipo de variable representado por un entero.
  * tipoRet: Tipo de valor de retorno en caso de ser una funcion.
  * oper: Tipo de operacion.
@@ -125,6 +137,7 @@ typedef struct nodeParams{
 }nodeParam;
 
 /* Tipo utilizado para representar los parametros actuales de las funciones.
+ * numero: Numero del parametro (1..2...3...).
  * *parametro: Arbol que representa una expresion a evaluar, puede ser una invocacion a otro metodo, una expresion matematica, booleana, etc.
  * *next: Puntero al proximo parametro.
  */
@@ -210,6 +223,7 @@ void deleteFuncitonBlocks();
 //Funcion que nos permite visualizar los parametros formales de una funcion.
 void printFormalParams(formalParam *fp);
 
+//Funcion que nos permite visualizar los parametros actuales de una funcion.
 void printActualParams(paramList *pl);
 
 //Funcion que comienza el chequeo semantico del programa.
@@ -224,8 +238,10 @@ void deleteCalls(paramList *pl);
 //Esta funcion elimina un arbol o sub-arbol.
 void eliminarArbol(node *n);
 
+//Funcion que inicializa una variable.
 void initVar(stack *s, char c[32]);
 
+//Funcion que busca la variable a ser inicializada.
 int buscar_var_id(stack *s, char c[32]);
 
 //IMPLEMENTACION DE METODOS.
@@ -234,7 +250,6 @@ int buscar_var_id(stack *s, char c[32]);
  * Esta funcion inicializa el scope, creando el primer nivel que contendra a los demas.
  */
 void init(){
-  //printf("ENTRAMOS A INIT\n");
   nVars = 0;
   current = (stack *) malloc(sizeof(stack));
   inicial = (stack *) malloc(sizeof(stack));
@@ -304,138 +319,88 @@ void crear_nivel(){
   newLevel->id = niveles;
 }
 
-
-
 /*
- * Esta funcion nos permite castear un nodeAux como un node.
+ * Esta funcion realmente no sirve para nada, es totalmente inutil, retorna lo mismo que se le pasa como parametro
+ * Seguramente se creo a altas horas de la madrugada cuando la razon y la logica se encuentran totalmente opacadas por el sueño.
+ * *d: Ni siquiera importa...de hecho, pensandolo bien, en lo que escribi esta descripcion, podria haber eliminado la funcion...
  */
-void printDataStack(data_stack *d, int id, int padre){
-  printf("          |\n");
-  printf("          |\n");
-  printf("          |\n");
-  printf("           ----------------------------- \n");
-
-  printf("          | ID nivel:   | %d             |\n", id);
-
-
-  if(padre <10 && padre > 0){
-    printf("          | ID Padre:   | %d             |\n", padre);
-  }
-  else if((padre >9 && padre < 100) || (padre < 0)){
-    printf("          | ID Padre:   | %d            |\n", padre);
-  }
-  else if((padre > 99 && padre < 1000)){
-    printf("          | ID Padre:   | %d             |\n", padre);
-  }
-
-  printf("          | Es funcion: | %d             |\n", d->es_funcion);
-
-  printf("          | Nombre:     | %s\n", d->data->nombre);
-
-  if(d->data->valor <10 && d->data->valor > 0){
-    printf("          | Valor:      | %d             |\n", d->data->valor);
-  }
-  else if((d->data->valor >9 && d->data->valor<100) || (d->data->valor < 0)){
-    printf("          | Valor:      | %d            |\n", d->data->valor);
-  }
-  else if((d->data->valor > 99 && d->data->valor < 1000)){
-    printf("          | Valor:      | %d           |\n", d->data->valor);
-  }
-  if(d->data->tipo <10){
-    printf("          | Tipo:       | %d             |\n", d->data->tipo);
-  }
-  else{
-    printf("          | Tipo:       | %d            |\n", d->data->tipo);
-  }
-
-  if(d->data->global){
-    printf("          | Global: True     |           |\n");
-  }
-  else{
-    printf("          | Global: False    |           |\n");
-  }
-
-  if(d->data->offset <10 && d->data->offset > 0){
-    printf("          | Offset:      | %d             |\n", d->data->offset);
-  }
-  else if((d->data->offset >9 && d->data->offset<100) || (d->data->offset < 0)){
-    printf("          | Offset:      | %d            |\n", d->data->offset);
-  }
-  else if((d->data->offset > 99 && d->data->offset < 1000)){
-    printf("          | Offset:      | %d           |\n", d->data->offset);
-  }
-
-  if(d->data->inic){
-    printf("          | Inic: True     |           |\n");
-  }
-  else{
-    printf("          | Inic: False    |           |\n");
-  }
-
-  if(d->data->linea <10){
-    printf("          | Linea:      | %d             |\n", d->data->linea);
-  }
-  else if(d->data->linea >9 && d->data->linea<100){
-    printf("          | Linea:      | %d            |\n", d->data->linea);
-  }
-  else if((d->data->linea > 99 && d->data->linea < 1000)){
-    printf("          | Linea:      | %d           |\n", d->data->linea);
-  }
-  printf("           ----------------------------- \n");
+string * getNombre(string *d){
+  return d;
 }
 
 /*
- * Esta funcion imprime un nivel completo. Utiliza a la funcion printDataStack.
- * id: ID del bloque al que pertenece
- * padre: ID del bloque que lo contiene inmediatamente.
- * *d: Dato del nivel a imprimir.
+ * Esta funcion nos permite convertir un char [] en un struct string.
+ * c[32]: palabra a convertir a string.
  */
-void printLevel(data_stack *d, int id, int padre){
+string * toString(char c[32]){
+  string *s = (string *) malloc(sizeof(string));
+  strcpy(s->nombre, c);
+  return s;
+}
+
+/*
+ * Esta funcion nos permite obtener el campo nombre de un data_stack
+ * *d: data_stack.
+ */
+string * getName(data_stack *d){
+  string *s;
   if(d != NULL){
-    if(d->next == NULL){
-      printDataStack(d, id, padre);
-    }
-    else{
-      printDataStack(d, id, padre);
-      while(d->next != NULL){
-        d = d->next;
-        printDataStack(d, id, padre);
-      }
-    }
+    char res[32];
+    strcpy(res, d->data->nombre);
+    s = toString(res);
+    return s;
+  }
+  s = (string *) malloc(sizeof(string));
+  strcpy(s->nombre, "NOMBRE NO ENCONTRADO - DATANULL");
+  return s;
+
+}
+
+/*
+ * Esta funcion nos permite obtener campo valor de un data_stack
+ * *d: data_stack que contiene a value.
+ */
+int getValue(data_stack *d){
+  data_gen *aux = d->data;
+  return aux->valor;
+}
+
+/*
+ * Esta funcion nos permite obtener el primer hijo de un nodo
+ * *n: Nodo padre.
+ */
+node * getNodeFst(node *n){
+  if(n->fst != NULL){
+    return(n->fst);
   }
   else{
-    printf("NIVEL ID: %d VACIO CON PADRE ID: %d\n", id, padre);
+    return NULL;
   }
 }
 
 /*
- * Esta funcion imprime el stack completo, utiliza a la funcion printLevel para imprimir cada nivel.
+ * Esta funcion nos permite obtener el segundo hijo de un nodo
+ * *n: Nodo padre.
  */
-void printStack(){
-  printf("\n");
-  printf("              STACK:\n");
-  stack *s = (stack *) malloc(sizeof(stack));
-  s = inicial;
-  if(s == NULL){
-    printf("STACK VACIO.\n");
+node * getNodeSnd(node *n){
+  if(n->snd != NULL){
+    return(n->snd);
   }
   else{
-    printf(" ----------------------------- \n");
-    printf("|           NIVEL: %d          |\n", s->id);
-    printf("|                             | \n");
-    printf("|                             | \n");
-    printf(" ----------------------------- \n");
-    printLevel(s->info, s->id, s->parent);
-    s = s->next;
-    while(s != NULL){
-      printf(" ----------------------------- \n");
-      printf("|           NIVEL: %d          |\n", s->id);
-      printf("|                             | \n");
-      printf("|                             | \n");
-      printf(" ----------------------------- \n");
-      printLevel(s->info, s->id, s->parent);
-      s = s->next;
-    }
+    return NULL;
+  }
+}
+
+/*
+ * Esta funcion nos permite obtener el tercer hijo de un nodo
+ * *n: Nodo padre.
+ */
+node * getNodeTrd(node *n){
+  if(n->trd != NULL){
+    return(n->trd);
+  }
+  else{
+    return NULL;
   }
 }
 
@@ -517,7 +482,8 @@ data_stack * buscar_por_niveles(stack *s, char c[32]){
 }
 
 /*
- * Esta funcion busca un ID en un nivel determinado.
+ * Esta funcion busca una variable para inicializarla.
+ * Si la variable no es encontrada, retorna -1, si es encontrada la inicializa y retorna 1.
  * *s: Nivel en el cual buscar.
  * c[10]: ID a buscar.
  */
@@ -536,6 +502,12 @@ int buscar_var_id(stack *s, char c[32]){
   else{ return -1;}
 }
 
+/*
+ * Esta funcion se encarga de inicializar una variable, utiliza a la funcion buscar_var_id().
+ * Funciona igual a la buscar por niveles.
+ * *s: Nivel en el cual buscar.
+ * c[10]: ID a buscar.
+ */
 void initVar(stack *s, char c[32]){
   int id = s->parent;
   int res;
@@ -575,8 +547,6 @@ void insertar_funcion(data_stack *d){
     newD->es_extern = false;
   }
   stack *aux = inicial;
-
-
   data_stack *res = buscar_id(inicial, d->data->nombre);
 
   if(res != NULL){
@@ -774,90 +744,6 @@ data_stack * crearDataStack(string *s, int tipo, int valor, int tipoOp, int line
   return aux;
 }
 
-/*
- * Esta funcion realmente no sirve para nada, es totalmente inutil, retorna lo mismo que se le pasa como parametro
- * Seguramente se creo a altas horas de la madrugada cuando la razon y la logica se encuentran totalmente opacadas por el sueño.
- * *d: Ni siquiera importa...de hecho, pensandolo bien, en lo que escribi esta descripcion, podria haber eliminado la funcion...
- */
-string * getNombre(string *d){
-  return d;
-}
-
-/*
- * Esta funcion nos permite convertir un char [] en un struct string.
- * c[32]: palabra a convertir a string.
- */
-string * toString(char c[32]){
-  string *s = (string *) malloc(sizeof(string));
-  strcpy(s->nombre, c);
-  return s;
-}
-
-/*
- * Esta funcion nos permite obtener el campo nombre de un data_stack
- * *d: data_stack.
- */
-string * getName(data_stack *d){
-  string *s;
-  if(d != NULL){
-    char res[32];
-    strcpy(res, d->data->nombre);
-    s = toString(res);
-    return s;
-  }
-  s = (string *) malloc(sizeof(string));
-  strcpy(s->nombre, "NOMBRE NO ENCONTRADO - DATANULL");
-  return s;
-
-}
-
-/*
- * Esta funcion nos permite obtener campo valor de un data_stack
- * *d: data_stack que contiene a value.
- */
-int getValue(data_stack *d){
-  data_gen *aux = d->data;
-  return aux->valor;
-}
-
-/*
- * Esta funcion nos permite obtener el primer hijo de un nodo
- * *n: Nodo padre.
- */
-node * getNodeFst(node *n){
-  if(n->fst != NULL){
-    return(n->fst);
-  }
-  else{
-    return NULL;
-  }
-}
-
-/*
- * Esta funcion nos permite obtener el segundo hijo de un nodo
- * *n: Nodo padre.
- */
-node * getNodeSnd(node *n){
-  if(n->snd != NULL){
-    return(n->snd);
-  }
-  else{
-    return NULL;
-  }
-}
-
-/*
- * Esta funcion nos permite obtener el tercer hijo de un nodo
- * *n: Nodo padre.
- */
-node * getNodeTrd(node *n){
-  if(n->trd != NULL){
-    return(n->trd);
-  }
-  else{
-    return NULL;
-  }
-}
 
 /*
  * Luego de que se genera la lista de parametros de una funcion, al ser esta global debe ser reiniciada.
@@ -867,49 +753,6 @@ void resetParams(){
   fstParam = (formalParam *)malloc(sizeof(formalParam));
   fstParam->next = NULL;
   lastParam = fstParam;
-}
-
-/*
- * Esta fue utilizada para visualizar los parametros formales de una funcion
- * *fp: Lista de parametros formales.
- */
-void printFormalParams(formalParam *fp){
-  if(fp==NULL){
-    printf("Parametros vacios\n");
-  }
-  else{
-    while (fp!=NULL){
-      printf("Nombre: %s - Tipo: %d\n", fp->nombre, fp->tipo);
-      fp = fp->next;
-    }
-  }
-}
-
-/*
- * Esta fue utilizada para visualizar los parametros actuales de una invocacion.
- * *pl: Lista de parametros actuales.
- */
-void printActualParams(paramList *pl){
-  paramList *aux = pl;
-  node *n;
-  if(aux==NULL){
-    printf("Parametros vacios\n");
-  }
-  else{
-    n = aux->parametro;
-    if(n!=NULL){
-      printf("Nombre: %s - Tipo: %d\n", n->info->data->nombre, n->info->data->tipo);
-    }
-    aux = aux->next;
-    while(aux!=NULL){
-      n = aux->parametro;
-      if(n!=NULL){
-        printf("Nombre: %s - Tipo: %d  -Numero: %d\n", n->info->data->nombre, n->info->data->tipo, aux->numero);
-      }
-      aux = aux->next;
-
-    }
-  }
 }
 
 /*
@@ -945,12 +788,9 @@ int getLinea(data_stack *d){
 int lastType(){
   stack *aux = current;
   data_stack *aux2 = (data_stack *)aux->info;
-  while(aux2->next!= NULL){
-    aux2 = (data_stack *) aux2->next;
-  }
+  while(aux2->next!= NULL){ aux2 = (data_stack *) aux2->next;}
   return aux2->data->tipo;
 }
-
 
 /*
  * Esta funcion nos permite crear un nodeParam que luego se utiliza para generar un nuevo nodo del arbol.
@@ -1039,10 +879,7 @@ node * createNode(nodeParam *param){
 void newCall(paramList *p, node *n){
   paramList *newParam = (paramList *) malloc(sizeof(paramList));
   paramList *aux = p;
-
-
   if(aux == NULL){
-    //n->info->data->nParam = 1;
     newParam->parametro = n;
     newParam->numero = 1;
     aux = newParam;
@@ -1053,7 +890,6 @@ void newCall(paramList *p, node *n){
       aux = aux->next;
       i = i+1;
     }
-    //n->info->data->nParam = i + 1;
     newParam->parametro = n;
     newParam->numero = i +1;
     aux->next = newParam;
@@ -1192,21 +1028,16 @@ int evalExpr(node *n, int tipoRet){
       else if (op == BLOCK){
         evalExpr(getNodeFst(n), tipoRet);
       }
-      /*else if (op == BLOCKNULL){
-        return tipoRet;
-      }*/
       else if (op == STATEMENTS){
         evalExpr(getNodeFst(n), tipoRet);
         evalExpr(getNodeSnd(n), tipoRet);
-        
       }
       else if (op == RETURNN){
         int res = evalExpr(getNodeFst(n), tipoRet);
-        if(res == tipoRet){
-          return tipoRet;
-        }
+        if(res == tipoRet){return tipoRet;}
         else if(res != WRONGTYPE){
-          createNewError(getLinea(data), "Error de tipos en el return: El tipo de la expresion del return debe ser igual al tipo de retorno de la funcion ", WRONGTYPE);return WRONGTYPE;}
+          createNewError(getLinea(data), "Error de tipos en el return: El tipo de la expresion del return debe ser igual al tipo de retorno de la funcion ", WRONGTYPE);return WRONGTYPE;
+        }
       }
     }
   }
@@ -1225,9 +1056,7 @@ void checkParams(node *n){
   formalParam *formal = data->formalParams;
   bool control = true;
   int nn = counActualParams(paramInvoc);
-  if(data->nParams != nn){
-    createError(getLinea(getNodeData(n)), INVOCPARAMS);
-  }
+  if(data->nParams != nn){createError(getLinea(getNodeData(n)), INVOCPARAMS);}
   else{
     while((paramInvoc != NULL) && control){
       if(paramInvoc->parametro== NULL){
@@ -1236,9 +1065,9 @@ void checkParams(node *n){
       int res = evalExpr(paramInvoc->parametro, IGNORE);
       if((res != formal->tipo) && (res != UNKNOW)) {
         createNewError(getLinea(data), "Error de tipos en el la invocacion ", WRONGTYPEPARAM);
-        control =false;
+        control = false;
       }
-      if(paramInvoc->parametro!= NULL){
+      if(paramInvoc->parametro != NULL){
         formal = formal->next;
       }
       paramInvoc = paramInvoc->next;
@@ -1292,5 +1121,181 @@ void eliminarArbol(node *n){
     deleteCalls(data->params);
     treeSize = treeSize - 1;
     free(n);
+  }
+}
+
+/*
+ * Esta funcion nos permite castear un nodeAux como un node.
+ */
+void printDataStack(data_stack *d, int id, int padre){
+  printf("          |\n");
+  printf("          |\n");
+  printf("          |\n");
+  printf("           ----------------------------- \n");
+
+  printf("          | ID nivel:   | %d             |\n", id);
+
+
+  if(padre <10 && padre > 0){
+    printf("          | ID Padre:   | %d             |\n", padre);
+  }
+  else if((padre >9 && padre < 100) || (padre < 0)){
+    printf("          | ID Padre:   | %d            |\n", padre);
+  }
+  else if((padre > 99 && padre < 1000)){
+    printf("          | ID Padre:   | %d             |\n", padre);
+  }
+
+  printf("          | Es funcion: | %d             |\n", d->es_funcion);
+
+  printf("          | Nombre:     | %s\n", d->data->nombre);
+
+  if(d->data->valor <10 && d->data->valor > 0){
+    printf("          | Valor:      | %d             |\n", d->data->valor);
+  }
+  else if((d->data->valor >9 && d->data->valor<100) || (d->data->valor < 0)){
+    printf("          | Valor:      | %d            |\n", d->data->valor);
+  }
+  else if((d->data->valor > 99 && d->data->valor < 1000)){
+    printf("          | Valor:      | %d           |\n", d->data->valor);
+  }
+  if(d->data->tipo <10){
+    printf("          | Tipo:       | %d             |\n", d->data->tipo);
+  }
+  else{
+    printf("          | Tipo:       | %d            |\n", d->data->tipo);
+  }
+
+  if(d->data->global){
+    printf("          | Global: True     |           |\n");
+  }
+  else{
+    printf("          | Global: False    |           |\n");
+  }
+
+  if(d->data->offset <10 && d->data->offset > 0){
+    printf("          | Offset:      | %d             |\n", d->data->offset);
+  }
+  else if((d->data->offset >9 && d->data->offset<100) || (d->data->offset < 0)){
+    printf("          | Offset:      | %d            |\n", d->data->offset);
+  }
+  else if((d->data->offset > 99 && d->data->offset < 1000)){
+    printf("          | Offset:      | %d           |\n", d->data->offset);
+  }
+
+  if(d->data->inic){
+    printf("          | Inic: True     |           |\n");
+  }
+  else{
+    printf("          | Inic: False    |           |\n");
+  }
+
+  if(d->data->linea <10){
+    printf("          | Linea:      | %d             |\n", d->data->linea);
+  }
+  else if(d->data->linea >9 && d->data->linea<100){
+    printf("          | Linea:      | %d            |\n", d->data->linea);
+  }
+  else if((d->data->linea > 99 && d->data->linea < 1000)){
+    printf("          | Linea:      | %d           |\n", d->data->linea);
+  }
+  printf("           ----------------------------- \n");
+}
+
+/*
+ * Esta funcion imprime un nivel completo. Utiliza a la funcion printDataStack.
+ * id: ID del bloque al que pertenece
+ * padre: ID del bloque que lo contiene inmediatamente.
+ * *d: Dato del nivel a imprimir.
+ */
+void printLevel(data_stack *d, int id, int padre){
+  if(d != NULL){
+    if(d->next == NULL){
+      printDataStack(d, id, padre);
+    }
+    else{
+      printDataStack(d, id, padre);
+      while(d->next != NULL){
+        d = d->next;
+        printDataStack(d, id, padre);
+      }
+    }
+  }
+  else{
+    printf("NIVEL ID: %d VACIO CON PADRE ID: %d\n", id, padre);
+  }
+}
+
+/*
+ * Esta funcion imprime el stack completo, utiliza a la funcion printLevel para imprimir cada nivel.
+ */
+void printStack(){
+  printf("\n");
+  printf("              STACK:\n");
+  stack *s = (stack *) malloc(sizeof(stack));
+  s = inicial;
+  if(s == NULL){
+    printf("STACK VACIO.\n");
+  }
+  else{
+    printf(" ----------------------------- \n");
+    printf("|           NIVEL: %d          |\n", s->id);
+    printf("|                             | \n");
+    printf("|                             | \n");
+    printf(" ----------------------------- \n");
+    printLevel(s->info, s->id, s->parent);
+    s = s->next;
+    while(s != NULL){
+      printf(" ----------------------------- \n");
+      printf("|           NIVEL: %d          |\n", s->id);
+      printf("|                             | \n");
+      printf("|                             | \n");
+      printf(" ----------------------------- \n");
+      printLevel(s->info, s->id, s->parent);
+      s = s->next;
+    }
+  }
+}
+
+/*
+ * Esta fue utilizada para visualizar los parametros formales de una funcion
+ * *fp: Lista de parametros formales.
+ */
+void printFormalParams(formalParam *fp){
+  if(fp==NULL){
+    printf("Parametros vacios\n");
+  }
+  else{
+    while (fp!=NULL){
+      printf("Nombre: %s - Tipo: %d\n", fp->nombre, fp->tipo);
+      fp = fp->next;
+    }
+  }
+}
+
+/*
+ * Esta fue utilizada para visualizar los parametros actuales de una invocacion.
+ * *pl: Lista de parametros actuales.
+ */
+void printActualParams(paramList *pl){
+  paramList *aux = pl;
+  node *n;
+  if(aux==NULL){
+    printf("Parametros vacios\n");
+  }
+  else{
+    n = aux->parametro;
+    if(n!=NULL){
+      printf("Nombre: %s - Tipo: %d\n", n->info->data->nombre, n->info->data->tipo);
+    }
+    aux = aux->next;
+    while(aux!=NULL){
+      n = aux->parametro;
+      if(n!=NULL){
+        printf("Nombre: %s - Tipo: %d  -Numero: %d\n", n->info->data->nombre, n->info->data->tipo, aux->numero);
+      }
+      aux = aux->next;
+
+    }
   }
 }
