@@ -28,7 +28,7 @@ program
             n= n+1;
             while((i<n) || (i==n))
               begin
-               
+                print (x);
                 sum = x+y;
                 y = x;
                 x = sum;
@@ -41,7 +41,7 @@ program
     void  main()
       begin
         integer w;
-        w = fibonacci(5);
+        w = fibonacci(20);
         print (w);
       end
   end

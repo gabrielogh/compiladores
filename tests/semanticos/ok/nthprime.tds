@@ -1,7 +1,7 @@
 program
 begin
 
-    void printGuiones( ) extern;
+    void printGuiones() extern;
     void print(integer n) extern;
 
     //retorna el n esimo primo
@@ -39,16 +39,39 @@ begin
     void main()
       begin
         integer x, i, aux, res;
-        {test nthprime entero}
-        
+        //test nthprime entero
         x=3; // cantidad de veces que ejecutara la funcion
         i = 0;
-        aux = 4;
+        aux = 1;
         while (i<x)begin
           res = nthprime(aux);
           aux = aux + 1;
+          printGuiones();
+          print(res);
+          printGuiones();
+          print(i+8);
+          printGuiones();
+          printGuiones();
+          print(res);
           i=i+1;
         end
+        printGuiones();
+        print(i+8);
+        printGuiones();
+        print(res);
+        if(true)then begin
+          printGuiones();
+          print(res);
+          printGuiones();
+          print(i-9);
+          printGuiones();
+          print(res);
+          printGuiones();
+          print(res);
+          printGuiones();
+        end
+        printGuiones();
+        printGuiones();
     end
 end
 

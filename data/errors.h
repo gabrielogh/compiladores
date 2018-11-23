@@ -134,10 +134,10 @@ error * createNewError(int linea, char c[256], int tipo){
  */
 void printNodeError(error *data){
   if(data != NULL){
-    printf(KRED "ERROR en la linea: %d - %s\n", data->line, data->desc); printf(KNRM);
+    printf(KRED "ERROR - linea: %d - %s\n", data->line, data->desc); printf(KNRM);
   }
   else{
-    printf(KGRN "No hay error.\n"); printf(KNRM);
+    printf(KGRN "No hay errores.\n"); printf(KNRM);
   }
 }
 

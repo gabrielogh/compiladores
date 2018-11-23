@@ -3,7 +3,15 @@
 //DEFINICION DE TIPOS:
 typedef struct codTresDirs tresDir;
 typedef struct tresDirList tresDirL;
+typedef struct globalVarsList globalVars;
 
+/* Tipo utilizado para representar un codigo de tres direcciones.
+ * op: Representa la operacion a realizar mediante su codigo (los codigos se encuentran en constantes.h).
+ * *op1: El primero operando.
+ * *op2: El segundo operando.
+ * *res: El resultado de la operacion.
+ * *next: Puntero al proximo codigo de tres direcciones.
+ */
 typedef struct codTresDirs {
   int op;
   data_gen *op1;
@@ -12,19 +20,35 @@ typedef struct codTresDirs {
   struct codTresDirs *next;
 }tresDir;
 
+/* Tipo utilizado para representar la lista de codigos de tres direcciones de cada funcion.
+ * La lista principal de tipo tresDirL contiene todas las funciones del programa
+ * luego cada funcion contiene una lista de codigo de tres direcciones que representa el cuerpo de la misma.
+ * stackSize: representa el tamaño del stack utilizado por esa funcion, contemplando parametros, variables locale y el uso de temporales.
+ * nombre[32]: Es el nombre de la funcion.
+ * *fst: Puntero al primer codigo de tres direcciones de la funcion, cada funcion tiene su lista de codigos de tres direcciones.
+ * *last: Puntero al ultimo codigo de tres direcciones de la funcion.
+ * *next: Puntero al proximo elemento de la lista de codigo de tres direcciones, es decir a la proxima funcion..
+ */
 typedef struct tresDirList{
   int stackSize;
   char nombre[32];
+  bool is_gv;
+  int tipo;
   tresDir *fst;
   tresDir *last;
   struct tresDirList *next;
 } tresDirL;
 
+typedef struct globalVarsList{
+  data_gen *var;
+  struct globalVarsList *next;
+}globalVars;
 
 //VARIABLES GLOBALES:
 
 int temp,labels, instrucciones, stackPos, stackParams;
 tresDirL *head_td, *last_td;
+globalVars *fst_var, *last_var;
 
 //DECLARACION DE METODOS:
 void initTresDirList();
@@ -59,8 +83,16 @@ char * opToString(int op);
 
 void createJmp(int p, data_gen *res);
 
+void agregar_variable_global(data_gen *res);
+
+void cargar_variables_globales(globalVars *head);
+
+
 //IMPLEMENTACION DE METODOS:
 
+/*
+ * Esta funcion inicializa la lista de codigos de tres direcciones.
+ */
 void initTresDirList(){
   temp = 0;
   labels = 0;
@@ -71,8 +103,13 @@ void initTresDirList(){
   head_td->fst = NULL;
   head_td->next = NULL;
   last_td = head_td;
+  fst_var = NULL;
+  last_var = fst_var;
 }
 
+/*
+ * Esta funcion se encarga de generar los nombres y la posicion en el stack de los temporales.
+ */
 void generate_temp(char c[32]){
   temp = temp + 1;
   strcpy(c, "TMP");
@@ -80,9 +117,11 @@ void generate_temp(char c[32]){
   sprintf(aux,"%d",temp);
   strcat(c, aux);
   stackPos = stackPos + 1;
-  printf("LA POSICION DEL %s es %d\n",c, stackPos*8);
 }
 
+/*
+ * Esta funcion se encarga de generar los nombres de los labels (no utilizan lugar en el scope, se utilizan para ahcer los jump).
+ */
 void generate_label(char c[32]){
   labels = labels + 1;
   strcpy(c, "LBB_");
@@ -91,6 +130,9 @@ void generate_label(char c[32]){
   strcat(c, aux);
 }
 
+/*
+ * Esta funcion se encarga de generar los Jumps.
+ */
 void createJmp(int p, data_gen *res){
   tresDir *jmp = (tresDir *) malloc(sizeof(tresDir));
   jmp->op = p;
@@ -98,6 +140,10 @@ void createJmp(int p, data_gen *res){
   agregar_instruccion(last_td, jmp);
 }
 
+/*
+ * Esta funcion obtiene el ultimo elemento de la lista de codigo de tres direcciones de una funcion 
+ * (utilizada para obtener el resultado de una evaluacion recursiva de una expresion).
+ */
 data_gen * getLastResult(){
   if(last_td->fst != NULL){
     tresDir *aux = last_td->fst;
@@ -110,6 +156,7 @@ data_gen * getLastResult(){
     return NULL;
   }
 }
+
 
 /*
  * Esta esta la funcion principal que se encarga de generar todo el codigo de tres direcciones
@@ -126,26 +173,64 @@ void generar_codigo(){
         agregar_funcion(d);
         cargar_parametros_formales(d->formalParams);
         stackPos = d->stack_size;
-        printf("EL STACK DE LA FUNCION %s ES %d\n", d->data->nombre, d->stack_size);
         crear_instrucciones(last_td, d->block);
-        printf("EL STACK FINAL DE LA FUNCION ES: %d\n", stackPos);
         last_td->stackSize = stackPos;
         temp = 0;
       }
+      else if(d->data->global){
+        agregar_variable_global(d->data);
+      }
       d = d->next;
     }
+    cargar_variables_globales(fst_var);
   }
+}
+
+void agregar_variable_global(data_gen *res){
+  globalVars *var = (globalVars *) malloc(sizeof(globalVars));
+  var->var = res;
+  var->next = NULL;
+  if(fst_var == NULL){
+    fst_var = var;
+    last_var = fst_var;
+  }
+  else{
+    last_var->next = var;
+    last_var = var;
+  }
+}
+
+void cargar_variables_globales(globalVars *head){
+  globalVars *aux = head;
+  while(aux != NULL){
+    tresDirL *variable = (tresDirL *) malloc(sizeof(tresDirL));
+    data_gen *res = aux->var;
+    strcpy(variable->nombre, res->nombre);
+    variable->is_gv = true;
+    variable->tipo = res->tipo;
+    if(head_td == NULL){
+      head_td = variable;
+      last_td = head_td;
+    }
+    else{
+      last_td->next = variable;
+      last_td = variable;
+    }
+    aux = aux->next;
+  }
+
 }
 
 /*
  * Esta funcion se encarga de generar un nuevo nodo en la lista general para insertar una nueva funcion.
- * *d: Datos de la funcion
+ * *d: Datos de la funcion.
  */
 void agregar_funcion(data_stack *d){
   tresDirL *param = (tresDirL *) malloc(sizeof(tresDirL));
   strcpy(param->nombre, d->data->nombre);
   param->fst = NULL;
   param->last = param->fst;
+  param->is_gv = false;
   if(head_td == NULL){
     head_td = param;
     last_td = head_td;
@@ -176,13 +261,16 @@ void agregar_instruccion(tresDirL *pos, tresDir *param){
 
 }
 
+/*
+ * Esta funcion se encarga de generar el codigo de tres direcciones correspondientes a los parametros actuales
+ * en una invocacion a una funcion.
+ * *pos: Posicion en la lista general donde se va a insertar la instruccion.
+ * *pl: Lista de parametros actuales que hay que resolver ya que pueden ser expresiones complejas.
+ */
 void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
   paramList *aux = pl;
   node *n;
-  if(aux==NULL){
-    printf("No hay parametros para cargar\n");
-  }
-  else{
+  if(aux != NULL){
     int i = 0;
     n = aux->parametro;
     if(n!=NULL){
@@ -212,6 +300,11 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
   }
 }
 
+/*
+ * Esta funcion se encarga de generar el codigo de tres direcciones correspondientes a los parametros formales
+ * de una funcion, es decir recupera los parametros actuales pasados en la invocacion y los asigna en los registros correspondientes.
+ * *Lista de parametros formales de la funcion.
+ */
 void cargar_parametros_formales(formalParam *params){
   if(params != NULL){
     formalParam *auxParam = params;
@@ -223,7 +316,6 @@ void cargar_parametros_formales(formalParam *params){
       stackPos = auxParam->numero;
       dataAux->offset = auxParam->numero;
       strcpy(dataAux->nombre, auxParam->nombre);
-      printf("EL OFFSET DEL PARAMETRO %s es %d\n", auxParam->nombre, (auxParam->numero * -8));
       instruccion->op = CARGAR_PARAMS;
       instruccion->res = dataAux;
       agregar_instruccion(last_td, instruccion);
@@ -232,13 +324,17 @@ void cargar_parametros_formales(formalParam *params){
   }
 }
 
+/*
+ * Esta funcion se encarga de evaluar las expresiones que pueden ser siples (variables o parametros) o expresiones complejas
+ * las cuales resuelve de forma recursiva, generando todas las instrucciones intermedias.
+ * *n: Nodo que representa la instruccion.
+ */
 data_gen * eval_expr(node *n){
   data_gen *aux = n->info->data;
   if(aux != NULL){
-    if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
+    if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO) || (n->info->tipoOp == CONSTANTEE)){
       if(n->info->tipoOp == VARR){
         aux->offset = aux->offset;
-        printf("EL OFFSET DE LA VARIABLE LOCAL %s es %d\n", aux->nombre, aux->offset);
       }
       return aux;
     }
@@ -250,7 +346,12 @@ data_gen * eval_expr(node *n){
   return NULL;
 }
 
-
+/*
+ * Esta funcion es una de las principales, se encarga de generar el codigo de tres direcciones de una funcion.
+ * Utiliza a la funcion agregar_instruccion().
+ * *t: Posicion en la lista general donde se van a insertar las instrucciones.
+ * *n: Cuerpo de la funcion.
+ */
 void crear_instrucciones(tresDirL *t, node *n){
   if(n!=NULL){
     data_stack *data = n->info;
@@ -471,10 +572,12 @@ void crear_instrucciones(tresDirL *t, node *n){
         crear_instrucciones(t, getNodeSnd(n));
       }
       else if (op == RETURNN){
-        node *auxNode = getNodeFst(n);
-        instruccion->op = RETURN_INSTRUCCION;
-        instruccion->res = eval_expr(getNodeFst(n));
-        agregar_instruccion(t, instruccion);
+        if(n->tipoRet != VOIDD){
+          node *auxNode = getNodeFst(n);
+          instruccion->res = eval_expr(auxNode);
+          instruccion->op = RETURN_INSTRUCCION;
+          agregar_instruccion(t, instruccion);
+        }
       }
       else if (op == INVOCC){
         tresDir *invocFunc = (tresDir *) malloc(sizeof(tresDir));
@@ -485,7 +588,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         else{
           invocFunc->op = CALL;
         }
-        
         data_gen *function = (data_gen *) malloc(sizeof(data_gen));
         strcpy(function->nombre, data->data->nombre);
         function->tipo = data->data->tipo;
@@ -500,6 +602,10 @@ void crear_instrucciones(tresDirL *t, node *n){
   }
 }
 
+/*
+ * Esta funcion nos permite traducir los codigos de las operacioens a Strings mas representativos para luego imprimir la lista.
+ * *op: Codigo numerico de la operacion a traducir.
+ */
 char * opToString(int op){
   switch(op) {
 
@@ -620,7 +726,8 @@ char * opToString(int op){
 }
 
 /*
- * Esta funcion nos permite castear un nodeAux como un node.
+ * Esta funcion se encarga de imprimir una istruccion.
+ * *p: Instruccion a imprimir.
  */
 void printInstruccion(tresDir *p){
   tresDir *aux = p;
@@ -637,15 +744,18 @@ void printInstruccion(tresDir *p){
       strcpy(aux2->nombre, "_" );
     }
       printf("          |\n");
-      printf("          |%s  %s  %s %s \n", opToString(aux->op), aux1->nombre, aux2->nombre, aux3->nombre);
+      if((strcmp(aux1->nombre, "int_cte") == 0) || (strcmp(aux1->nombre, "bool_cte") == 0)){
+        printf("          |%s  %d  %s %s \n", opToString(aux->op), aux1->valor, aux2->nombre, aux3->nombre);
+      }
+      else{
+        printf("          |%s  %s  %s %s \n", opToString(aux->op), aux1->nombre, aux2->nombre, aux3->nombre);
+      }
   }
 }
 
 /*
- * Esta funcion imprime un nivel completo. Utiliza a la funcion printDataStack.
- * id: ID del bloque al que pertenece
- * padre: ID del bloque que lo contiene inmediatamente.
- * *d: Dato del nivel a imprimir.
+ * Esta funcion imprime la lista de instrucciones de una funcion.
+ * *d: Puntero al primer elemento de la lista de instrucciones de una funcion.
  */
 void printFc(tresDir *d){
   tresDir *aux = d;
@@ -664,7 +774,7 @@ void printFc(tresDir *d){
 }
 
 /*
- * Esta funcion imprime el stack completo, utiliza a la funcion printLevel para imprimir cada nivel.
+ * Esta funcion imprime todo el codigo de tres direcciones generado.
  */
 void printLista(){
   printf("\n");

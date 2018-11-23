@@ -300,14 +300,32 @@ void delay(int number_of_seconds) {
 } 
 
 int main(int argc,char *argv[]){
-    //system("@cls||clear");
-    debugL = 0;
-    testType = 1;
-	++argv,--argc;
-	if (argc > 0)
-		yyin = fopen(argv[0],"r");
-	else
-		yyin = stdin;
-	yyparse();
+  system("@cls||clear");
+  debugL = 0;
+  int option;
+  char ruta[64];
+  printf("Bienveido al compilador del lenguaje TDS2018\n");
+  printf("--MENU: 'digite el numero de opcion deseada'.\n");
+  printf("1) Compilar programa\n");
+  scanf("%d", &option);
+  if(option == 1){
+    printf("Para compilar su programa debera ingresar la ruta del mismo.\n");
+    printf("Se recomienda situar el archivo (debe tener extension .tds) en el mismo directorio del compilador, EJ:\n");
+    printf("miPrograma.tds  o  tests/miPrograma.tds\n");
+    printf("Ingrese la ruta\n");
+    scanf("%s", ruta);
+  }
+
+  if(strcmp(ruta, "") != 0){
+    yyin = fopen(ruta,"r");
+    yyparse();
+
+    printf("Ejecutando programa:\n");
+    //system("gcc -o simple assembler.s data/libaux.c");
+    //system("./simple");
+  }
+	else{
+    printf("Error: El nombre del archivo no es correcto\n");
+  }
 
 }
