@@ -460,12 +460,19 @@ void crear_if_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
   int parametro = auxInstr->res->nParam;
-  strcpy(res, "  cmpl  $0, -");
-  sprintf(aux,"%d", (auxInstr->res->offset)*8);
-  strcat(res, aux);
-  strcat(res, "(%rbp)\n");
-  fputs(res, asm_code);
-
+  if(!(auxInstr->res->const_var)){
+    strcpy(res, "  cmpl  $0, -");
+    sprintf(aux,"%d", (auxInstr->res->offset)*8);
+    strcat(res, aux);
+    strcat(res, "(%rbp)\n");
+    fputs(res, asm_code);
+  }
+  else{
+    strcpy(res, "  cmpl  $0, ");
+    sprintf(aux,"%d", auxInstr->res->valor);
+    strcat(res, aux);
+    fputs(res, asm_code);
+  }
   strcpy(res, "  je ");
   strcat(res, auxInstr->op2->nombre);
   strcat(res, "\n");
@@ -480,11 +487,19 @@ void crear_if_else_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
   int parametro = auxInstr->res->nParam;
-  strcpy(res, "  cmpl  $0, -");
-  sprintf(aux,"%d", (auxInstr->res->offset)*8);
-  strcat(res, aux);
-  strcat(res, "(%rbp)\n");
-  fputs(res, asm_code);
+  if(!(auxInstr->res->const_var)){
+    strcpy(res, "  cmpl  $0, -");
+    sprintf(aux,"%d", (auxInstr->res->offset)*8);
+    strcat(res, aux);
+    strcat(res, "(%rbp)\n");
+    fputs(res, asm_code);
+  }
+  else{
+    strcpy(res, "  cmpl  $0, ");
+    sprintf(aux,"%d", auxInstr->res->valor);
+    strcat(res, aux);
+    fputs(res, asm_code);
+  }
 
   strcpy(res, "  je ");
   strcat(res, auxInstr->op2->nombre);
