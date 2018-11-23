@@ -766,17 +766,35 @@ void crear_add_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
   int parametro = auxInstr->res->nParam;
-  strcpy(res, "  movq  -");
-  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-  strcat(res, aux);
-  strcat(res, "(%rbp), %rax\n");
-  fputs(res, asm_code);
 
-  strcpy(res, "  addq  -");
-  sprintf(aux,"%d", (auxInstr->op2->offset)*8);
-  strcat(res, aux);
-  strcat(res, "(%rbp), %rax\n");
-  fputs(res, asm_code);
+  if(!(auxInstr->op1->const_var)){
+    strcpy(res, "  movq  -");
+    sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+    strcat(res, aux);
+    strcat(res, "(%rbp), %rax\n");
+    fputs(res, asm_code);
+  }
+  else{
+    strcpy(res, "  movq  $");
+    sprintf(aux,"%d", auxInstr->op1->valor);
+    strcat(res, aux);
+    strcat(res, ", %rax\n");
+    fputs(res, asm_code);
+  }
+  if(!(auxInstr->op2->const_var)){
+    strcpy(res, "  addq  -");
+    sprintf(aux,"%d", (auxInstr->op2->offset)*8);
+    strcat(res, aux);
+    strcat(res, "(%rbp), %rax\n");
+    fputs(res, asm_code);
+  }
+  else{
+    strcpy(res, "  addq  $");
+    sprintf(aux,"%d", auxInstr->op2->valor);
+    strcat(res, aux);
+    strcat(res, ", %rax\n");
+    fputs(res, asm_code);
+  }
 
   strcpy(res, "  movq  %rax, -");
   sprintf(aux,"%d", (auxInstr->res->offset)*8);
@@ -829,13 +847,21 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
   int parametro = auxInstr->res->nParam;
-  strcpy(res, "  movq  -");
-  sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-  strcat(res, aux);
-  strcat(res, "(%rbp), ");
-  strcat(res, "%rax\n");
-  fputs(res, asm_code);
-
+  if(!(auxInstr->op1->const_var)){
+    strcpy(res, "  movq  -");
+    sprintf(aux,"%d", (auxInstr->op1->offset)*8);
+    strcat(res, aux);
+    strcat(res, "(%rbp), ");
+    strcat(res, "%rax\n");
+    fputs(res, asm_code);
+  }
+  else{
+    strcpy(res, "  movq  $");
+    sprintf(aux,"%d", auxInstr->op1->valor);
+    strcat(res, aux);
+    strcat(res, ", %rax\n");
+    fputs(res, asm_code);
+  }
   strcpy(res, "  movq  %rax, -");
   sprintf(aux,"%d", (auxInstr->res->offset)*8);
   strcat(res, aux);

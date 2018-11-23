@@ -276,7 +276,7 @@ void cargar_parametros_formales(formalParam *params){
 data_gen * eval_expr(node *n){
   data_gen *aux = n->info->data;
   if(aux != NULL){
-    if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
+    if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO) || (n->info->tipoOp == CONSTANTEE)){
       if(n->info->tipoOp == VARR){
         aux->offset = aux->offset;
       }
@@ -688,7 +688,12 @@ void printInstruccion(tresDir *p){
       strcpy(aux2->nombre, "_" );
     }
       printf("          |\n");
-      printf("          |%s  %s  %s %s \n", opToString(aux->op), aux1->nombre, aux2->nombre, aux3->nombre);
+      if((strcmp(aux1->nombre, "int_cte") == 0) || (strcmp(aux1->nombre, "bool_cte") == 0)){
+        printf("          |%s  %d  %s %s \n", opToString(aux->op), aux1->valor, aux2->nombre, aux3->nombre);
+      }
+      else{
+        printf("          |%s  %s  %s %s \n", opToString(aux->op), aux1->nombre, aux2->nombre, aux3->nombre);
+      }
   }
 }
 
