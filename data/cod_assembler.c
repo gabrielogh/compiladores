@@ -86,10 +86,7 @@ void crear_label_funcion(tresDirL *intr){
   char aux[256];
   char p[256];
   if(sis == 1){
-    if(strcmp(intr->nombre,"main")== 0){
-      fputs("    .globl  main\n", asm_code);
-    }
-
+    if(strcmp(intr->nombre,"main")== 0){ fputs("    .globl  main\n", asm_code);}
     strcpy(c, "    .type  ");
     strcat(c, intr->nombre);
     strcat(c, ", @function\n");
@@ -102,14 +99,15 @@ void crear_label_funcion(tresDirL *intr){
     strcat(c, "\n");
     fputs(c, asm_code);
 
-
-    strcpy(p, "  pushq  %rbp\n");
+    if((intr->stackSize%2)!=0){ intr->stackSize = intr->stackSize + 1;}
+    strcpy(p, "  enter $");
+    sprintf(aux,"%d", (intr->stackSize)*8);
+    strcat(p, aux);
+    strcat(p, ", $0\n");
     fputs(p, asm_code);
   }
   else if(sis == 2){
-    if(strcmp(intr->nombre,"main")== 0){
-      fputs("    .globl  _main\n", asm_code);
-    }
+    if(strcmp(intr->nombre,"main")== 0){ fputs("    .globl  _main\n", asm_code);}
 
     strcpy(c, "_");
     strcat(c, intr->nombre);
@@ -121,9 +119,7 @@ void crear_label_funcion(tresDirL *intr){
 
     fputs("  .cfi_startproc\n", asm_code);
 
-    if((intr->stackSize%2)!=0){
-      intr->stackSize = intr->stackSize + 1;
-    }
+    if((intr->stackSize%2)!=0){ intr->stackSize = intr->stackSize + 1;}
     strcpy(p, "  enter $");
     sprintf(aux,"%d", (intr->stackSize)*8);
     strcat(p, aux);
@@ -382,6 +378,10 @@ void cargar_actual_params(tresDir *auxInstr){
   }
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a una constante.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_constante_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -396,6 +396,10 @@ void crear_constante_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la condicion (de terminacion en este caso) de un while.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_while_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -412,6 +416,10 @@ void crear_while_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la condicion de un if.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_if_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -428,6 +436,10 @@ void crear_if_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la condicion de un if then else.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_if_else_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -444,6 +456,10 @@ void crear_if_else_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a un return (resultado en el RAX).
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_return_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -455,6 +471,10 @@ void crear_return_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la negacion logica.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_not_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -478,6 +498,10 @@ void crear_not_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion logica OR.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_or_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -501,6 +525,10 @@ void crear_or_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion logica AND.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_and_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -524,6 +552,10 @@ void crear_and_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica MOD.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_mod_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -549,6 +581,10 @@ void crear_mod_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica DIVISION.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_div_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -572,6 +608,10 @@ void crear_div_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica PRODUCTO
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void create_prod_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -595,6 +635,10 @@ void create_prod_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica unaria OPUESTO.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_opuesto_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -615,6 +659,10 @@ void crear_opuesto_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica MENOR (<).
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_menor_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -647,6 +695,10 @@ void crear_menor_instruccion(tresDir *auxInstr){
   fputs(res, asm_code); 
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica MAYOR (>).
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_mayor_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -679,6 +731,10 @@ void crear_mayor_instruccion(tresDir *auxInstr){
   fputs(res, asm_code); 
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica RESTA.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_sub_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -702,6 +758,10 @@ void crear_sub_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica SUMA.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_add_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -725,6 +785,10 @@ void crear_add_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion aritmetica IGUALDAD.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_equals_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -757,6 +821,10 @@ void crear_equals_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la operacion ASIGNACION.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_asignacion_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -775,6 +843,10 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
   fputs(res, asm_code);
 }
 
+/*
+ * Esta funcion genera el codigo assembler correspondiente a la invocacion de uan funcion.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_call_cp_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -801,6 +873,10 @@ void crear_call_cp_instruccion(tresDir *auxInstr){
   }
 }
 
+/* IDEM A LA ANTERIOR...ESTA DE GUSTO.
+ * Esta funcion genera el codigo assembler correspondiente a la invocacion de uan funcion.
+ * *auxInstr: Instruccion en formato codigo de tres direcciones.
+ */
 void crear_call_sp_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
@@ -824,6 +900,3 @@ void crear_call_sp_instruccion(tresDir *auxInstr){
   strcat(c, "(%rbp)\n");
   fputs(c, asm_code);
 }
-
-
-
