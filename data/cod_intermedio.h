@@ -146,11 +146,7 @@ void createJmp(int p, data_gen *res){
  */
 data_gen * getLastResult(){
   if(last_td->fst != NULL){
-    tresDir *aux = last_td->fst;
-    while(aux->next != NULL){
-      aux = aux->next;
-    }
-    return aux->res;
+    return last_td->last->res;
   }
   else{
     return NULL;
@@ -333,12 +329,12 @@ data_gen * eval_expr(node *n){
   data_gen *aux = n->info->data;
   if(aux != NULL){
     if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO) || (n->info->tipoOp == CONSTANTEE)){
-      if(n->info->tipoOp == VARR){
+      /*if(n->info->tipoOp == VARR){
         aux->offset = aux->offset;
-      }
+      }*/
       return aux;
     }
-    else{
+    else{ //Resolvemos la expresion de forma recursiva.
       crear_instrucciones(last_td, n);
       return getLastResult();
     }
@@ -493,10 +489,15 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if (op == IFTHENN){
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
+        data_gen *JmpType = (data_gen *) malloc(sizeof(data_gen));
         generate_label(endLabel->nombre);
         instruccion->op = IF_INSTRUCCION;
         instruccion->op2 = endLabel;
         instruccion->res = eval_expr(getNodeFst(n));
+
+        //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
+        int jmp = getJump(last_td->last);
+        instruccion->op1->valor = jmp; 
 
         agregar_instruccion(t, instruccion); //Condicion.
 
@@ -514,11 +515,17 @@ void crear_instrucciones(tresDirL *t, node *n){
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
         generate_label(endLabel->nombre);
 
+        data_gen *JmpType = (data_gen *) malloc(sizeof(data_gen));
+
         instruccion->op = IF_ELSE_INSTRUCCION;
         instruccion->res = eval_expr(getNodeFst(n));
 
+        //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
+        int jmp = getJump(last_td->last);
+        instruccion->op1->valor = jmp; 
+
         instruccion->op2 = elseJmp;
-        agregar_instruccion(t, instruccion);
+        agregar_instruccion(t, instruccion); //Condicion.
 
         crear_instrucciones(t, getNodeSnd(n));
 
@@ -549,9 +556,13 @@ void crear_instrucciones(tresDirL *t, node *n){
         whileInstruccion->op = WHILE_INSTRUCCION;
         generate_label(endLabel->nombre);
 
+        //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
+        int jmp = getJump(last_td->last);
+        whileInstruccion->op1->valor = jmp; 
+
         whileInstruccion->res = eval_expr(getNodeFst(n));
         whileInstruccion->op2 = endLabel;
-        agregar_instruccion(t, whileInstruccion);
+        agregar_instruccion(t, whileInstruccion); //Condicion.
 
         crear_instrucciones(t, getNodeSnd(n));
 
@@ -564,8 +575,7 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
 
       else if (op == BLOCK){
-        node *auxNode = getNodeFst(n);
-        crear_instrucciones(t, auxNode);
+        crear_instrucciones(t, getNodeFst(n));
       }
       else if (op == STATEMENTS){
         crear_instrucciones(t, getNodeFst(n));
@@ -573,8 +583,7 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if (op == RETURNN){
         if(n->tipoRet != VOIDD){
-          node *auxNode = getNodeFst(n);
-          instruccion->res = eval_expr(auxNode);
+          instruccion->res = eval_expr(getNodeFst(n));
           instruccion->op = RETURN_INSTRUCCION;
           agregar_instruccion(t, instruccion);
         }
@@ -599,6 +608,33 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, invocFunc);
       }
     }
+  }
+}
+
+int getJump(tresDir *instruccion){
+  int op = instruccion->op;
+  switch(op) {
+     case MEN_INSTRUCCION   :
+        return JGE;
+        break;
+
+     case MAY_INSTRUCCION   :
+        return JLE;
+        break;
+
+     case EQ_INSTRUCCION  :
+        return JNE;
+        break;
+
+     case JGE  :
+        return JGE;
+        break;
+
+     case JE  :
+        return JE;
+        break;
+     default :
+     return -1;
   }
 }
 
