@@ -47,7 +47,6 @@ begin
         while (i<x)begin
           res = nthprime(aux);
           aux = aux + 1;
-          print(aux); //print
           i=i+1;
         end
     end
