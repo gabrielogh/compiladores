@@ -321,7 +321,7 @@ int main(int argc,char *argv[]){
     yyparse();
 
     printf("Ejecutando programa:\n");
-    system("gcc -o simple assembler.s data/libaux.c");
+    //system("gcc -o simple assembler.s data/libaux.c");
     //system("./simple");
   }
 	else{

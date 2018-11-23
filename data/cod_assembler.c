@@ -144,12 +144,17 @@ void generar_codigo_assembler(){
 
   if(Listaux != NULL){
     while(Listaux !=  NULL){
-      crear_label_funcion(Listaux);
-      cargar_instrcciones(Listaux->fst);
-      fputs("  leave\n", asm_code);
-      fputs("  retq                      ## -- End function\n", asm_code);
-      fputs("  .cfi_endproc\n", asm_code);
-      fputs("\n", asm_code);
+      if(!(Listaux->is_gv)){
+        crear_label_funcion(Listaux);
+        cargar_instrcciones(Listaux->fst);
+        fputs("  leave\n", asm_code);
+        fputs("  retq                      ## -- End function\n", asm_code);
+        fputs("  .cfi_endproc\n", asm_code);
+        fputs("\n", asm_code);
+      }
+      else{
+        //crear_global(Listaux);
+      }
       Listaux = Listaux->next;
     }
     printf(KGRN "%s\n", "Codigo Assembler generado. "); printf(KNRM);

@@ -1,5 +1,6 @@
 program begin
-
+  integer globalx, globaly;
+  
   void printGuiones( ) extern;
   void print(integer x) extern;
 

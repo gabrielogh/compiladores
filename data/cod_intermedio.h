@@ -31,6 +31,7 @@ typedef struct codTresDirs {
 typedef struct tresDirList{
   int stackSize;
   char nombre[32];
+  bool is_gv;
   tresDir *fst;
   tresDir *last;
   struct tresDirList *next;
@@ -74,6 +75,8 @@ data_gen * getLastResult();
 char * opToString(int op);
 
 void createJmp(int p, data_gen *res);
+
+void crear_variable_global(tresDirL *pos, data_gen *res);
 
 //IMPLEMENTACION DE METODOS:
 
@@ -161,8 +164,27 @@ void generar_codigo(){
         last_td->stackSize = stackPos;
         temp = 0;
       }
+      else if(d->data->global){
+        crear_variable_global(last_td, d->data);
+      }
       d = d->next;
     }
+  }
+}
+
+void crear_variable_global(tresDirL *t, data_gen *res){
+  tresDirL *var = (tresDirL *) malloc(sizeof(tresDirL));
+  strcpy(var->nombre, res->nombre);
+  var->fst = NULL;
+  var->last = var->fst;
+  var->is_gv = true;
+  if(head_td == NULL){
+    head_td = var;
+    last_td = head_td;
+  }
+  else{
+    last_td->next = var;
+    last_td = var;
   }
 }
 
@@ -175,6 +197,7 @@ void agregar_funcion(data_stack *d){
   strcpy(param->nombre, d->data->nombre);
   param->fst = NULL;
   param->last = param->fst;
+  param->is_gv = false;
   if(head_td == NULL){
     head_td = param;
     last_td = head_td;
