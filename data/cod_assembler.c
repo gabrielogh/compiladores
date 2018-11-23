@@ -376,31 +376,66 @@ void cargar_actual_params(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   switch (parametro){
     case 1:
-          strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rdi\n");
+          if(!(auxInstr->res->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rdi\n");
+          }
+          else{
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %rdi\n");
+          }
           fputs(res, asm_code);
     break;
     case 2:
-          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rsi\n");
+          if(!(auxInstr->res->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rsi\n");
+          }
+          else{
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %rsi\n");
+          }
           fputs(res, asm_code);
     break;
     case 3:
-          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rdx\n");
+          if(!(auxInstr->res->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rdx\n");
+          }
+          else{
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %rdx\n");
+          }
           fputs(res, asm_code);
     break;
     case 4:
-          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rcx\n");
+          if(!(auxInstr->res->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rci\n");
+          }
+          else{
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %rci\n");
+          }
           fputs(res, asm_code);
     break;
     case 5:
-          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %r8\n");
+          if(!(auxInstr->res->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %r8\n");
+          }
+          else{
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %r8\n");
+          }
           fputs(res, asm_code);
     break;
     case 6:
-          strcpy(res, "  movq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %r9\n");
+          if(!(auxInstr->res->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %r9\n");
+          }
+          else{
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %r9\n");
+          }
           fputs(res, asm_code);
     break;
     default:
-          strcpy(res, "  pushq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+          if(!(auxInstr->res->const_var)){
+            strcpy(res, "  pushq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+          }
+          else{
+            strcpy(res, "  pushq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);
+          }
           fputs(res, asm_code);
     break;
   }
@@ -432,7 +467,6 @@ void crear_while_instruccion(tresDir *auxInstr){
   char res[32];
   char aux[32];
   int parametro = auxInstr->res->nParam;
-
   if(!(auxInstr->res->const_var)){
 	  strcpy(res, "  cmpl  $0, -");
 	  sprintf(aux,"%d", (auxInstr->res->offset)*8);
@@ -442,8 +476,9 @@ void crear_while_instruccion(tresDir *auxInstr){
   }
   else{
   	strcpy(res, "  cmpl  $0, $");
-	  sprintf(aux,"%d", (auxInstr->res->valor);
+	  sprintf(aux,"%d", auxInstr->res->valor);
 	  strcat(res, aux);
+    strcat(res, "\n");
 	  fputs(res, asm_code);
   }
   strcpy(res, "  je ");
@@ -471,6 +506,7 @@ void crear_if_instruccion(tresDir *auxInstr){
     strcpy(res, "  cmpl  $0, ");
     sprintf(aux,"%d", auxInstr->res->valor);
     strcat(res, aux);
+    strcat(res, "\n");
     fputs(res, asm_code);
   }
   strcpy(res, "  je ");
@@ -498,6 +534,7 @@ void crear_if_else_instruccion(tresDir *auxInstr){
     strcpy(res, "  cmpl  $0, ");
     sprintf(aux,"%d", auxInstr->res->valor);
     strcat(res, aux);
+    strcat(res, "\n");
     fputs(res, asm_code);
   }
 
@@ -664,7 +701,7 @@ void crear_mod_instruccion(tresDir *auxInstr){
   	strcpy(res, "  movq $");
 	  sprintf(aux,"%d", (auxInstr->op1->valor));
 	  strcat(res, aux);
-	  strcat(res, "(, %rax\n");
+	  strcat(res, ", %rax\n");
 	  fputs(res, asm_code);
   }
   fputs("  cqto\n",asm_code);
@@ -711,7 +748,7 @@ void crear_div_instruccion(tresDir *auxInstr){
 		strcpy(res, "  movq  $");
 	  sprintf(aux,"%d", (auxInstr->op1->valor));
 	  strcat(res, aux);
-	  strcat(res, "(, %rax\n");
+	  strcat(res, ", %rax\n");
 	  fputs(res, asm_code);
   }
   if(!(auxInstr->op2->const_var)){
@@ -725,7 +762,7 @@ void crear_div_instruccion(tresDir *auxInstr){
   	strcpy(res, "  idivq  $");
 	  sprintf(aux,"%d", (auxInstr->op2->valor));
 	  strcat(res, aux);
-	  strcat(res, "(, %rax\n");
+	  strcat(res, ", %rax\n");
 	  fputs(res, asm_code);
   }
   strcpy(res, "  movq  %rax, -");
@@ -755,7 +792,7 @@ void create_prod_instruccion(tresDir *auxInstr){
 	  strcpy(res, "  movq  $");
 	  sprintf(aux,"%d", (auxInstr->op1->valor));
 	  strcat(res, aux);
-	  strcat(res, "(, %rax\n");
+	  strcat(res, ", %rax\n");
 	  fputs(res, asm_code);	
 	}
 	if(!(auxInstr->op2->const_var)){
@@ -769,7 +806,7 @@ void create_prod_instruccion(tresDir *auxInstr){
   	strcpy(res, "  imulq  $");
 	  sprintf(aux,"%d", (auxInstr->op2->valor));
 	  strcat(res, aux);
-	  strcat(res, "(, %rax\n");
+	  strcat(res, ", %rax\n");
 	  fputs(res, asm_code);
   }
 
@@ -800,7 +837,7 @@ void crear_opuesto_instruccion(tresDir *auxInstr){
   	strcpy(res, "  movq  $");
 	  sprintf(aux,"%d", (auxInstr->op1->valor));
 	  strcat(res, aux);
-	  strcat(res, "(, %rax\n");
+	  strcat(res, ", %rax\n");
 	  fputs(res, asm_code);
   }
   strcpy(res, "  negq %rax\n");
@@ -1078,6 +1115,12 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
     strcat(res, aux);
     strcat(res, "(%rbp), ");
     strcat(res, "%rax\n");
+    fputs(res, asm_code);
+
+    strcpy(res, "  movq  %rax, -");
+    sprintf(aux,"%d", (auxInstr->res->offset)*8);
+    strcat(res, aux);
+    strcat(res, "(%rbp)\n");
     fputs(res, asm_code);
   }
   else{
