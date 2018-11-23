@@ -973,14 +973,12 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
     strcpy(res, "  movq  $");
     sprintf(aux,"%d", auxInstr->op1->valor);
     strcat(res, aux);
-    strcat(res, ", %rax\n");
+    strcat(res, ", -");
+    sprintf(aux,"%d", (auxInstr->res->offset)*8);
+    strcat(res, aux);
+    strcat(res, "(%rbp)\n");
     fputs(res, asm_code);
   }
-  strcpy(res, "  movq  %rax, -");
-  sprintf(aux,"%d", (auxInstr->res->offset)*8);
-  strcat(res, aux);
-  strcat(res, "(%rbp)\n");
-  fputs(res, asm_code);
 }
 
 /*
