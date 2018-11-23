@@ -323,6 +323,7 @@ int main(int argc,char *argv[]){
     printf("Ejecutando programa:\n");
     //system("gcc -o simple assembler.s data/libaux.c");
     //system("./simple");
+    //tests/semanticos/ok/basic.tds 
   }
 	else{
     printf("Error: El nombre del archivo no es correcto\n");

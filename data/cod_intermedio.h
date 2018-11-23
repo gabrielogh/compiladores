@@ -87,6 +87,7 @@ void agregar_variable_global(data_gen *res);
 
 void cargar_variables_globales(globalVars *head);
 
+int getJump(tresDir *instruccion);
 
 //IMPLEMENTACION DE METODOS:
 
@@ -496,8 +497,8 @@ void crear_instrucciones(tresDirL *t, node *n){
         instruccion->res = eval_expr(getNodeFst(n));
 
         //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
-        int jmp = getJump(last_td->last);
-        instruccion->op1->valor = jmp; 
+        //int jmp = getJump(last_td->last);
+        //instruccion->op1->valor = jmp; 
 
         agregar_instruccion(t, instruccion); //Condicion.
 
@@ -521,8 +522,8 @@ void crear_instrucciones(tresDirL *t, node *n){
         instruccion->res = eval_expr(getNodeFst(n));
 
         //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
-        int jmp = getJump(last_td->last);
-        instruccion->op1->valor = jmp; 
+        //int jmp = getJump(last_td->last);
+        //instruccion->op1->valor = jmp; 
 
         instruccion->op2 = elseJmp;
         agregar_instruccion(t, instruccion); //Condicion.
@@ -557,8 +558,8 @@ void crear_instrucciones(tresDirL *t, node *n){
         generate_label(endLabel->nombre);
 
         //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
-        int jmp = getJump(last_td->last);
-        whileInstruccion->op1->valor = jmp; 
+        //int jmp = getJump(last_td->last);
+        //whileInstruccion->op1->valor = jmp; 
 
         whileInstruccion->res = eval_expr(getNodeFst(n));
         whileInstruccion->op2 = endLabel;

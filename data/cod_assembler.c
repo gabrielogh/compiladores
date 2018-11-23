@@ -653,9 +653,12 @@ void crear_mod_instruccion(tresDir *auxInstr){
 		fputs(res, asm_code);
   }
   else{
-  	strcpy(res, "  idivq $");
-		sprintf(aux,"%d", (auxInstr->op2->valor));
-		strcat(res, aux);
+    strcpy(res, "  movq $");
+    sprintf(aux,"%d", (auxInstr->op2->valor));
+    strcat(res, aux);
+    strcat(res, ", %rbx\n");
+
+  	strcpy(res, "  idivq %rbx\n");
 		fputs(res, asm_code);
   }
   strcpy(res, "  movq %rdx, -");
@@ -870,9 +873,10 @@ void crear_mayor_instruccion(tresDir *auxInstr){
 	  fputs(res, asm_code);
   }
   else {
-  	strcpy(res, "  cmpq %rax, $");
+  	strcpy(res, "  cmpq $");
 	  sprintf(aux,"%d", (auxInstr->op2->valor));
 	  strcat(res, aux);
+    strcat(res, ", %rax\n");
 	  fputs(res, asm_code);
   }
   strcpy(res, "  setl %dl\n");
