@@ -3,6 +3,7 @@
 //DEFINICION DE TIPOS:
 typedef struct codTresDirs tresDir;
 typedef struct tresDirList tresDirL;
+typedef struct globalVarsList globalVars;
 
 /* Tipo utilizado para representar un codigo de tres direcciones.
  * op: Representa la operacion a realizar mediante su codigo (los codigos se encuentran en constantes.h).
@@ -32,16 +33,22 @@ typedef struct tresDirList{
   int stackSize;
   char nombre[32];
   bool is_gv;
+  int tipo;
   tresDir *fst;
   tresDir *last;
   struct tresDirList *next;
 } tresDirL;
 
+typedef struct globalVarsList{
+  data_gen *var;
+  struct globalVarsList *next;
+}globalVars;
 
 //VARIABLES GLOBALES:
 
 int temp,labels, instrucciones, stackPos, stackParams;
 tresDirL *head_td, *last_td;
+globalVars *fst_var, *last_var;
 
 //DECLARACION DE METODOS:
 void initTresDirList();
@@ -76,7 +83,10 @@ char * opToString(int op);
 
 void createJmp(int p, data_gen *res);
 
-void crear_variable_global(tresDirL *pos, data_gen *res);
+void agregar_variable_global(data_gen *res);
+
+void cargar_variables_globales(globalVars *head);
+
 
 //IMPLEMENTACION DE METODOS:
 
@@ -93,6 +103,8 @@ void initTresDirList(){
   head_td->fst = NULL;
   head_td->next = NULL;
   last_td = head_td;
+  fst_var = NULL;
+  last_var = fst_var;
 }
 
 /*
@@ -145,6 +157,7 @@ data_gen * getLastResult(){
   }
 }
 
+
 /*
  * Esta esta la funcion principal que se encarga de generar todo el codigo de tres direcciones
  * Recorre en nivel inicial del stack en busca de las funciones e inserta cada una en la lista principal de tipo tresDirL.
@@ -165,27 +178,47 @@ void generar_codigo(){
         temp = 0;
       }
       else if(d->data->global){
-        crear_variable_global(last_td, d->data);
+        agregar_variable_global(d->data);
       }
       d = d->next;
     }
+    cargar_variables_globales(fst_var);
   }
 }
 
-void crear_variable_global(tresDirL *t, data_gen *res){
-  tresDirL *var = (tresDirL *) malloc(sizeof(tresDirL));
-  strcpy(var->nombre, res->nombre);
-  var->fst = NULL;
-  var->last = var->fst;
-  var->is_gv = true;
-  if(head_td == NULL){
-    head_td = var;
-    last_td = head_td;
+void agregar_variable_global(data_gen *res){
+  globalVars *var = (globalVars *) malloc(sizeof(globalVars));
+  var->var = res;
+  var->next = NULL;
+  if(fst_var == NULL){
+    fst_var = var;
+    last_var = fst_var;
   }
   else{
-    last_td->next = var;
-    last_td = var;
+    last_var->next = var;
+    last_var = var;
   }
+}
+
+void cargar_variables_globales(globalVars *head){
+  globalVars *aux = head;
+  while(aux != NULL){
+    tresDirL *variable = (tresDirL *) malloc(sizeof(tresDirL));
+    data_gen *res = aux->var;
+    strcpy(variable->nombre, res->nombre);
+    variable->is_gv = true;
+    variable->tipo = res->tipo;
+    if(head_td == NULL){
+      head_td = variable;
+      last_td = head_td;
+    }
+    else{
+      last_td->next = variable;
+      last_td = variable;
+    }
+    aux = aux->next;
+  }
+
 }
 
 /*

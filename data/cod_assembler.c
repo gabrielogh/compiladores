@@ -62,6 +62,8 @@ void crear_call_cp_instruccion(tresDir *auxInstr);
 
 void crear_call_sp_instruccion(tresDir *auxInstr);
 
+void crear_global(tresDirL *instr);
+
 
 //IMPLEMENTACION DE METODOS.
 
@@ -153,13 +155,34 @@ void generar_codigo_assembler(){
         fputs("\n", asm_code);
       }
       else{
-        //crear_global(Listaux);
+        fputs("\n", asm_code);
+        crear_global(Listaux);
       }
       Listaux = Listaux->next;
     }
     printf(KGRN "%s\n", "Codigo Assembler generado. "); printf(KNRM);
   }
 
+}
+
+void crear_global(tresDirL *instr){
+  char c[64];
+  if(sis == 2){
+    strcpy(c, "  .comm _");
+  }
+  else{
+    strcpy(c, "  .comm ");
+  }
+  strcat(c, instr->nombre);
+  if(instr->tipo == 1){
+    strcat(c, ",4,2                  ## @");
+  }
+  else if(instr->tipo == 8){
+    strcat(c, ",1,0                  ## @");
+  }
+  strcat(c, instr->nombre);
+  strcat(c, "\n");
+  fputs(c, asm_code);
 }
 
 /*
