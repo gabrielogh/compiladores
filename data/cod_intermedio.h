@@ -330,9 +330,9 @@ data_gen * eval_expr(node *n){
   data_gen *aux = n->info->data;
   if(aux != NULL){
     if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO) || (n->info->tipoOp == CONSTANTEE)){
-      /*if(n->info->tipoOp == VARR){
+      if(n->info->tipoOp == VARR){
         aux->offset = aux->offset;
-      }*/
+      }
       return aux;
     }
     else{ //Resolvemos la expresion de forma recursiva.
@@ -371,9 +371,17 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if(op == ASIGNACIONN){
         instruccion->op = ASIGN_INSTRUCCION;
+        
+        node *oper = getNodeSnd(n);
+        if((oper->info->tipoOp == VARR) || (oper->info->tipoOp == PARAMETRO)){
+          tresDir *movRax = (tresDir *) malloc(sizeof(tresDir));
+          movRax->op = MOV;
+          movRax->res = eval_expr(oper);
+          agregar_instruccion(t, movRax);
+        }
+
         instruccion->op1 = eval_expr(getNodeSnd(n));
         instruccion->res = eval_expr(getNodeFst(n));
-
         agregar_instruccion(t, instruccion);
       }
       else if(op == IGUALDADD){
