@@ -11,7 +11,7 @@ echo "             --------------------------"
 
 for file in $(ls tests/lexico-sintacticos/ok); do
   echo "Ejecutando el test "$file""
-  ./compiler.out "tests/lexico-sintacticos/ok/"$file
+  ./tests/tester "tests/lexico-sintacticos/ok/"$file
   echo "-------------------------------------------------------"
 done
 
@@ -21,7 +21,7 @@ echo "              ------------------------"
 
 for file in $(ls tests/lexico-sintacticos/fail); do
   echo "Ejecutando el test "$file""
-  ./compiler.out "tests/lexico-sintacticos/fail/"$file
+  ./tests/tester "tests/lexico-sintacticos/fail/"$file
   echo "-------------------------------------------------------"
 done
 echo
@@ -36,7 +36,7 @@ echo "             --------------------------"
 
 for file in $(ls tests/semanticos/ok); do
   echo "Ejecutando el test "$file""
-  ./compiler.out "tests/semanticos/ok/"$file
+  ./tests/tester "tests/semanticos/ok/"$file
   echo "-------------------------------------------------------"
 done
 
@@ -46,7 +46,7 @@ echo "              ------------------------"
 
 for file in $(ls tests/semanticos/fail); do
   echo "Ejecutando el test "$file""
-  ./compiler.out "tests/semanticos/fail/"$file
+  ./tests/tester "tests/semanticos/fail/"$file
   echo "-------------------------------------------------------"
 done
 
@@ -57,8 +57,8 @@ echo " -------------------------------------------------------------------------
 
 for file in $(ls tests/tests-finales); do
   echo "Ejecutando el test "$file""
-  ./compiler.out "tests/tests-finales/"$file
-  gcc -o simple assembler.s libaux.c
+  ./tests/tester "tests/tests-finales/"$file
+  gcc -o simple assembler.s data/libaux.c
   ./simple
   echo "-------------------------------------------------------"
 done
