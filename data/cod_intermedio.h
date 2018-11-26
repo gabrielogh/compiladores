@@ -48,7 +48,7 @@ typedef struct globalVarsList{
 
 int temp,labels, instrucciones, stackPos, stackParams;
 tresDirL *head_td, *last_td;
-globalVars *fst_var, *last_var;
+globalVars *fst_var, *last_var; //Lista de variables globales.
 
 //DECLARACION DE METODOS:
 void initTresDirList();
@@ -175,6 +175,8 @@ void generar_codigo(){
         temp = 0;
       }
       else if(d->data->global){
+        //Las variables globales se insertan al final del archivo, pero estan al principio del primer nivel
+        //Motivo por el cual las pasamos a una lista de variables globales y las cargamos al final.
         agregar_variable_global(d->data);
       }
       d = d->next;
@@ -183,6 +185,10 @@ void generar_codigo(){
   }
 }
 
+/*
+ * Esta funcion inseta una variable global en la lista de variables globales
+ * *res: Variable global.
+ */
 void agregar_variable_global(data_gen *res){
   globalVars *var = (globalVars *) malloc(sizeof(globalVars));
   var->var = res;
@@ -197,6 +203,10 @@ void agregar_variable_global(data_gen *res){
   }
 }
 
+/*
+ * Esta funcion se encarga de genrar el codigo de tres direcciones una vez cargadas todas las variables y funciones del nivel.
+ * *head: Puntero al inicio de la lista.
+ */
 void cargar_variables_globales(globalVars *head){
   globalVars *aux = head;
   while(aux != NULL){

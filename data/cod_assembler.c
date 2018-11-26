@@ -166,6 +166,10 @@ void generar_codigo_assembler(){
 
 }
 
+/*
+ * Esta funcion carga una variable global (se cargan al final del archivo)
+ * *instr: instruccion que representa a una  varible global.
+ */
 void crear_global(tresDirL *instr){
   char c[64];
   if(sis == 2){
@@ -327,8 +331,11 @@ void cargar_instrcciones(tresDir *instr){
   }
 }
 
+/*
+ * Esta funcion auxiliar utilizada para mover resultados al %rax
+ * *instr: instruccion.
+ */
 void mov_a_rax(tresDir *auxInstr){
-  printf("Entramos a mov rax con %s\n", auxInstr->res->nombre);
   char res[32];
   char aux[32];
   strcpy(res, "  movq  -");
@@ -1126,14 +1133,6 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
   char aux[32];
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
-    /*
-    strcpy(res, "  movq  -");
-    sprintf(aux,"%d", (auxInstr->op1->offset)*8);
-    strcat(res, aux);
-    strcat(res, "(%rbp), ");
-    strcat(res, "%rax\n");
-    fputs(res, asm_code);*/
-
     strcpy(res, "  movq  %rax, -");
     sprintf(aux,"%d", (auxInstr->res->offset)*8);
     strcat(res, aux);
@@ -1149,12 +1148,7 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
     strcat(res, aux);
     strcat(res, "(%rbp)\n");
     fputs(res, asm_code);
-  }/*
-  strcpy(res, "  movq  %rax, -");
-  sprintf(aux,"%d", (auxInstr->res->offset)*8);
-  strcat(res, aux);
-  strcat(res, "(%rbp)\n");
-  fputs(res, asm_code);*/
+  }
 }
 
 /*

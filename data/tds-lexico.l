@@ -304,9 +304,12 @@ int main(int argc,char *argv[]){
   debugL = 0;
   int option;
   char ruta[64];
-  printf("Bienveido al compilador del lenguaje TDS2018\n");
+  printf("                  ----------------------------------------------------------------\n");
+  printf("                  *         Bienveido al compilador del lenguaje TDS2018         *\n");
+  printf("                  ----------------------------------------------------------------\n");
   printf("--MENU: 'digite el numero de opcion deseada'.\n");
-  printf("1) Compilar programa\n");
+  printf("1) Compilar programa.\n");
+  printf("2) Correr Tests.\n");
   scanf("%d", &option);
   if(option == 1){
     printf("Para compilar su programa debera ingresar la ruta del mismo.\n");
@@ -314,6 +317,9 @@ int main(int argc,char *argv[]){
     printf("miPrograma.tds  o  tests/miPrograma.tds\n");
     printf("Ingrese la ruta\n");
     scanf("%s", ruta);
+  }
+  else if(option == 2){
+    system("sh run_tests");
   }
 
   if(strcmp(ruta, "") != 0){
