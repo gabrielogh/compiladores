@@ -395,68 +395,96 @@ void cargar_param(tresDir *auxInstr){
 void cargar_actual_params(tresDir *auxInstr){
   char res[32];
   char aux[32];
-  int parametro = auxInstr->res->nParam;
+  int parametro = auxInstr->op1->nParam;
   switch (parametro){
     case 1:
-          if(!(auxInstr->res->const_var)){
+          if(!(auxInstr->op1->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->op1->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
+            fputs(res, asm_code);
+            strcpy(res, "  movq  %rax, -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+            fputs(res, asm_code);
             strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rdi\n");
           }
           else{
-            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %rdi\n");
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->op1->valor);strcat(res, aux);strcat(res, ", %rdi\n");
           }
           fputs(res, asm_code);
     break;
     case 2:
-          if(!(auxInstr->res->const_var)){
+          if(!(auxInstr->op1->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->op1->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
+            fputs(res, asm_code);
+            strcpy(res, "  movq  %rax, -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+            fputs(res, asm_code);
             strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rsi\n");
           }
           else{
-            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %rsi\n");
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->op1->valor);strcat(res, aux);strcat(res, ", %rsi\n");
           }
           fputs(res, asm_code);
     break;
     case 3:
-          if(!(auxInstr->res->const_var)){
+          if(!(auxInstr->op1->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->op1->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
+            fputs(res, asm_code);
+            strcpy(res, "  movq  %rax, -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+            fputs(res, asm_code);
             strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rdx\n");
           }
           else{
-            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %rdx\n");
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->op1->valor);strcat(res, aux);strcat(res, ", %rdx\n");
           }
           fputs(res, asm_code);
     break;
     case 4:
-          if(!(auxInstr->res->const_var)){
+          if(!(auxInstr->op1->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->op1->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
+            fputs(res, asm_code);
+            strcpy(res, "  movq  %rax, -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+            fputs(res, asm_code);
             strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rci\n");
           }
           else{
-            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %rci\n");
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->op1->valor);strcat(res, aux);strcat(res, ", %rci\n");
           }
           fputs(res, asm_code);
     break;
     case 5:
-          if(!(auxInstr->res->const_var)){
+          if(!(auxInstr->op1->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->op1->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
+            fputs(res, asm_code);
+            strcpy(res, "  movq  %rax, -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+            fputs(res, asm_code);
             strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %r8\n");
           }
           else{
-            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %r8\n");
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->op1->valor);strcat(res, aux);strcat(res, ", %r8\n");
           }
           fputs(res, asm_code);
     break;
     case 6:
-          if(!(auxInstr->res->const_var)){
+          if(!(auxInstr->op1->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->op1->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
+            fputs(res, asm_code);
+            strcpy(res, "  movq  %rax, -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+            fputs(res, asm_code);
             strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %r9\n");
           }
           else{
-            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);strcat(res, ", %r9\n");
+            strcpy(res, "  movq  $");sprintf(aux, "%d", auxInstr->op1->valor);strcat(res, aux);strcat(res, ", %r9\n");
           }
           fputs(res, asm_code);
     break;
     default:
-          if(!(auxInstr->res->const_var)){
-            strcpy(res, "  pushq  -");sprintf(aux,"%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+          if(!(auxInstr->op1->const_var)){
+            strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->op1->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
+            fputs(res, asm_code);
+            strcpy(res, "  movq  %rax, -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
+            fputs(res, asm_code);
+            strcpy(res, "  pushq  -");sprintf(aux, "%d", (auxInstr->res->offset)*8);strcat(res, aux);strcat(res, "(%rbp)\n");
           }
           else{
-            strcpy(res, "  pushq  $");sprintf(aux, "%d", auxInstr->res->valor);strcat(res, aux);
+            strcpy(res, "  pushq  $");sprintf(aux, "%d", auxInstr->op1->valor);strcat(res, aux);
           }
           fputs(res, asm_code);
     break;

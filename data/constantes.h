@@ -105,6 +105,7 @@ int treeSize, testType;
 #define LABEL_END_WHILE_INSTRUCCION 229
 #define CARGAR_ACTUAL_PARAMS 230
 #define GLOBAL_VAR 231
+#define EVALPARAM 232
 
 //JUMPS
 #define JMP 300

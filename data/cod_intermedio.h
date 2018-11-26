@@ -282,25 +282,37 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
     n = aux->parametro;
     if(n!=NULL){
       tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+      data_gen *res = (data_gen *) malloc(sizeof(data_gen));
       instruccion->next = NULL;
+      i = i + 1;
       data_gen *param = eval_expr(n);
-      param->nParam = i + 1;
+      param->nParam = i;
       instruccion->op = CARGAR_ACTUAL_PARAMS;
-      instruccion->res = param;
+      instruccion->op1 = param;
+      generate_temp(res->nombre);
+      res->offset = stackPos;
+      instruccion->res = res;
       agregar_instruccion(last_td, instruccion);
+      
     }
     aux = aux->next;
     while(aux!=NULL){
-      tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
-      instruccion->next = NULL;
+
       n = aux->parametro;
       if(n!=NULL){
-        data_gen *param = eval_expr(n);
-        param->nParam = i + 1;
-        instruccion->op = CARGAR_ACTUAL_PARAMS;
-        instruccion->res = param;
-        agregar_instruccion(last_td, instruccion);
+        tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+        data_gen *res = (data_gen *) malloc(sizeof(data_gen));
+        instruccion->next = NULL;
         i = i + 1;
+        data_gen *param = eval_expr(n);
+        param->nParam = i;
+        instruccion->op = CARGAR_ACTUAL_PARAMS;
+        instruccion->op1 = param;
+        generate_temp(res->nombre);
+        res->offset = stackPos;
+        instruccion->res = res;
+        agregar_instruccion(last_td, instruccion);
+        
       }
       aux = aux->next;
     }

@@ -88,7 +88,7 @@ prog: {init();} PROGRAM BEGINN program_block END {  //printIndexList();
                                                         printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
                                                         printf("%s\n", "Generando codigo intermedio.... ");
                                                         generar_codigo();
-                                                        //printLista();
+                                                        printLista();
                                                         printf(KGRN "%s\n", "Codigo intermedio generado. "); printf(KNRM);
                                                         generar_codigo_assembler();
                                                       }
