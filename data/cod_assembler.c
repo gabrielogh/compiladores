@@ -137,10 +137,10 @@ void crear_label_funcion(tresDirL *intr){
  */
 void generar_codigo_assembler(){
   if(sis == 1){
-    printf(KGRN "%s\n", "Generando codigo Assembler para LINUX.... "); printf(KNRM);
+    printf("%s\n", "Generando codigo Assembler para LINUX.... ");
   }
   else{
-    printf(KGRN "%s\n", "Generando codigo Assembler para MAC.... "); printf(KNRM);
+    printf("%s\n", "Generando codigo Assembler para MAC.... ");
   }
   crear_archivo();
   tresDirL *Listaux = head_td;

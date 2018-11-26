@@ -326,7 +326,7 @@ int main(int argc,char *argv[]){
     yyin = fopen(ruta,"r");
     yyparse();
 
-    printf("Ejecutando programa:\n");
+    //printf("Ejecutando programa:\n");
     //system("gcc -o simple assembler.s data/libaux.c");
     //system("./simple");
     //tests/semanticos/ok/basic.tds
