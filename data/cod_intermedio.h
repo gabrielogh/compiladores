@@ -293,7 +293,6 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
       res->offset = stackPos;
       instruccion->res = res;
       agregar_instruccion(last_td, instruccion);
-      
     }
     aux = aux->next;
     while(aux!=NULL){

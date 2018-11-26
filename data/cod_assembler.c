@@ -173,7 +173,6 @@ void generar_codigo_assembler(){
  * *instr: instruccion que representa a una  varible global.
  */
 void crear_global(tresDirL *instr){
-  printf("ENTRAMOS A CREAR GLOBAL VAR\n");
   char c[256];
   if(sis == 2){
     strcpy(c, "  .comm _");
@@ -334,7 +333,6 @@ void cargar_instrcciones(tresDir *instr){
  * *instr: instruccion.
  */
 void mov_a_rax(tresDir *auxInstr){
-  printf("ENTRAMOS A MOV A RAX\n");
   char res[64];
   char aux[64];
   if(auxInstr->res->global){
@@ -406,7 +404,6 @@ void cargar_actual_params(tresDir *auxInstr){
   switch (parametro){
     case 1:
           if(!(auxInstr->op1->const_var)){
-            printf("ENTRAMOS A CARGAR PARAMS ACTUALES CON: %s\n", auxInstr->op1->nombre);
             if(auxInstr->op1->global){
               printf("ENTRAMOS AL IF\n");
               strcpy(res, "  movq  _");
@@ -429,7 +426,6 @@ void cargar_actual_params(tresDir *auxInstr){
     break;
     case 2:
           if(!(auxInstr->op1->const_var)){
-            printf("ENTRAMOS A CARGAR PARAMS ACTUALES CON: %s\n", auxInstr->op1->nombre);
             if(auxInstr->op1->global){
               strcpy(res, "  movq  _");
               strcat(res, auxInstr->op1->nombre);
@@ -450,7 +446,6 @@ void cargar_actual_params(tresDir *auxInstr){
     break;
     case 3:
           if(!(auxInstr->op1->const_var)){
-            printf("ENTRAMOS A CARGAR PARAMS ACTUALES CON: %s\n", auxInstr->op1->nombre);
             if(auxInstr->op1->global){
               strcpy(res, "  movq  _");
               strcat(res, auxInstr->op1->nombre);
@@ -471,7 +466,6 @@ void cargar_actual_params(tresDir *auxInstr){
     break;
     case 4:
           if(!(auxInstr->op1->const_var)){
-            printf("ENTRAMOS A CARGAR PARAMS ACTUALES CON: %s\n", auxInstr->op1->nombre);
             if(auxInstr->op1->global){
               strcpy(res, "  movq  _");
               strcat(res, auxInstr->op1->nombre);
@@ -492,7 +486,6 @@ void cargar_actual_params(tresDir *auxInstr){
     break;
     case 5:
           if(!(auxInstr->op1->const_var)){
-            printf("ENTRAMOS A CARGAR PARAMS ACTUALES CON: %s\n", auxInstr->op1->nombre);
             if(auxInstr->op1->global){
               strcpy(res, "  movq  _");
               strcat(res, auxInstr->op1->nombre);
@@ -513,7 +506,6 @@ void cargar_actual_params(tresDir *auxInstr){
     break;
     case 6:
           if(!(auxInstr->op1->const_var)){
-            printf("ENTRAMOS A CARGAR PARAMS ACTUALES CON: %s\n", auxInstr->op1->nombre);
             if(auxInstr->op1->global){
               strcpy(res, "  movq  _");
               strcat(res, auxInstr->op1->nombre);
@@ -534,7 +526,6 @@ void cargar_actual_params(tresDir *auxInstr){
     break;
     default:
           if(!(auxInstr->op1->const_var)){
-            printf("ENTRAMOS A CARGAR PARAMS ACTUALES CON: %s\n", auxInstr->op1->nombre);
             if(auxInstr->op1->global){
               strcpy(res, "  pushq  _");
               strcat(res, auxInstr->op1->nombre);
@@ -581,7 +572,6 @@ void crear_constante_instruccion(tresDir *auxInstr){
 void crear_while_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A HILE\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->res->const_var)){
     if(auxInstr->res->global){
@@ -618,7 +608,6 @@ void crear_while_instruccion(tresDir *auxInstr){
 void crear_if_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A IF THEN\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->res->const_var)){
     if(auxInstr->res->global){
@@ -655,7 +644,6 @@ void crear_if_instruccion(tresDir *auxInstr){
 void crear_if_else_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A IF THEN ELSE\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->res->const_var)){
     if(auxInstr->res->global){
@@ -717,7 +705,6 @@ void crear_return_instruccion(tresDir *auxInstr){
 void crear_not_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS NOT\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -761,7 +748,6 @@ void crear_not_instruccion(tresDir *auxInstr){
 void crear_or_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A OR\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -821,7 +807,6 @@ void crear_or_instruccion(tresDir *auxInstr){
 void crear_and_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A AND\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -881,7 +866,6 @@ void crear_and_instruccion(tresDir *auxInstr){
 void crear_mod_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A MOD\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -944,7 +928,6 @@ void crear_mod_instruccion(tresDir *auxInstr){
 void crear_div_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A DIV\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1004,7 +987,6 @@ void crear_div_instruccion(tresDir *auxInstr){
 void create_prod_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A PROD\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1065,7 +1047,6 @@ void create_prod_instruccion(tresDir *auxInstr){
 void crear_opuesto_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A OPUESTO\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1106,7 +1087,6 @@ void crear_opuesto_instruccion(tresDir *auxInstr){
 void crear_menor_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A MENOR\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1175,7 +1155,6 @@ void crear_menor_instruccion(tresDir *auxInstr){
 void crear_mayor_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A MAYOR\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1244,7 +1223,6 @@ void crear_mayor_instruccion(tresDir *auxInstr){
 void crear_sub_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A SUB\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1304,7 +1282,6 @@ void crear_sub_instruccion(tresDir *auxInstr){
 void crear_add_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A ADD\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1364,7 +1341,6 @@ void crear_add_instruccion(tresDir *auxInstr){
 void crear_equals_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A EQ\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1434,11 +1410,9 @@ void crear_equals_instruccion(tresDir *auxInstr){
 void crear_asignacion_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A ASIGN\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      printf("ENTRAMOS EN UNA GLOBAL\n");
       strcpy(res, "  movq  %rax, _");
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
@@ -1457,13 +1431,11 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
     sprintf(aux,"%d", auxInstr->op1->valor);
     strcat(res, aux);
     if(auxInstr->res->global){
-      printf("LA VARIABLE %s ES GLOBAL\n", auxInstr->res->nombre);
       strcat(res, ", _");
       strcat(res, auxInstr->res->nombre);
       strcat(res, "(%rip)\n");
     }
     else{
-      printf("LA VARIABLE %s NO ES GLOBAL\n", auxInstr->res->nombre);
       strcat(res, ", -");
       sprintf(aux,"%d", (auxInstr->res->offset)*8);
       strcat(res, aux);
