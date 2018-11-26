@@ -150,12 +150,16 @@ void generar_codigo_assembler(){
       if(!(Listaux->is_gv)){
         crear_label_funcion(Listaux);
         cargar_instrcciones(Listaux->fst);
+        printf("Creamos las instrucciones finales\n");
         fputs("  leave\n", asm_code);
         fputs("  retq                      ## -- End function\n", asm_code);
         fputs("  .cfi_endproc\n", asm_code);
         fputs("\n", asm_code);
-        if(Listaux->next->is_gv){
-          fputs("\n", asm_code);
+        printf("Terminamos las instrucciones\n");
+        if(Listaux->next!=NULL){
+          if(Listaux->next->is_gv){
+            fputs("\n", asm_code);
+          }
         }
       }
       else{
@@ -295,8 +299,10 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case END_ELSE  :
+              printf("Entramos al END ELSE\n");
               strcpy(c, auxInstr->res->nombre);strcat(c, ":\n");
               fputs(c, asm_code);
+              printf("SALIMOS DEL END ELSE\n");
             break;
 
         case LABEL_WHILE_INSTRUCCION  :
@@ -1410,6 +1416,7 @@ void crear_equals_instruccion(tresDir *auxInstr){
 void crear_asignacion_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
+  printf("ENTRAMOS A LA ASIGNACION\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1443,6 +1450,7 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
     }
     fputs(res, asm_code);
   }
+  printf("SALIMOS DE LA ASIGNACION\n");
 }
 
 /*
