@@ -323,6 +323,7 @@ int main(int argc,char *argv[]){
   }
 
   if(strcmp(ruta, "") != 0){
+    printf("\n");
     yyin = fopen(ruta,"r");
     yyparse();
 

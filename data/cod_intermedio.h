@@ -297,7 +297,6 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
     }
     aux = aux->next;
     while(aux!=NULL){
-
       n = aux->parametro;
       if(n!=NULL){
         tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
@@ -312,7 +311,6 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
         res->offset = stackPos;
         instruccion->res = res;
         agregar_instruccion(last_td, instruccion);
-        
       }
       aux = aux->next;
     }
@@ -526,10 +524,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         instruccion->op2 = endLabel;
         instruccion->res = eval_expr(getNodeFst(n));
 
-        //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
-        //int jmp = getJump(last_td->last);
-        //instruccion->op1->valor = jmp; 
-
         agregar_instruccion(t, instruccion); //Condicion.
 
         crear_instrucciones(t, getNodeSnd(n)); //Cuerpo del then.
@@ -550,10 +544,6 @@ void crear_instrucciones(tresDirL *t, node *n){
 
         instruccion->op = IF_ELSE_INSTRUCCION;
         instruccion->res = eval_expr(getNodeFst(n));
-
-        //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
-        //int jmp = getJump(last_td->last);
-        //instruccion->op1->valor = jmp; 
 
         instruccion->op2 = elseJmp;
         agregar_instruccion(t, instruccion); //Condicion.

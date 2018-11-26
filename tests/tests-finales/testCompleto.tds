@@ -1,7 +1,8 @@
 program
 begin
+    integer globalVariable;
 
-    void printGuiones( ) extern;
+    void printGuiones() extern;
     void print(integer n) extern;
 
 
@@ -195,5 +196,8 @@ begin
         // test test1 
         printGuiones(); // printf("-----------")
         test1();
+        printGuiones(); // printf("-----------")
+        globalVariable = 100;
+        print(globalVariable);
       end
 end
