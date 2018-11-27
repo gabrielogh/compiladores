@@ -170,8 +170,10 @@ void generar_codigo_assembler(){
         cargar_instrcciones(Listaux->fst);
         fputs("  leave\n", asm_code);
         fputs("  retq                      ## -- End function\n", asm_code);
-        fputs("  .cfi_endproc\n", asm_code);
-        fputs("\n", asm_code);
+        if(sis == 2){
+          fputs("  .cfi_endproc\n", asm_code);
+          fputs("\n", asm_code);
+        }
         if(Listaux->next!=NULL){
           if(Listaux->next->is_gv){
             fputs("\n", asm_code);
@@ -356,7 +358,7 @@ void mov_a_rax(tresDir *auxInstr){
   char res[64];
   char aux[64];
   if(auxInstr->res->global){
-    strcpy(res, "  movq  _");
+    if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
     strcat(res, auxInstr->res->nombre);
     strcat(res, "(%rip), %rax\n");
     fputs(res, asm_code);
@@ -425,7 +427,7 @@ void cargar_actual_params(tresDir *auxInstr){
     case 1:
           if(!(auxInstr->op1->const_var)){
             if(auxInstr->op1->global){
-              strcpy(res, "  movq  _");
+              if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
               strcat(res, auxInstr->op1->nombre);
               strcat(res, "(%rip), %rdi\n");
             }
@@ -445,7 +447,7 @@ void cargar_actual_params(tresDir *auxInstr){
     case 2:
           if(!(auxInstr->op1->const_var)){
             if(auxInstr->op1->global){
-              strcpy(res, "  movq  _");
+              if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
               strcat(res, auxInstr->op1->nombre);
               strcat(res, "(%rip), %rsi\n");
             }
@@ -465,7 +467,7 @@ void cargar_actual_params(tresDir *auxInstr){
     case 3:
           if(!(auxInstr->op1->const_var)){
             if(auxInstr->op1->global){
-              strcpy(res, "  movq  _");
+              if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
               strcat(res, auxInstr->op1->nombre);
               strcat(res, "(%rip), %rdx\n");
             }
@@ -485,7 +487,7 @@ void cargar_actual_params(tresDir *auxInstr){
     case 4:
           if(!(auxInstr->op1->const_var)){
             if(auxInstr->op1->global){
-              strcpy(res, "  movq  _");
+              if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
               strcat(res, auxInstr->op1->nombre);
               strcat(res, "(%rip), %rci\n");
             }
@@ -505,7 +507,7 @@ void cargar_actual_params(tresDir *auxInstr){
     case 5:
           if(!(auxInstr->op1->const_var)){
             if(auxInstr->op1->global){
-              strcpy(res, "  movq  _");
+              if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
               strcat(res, auxInstr->op1->nombre);
               strcat(res, "(%rip), %r8\n");
             }
@@ -525,7 +527,7 @@ void cargar_actual_params(tresDir *auxInstr){
     case 6:
           if(!(auxInstr->op1->const_var)){
             if(auxInstr->op1->global){
-              strcpy(res, "  movq  _");
+              if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
               strcat(res, auxInstr->op1->nombre);
               strcat(res, "(%rip), %r9\n");
             }
@@ -545,7 +547,7 @@ void cargar_actual_params(tresDir *auxInstr){
     default:
           if(!(auxInstr->op1->const_var)){
             if(auxInstr->op1->global){
-              strcpy(res, "  pushq  _");
+              if(sis == 2){strcpy(res, "  pushq  _");}else{strcpy(res, "  pushq  ");}
               strcat(res, auxInstr->op1->nombre);
               strcat(res, "(%rip)\n");
             }
@@ -593,7 +595,7 @@ void crear_while_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->res->const_var)){
     if(auxInstr->res->global){
-      strcpy(res, "  cmpl  $0, _");
+      if(sis == 2){strcpy(res, "  cmpl $0, _");}else{strcpy(res, "  cmpl $0, ");}
       strcat(res, auxInstr->res->nombre);
       strcat(res, "(%rip)\n");
       fputs(res, asm_code);
@@ -629,7 +631,7 @@ void crear_if_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->res->const_var)){
     if(auxInstr->res->global){
-      strcpy(res, "  cmpl  $0, _");
+      if(sis == 2){strcpy(res, "  cmpl $0, _");}else{strcpy(res, "  cmpl $0, ");}
       strcat(res, auxInstr->res->nombre);
       strcat(res, "(%rip)\n");
       fputs(res, asm_code);
@@ -665,7 +667,7 @@ void crear_if_else_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->res->const_var)){
     if(auxInstr->res->global){
-      strcpy(res, "  cmpl  $0, _");
+      if(sis == 2){strcpy(res, "  cmpl $0, _");}else{strcpy(res, "  cmpl $0, ");}
       strcat(res, auxInstr->res->nombre);
       strcat(res, "(%rip)\n");
       fputs(res, asm_code);
@@ -700,7 +702,7 @@ void crear_return_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
   if(auxInstr->res->global){
-    strcpy(res, "  movq _");
+    if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
     strcat(res, auxInstr->res->nombre);
     strcat(res, "(%rip), %rax\n");
     fputs(res, asm_code);
@@ -725,7 +727,7 @@ void crear_not_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -768,7 +770,7 @@ void crear_or_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -827,7 +829,7 @@ void crear_and_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -849,7 +851,7 @@ void crear_and_instruccion(tresDir *auxInstr){
   }
   if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  andq _");
+      if(sis == 2){strcpy(res, "  addq  _");}else{strcpy(res, "  addq ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -886,7 +888,7 @@ void crear_mod_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -909,7 +911,7 @@ void crear_mod_instruccion(tresDir *auxInstr){
   fputs("  cqto\n",asm_code);
   if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  idivq  _");
+      if(sis == 2){strcpy(res, "  idivq  _");}else{strcpy(res, "  idivq ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip)\n");
       fputs(res, asm_code);
@@ -948,7 +950,7 @@ void crear_div_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -970,7 +972,7 @@ void crear_div_instruccion(tresDir *auxInstr){
   }
   if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  idivq  _");
+      if(sis == 2){strcpy(res, "  idivq  _");}else{strcpy(res, "  idivq ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1009,7 +1011,7 @@ void create_prod_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1031,7 +1033,7 @@ void create_prod_instruccion(tresDir *auxInstr){
 	}
 	if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  imulq  _");
+      if(sis == 2){strcpy(res, "  imulq  _");}else{strcpy(res, "  imulq ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1069,7 +1071,7 @@ void crear_opuesto_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1109,7 +1111,7 @@ void crear_menor_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1131,7 +1133,7 @@ void crear_menor_instruccion(tresDir *auxInstr){
   }
   if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  cmpq  _");
+      if(sis == 2){strcpy(res, "  cmqp  _");}else{strcpy(res, "  cmpq ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1177,7 +1179,7 @@ void crear_mayor_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1199,7 +1201,7 @@ void crear_mayor_instruccion(tresDir *auxInstr){
   }
   if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  cmpq  _");
+      if(sis == 2){strcpy(res, "  cmqp  _");}else{strcpy(res, "  cmpq ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1245,7 +1247,7 @@ void crear_sub_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1267,7 +1269,7 @@ void crear_sub_instruccion(tresDir *auxInstr){
   }
   if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  subq  _");
+      if(sis == 2){strcpy(res, "  subq  _");}else{strcpy(res, "  subq ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1304,7 +1306,7 @@ void crear_add_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1326,7 +1328,7 @@ void crear_add_instruccion(tresDir *auxInstr){
   }
   if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  addq  _");
+      if(sis == 2){strcpy(res, "  addq  _");}else{strcpy(res, "  addq  ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1363,7 +1365,7 @@ void crear_equals_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1385,7 +1387,7 @@ void crear_equals_instruccion(tresDir *auxInstr){
   }
   if(!(auxInstr->op2->const_var)){
     if(auxInstr->op2->global){
-      strcpy(res, "  movq  _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq  ");}
       strcat(res, auxInstr->op2->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
@@ -1432,25 +1434,23 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
-      strcpy(res, "  movq  %rax, _");
+      if(sis == 2){strcpy(res, "  movq  _");}else{strcpy(res, "  movq ");}
       strcat(res, auxInstr->op1->nombre);
       strcat(res, "(%rip), %rax\n");
       fputs(res, asm_code);
     }
-    else{
-      strcpy(res, "  movq  %rax, -");
-      sprintf(aux,"%d", (auxInstr->res->offset)*8);
-      strcat(res, aux);
-      strcat(res, "(%rbp)\n");
-      fputs(res, asm_code);
-    }
+    strcpy(res, "  movq  %rax, -");
+    sprintf(aux,"%d", (auxInstr->res->offset)*8);
+    strcat(res, aux);
+    strcat(res, "(%rbp)\n");
+    fputs(res, asm_code);
   }
   else{
     strcpy(res, "  movq  $");
     sprintf(aux,"%d", auxInstr->op1->valor);
     strcat(res, aux);
     if(auxInstr->res->global){
-      strcat(res, ", _");
+      if(sis == 2){strcat(res, ", _");}else{strcat(res, ", ");}
       strcat(res, auxInstr->res->nombre);
       strcat(res, "(%rip)\n");
     }
