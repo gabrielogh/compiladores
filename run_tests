@@ -58,7 +58,7 @@ echo " -------------------------------------------------------------------------
 for file in $(ls tests/tests-finales); do
   echo "Ejecutando el test "$file""
   ./tests/tester "tests/tests-finales/"$file
-  gcc -o simple assembler.s data/libaux.c
-  ./simple
+  gcc -o test asm/assembler.s data/libaux.c
+  ./test
   echo "-------------------------------------------------------"
 done

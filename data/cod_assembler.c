@@ -984,10 +984,12 @@ void crear_div_instruccion(tresDir *auxInstr){
     }
   }
   else{
-  	strcpy(res, "  idivq  $");
-	  sprintf(aux,"%d", (auxInstr->op2->valor));
-	  strcat(res, aux);
-	  strcat(res, ", %rax\n");
+    strcpy(res, "  movq $");
+    sprintf(aux,"%d", (auxInstr->op2->valor));
+    strcat(res, aux);
+    strcat(res, ", %rbx\n");
+    fputs(res, asm_code);
+  	strcpy(res, "  idivq  %rbx\n");
 	  fputs(res, asm_code);
   }
   strcpy(res, "  movq  %rax, -");
