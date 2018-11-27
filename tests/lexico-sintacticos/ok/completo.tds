@@ -21,8 +21,9 @@ begin
     bool res2, res3;
     x = 5 + 2;
     y = 10;
+    z = 1;
     res2 = mayor(y,x);
-    while(x<=100) begin
+    while(x<100) begin
       if(x < 50) then begin 
         if((x == 5) && (res2)) then begin
           x = 50;

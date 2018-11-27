@@ -12,8 +12,11 @@ echo "             --------------------------"
 for file in $(ls tests/lexico-sintacticos/ok); do
   echo "Ejecutando el test "$file""
   ./tests/tester "tests/lexico-sintacticos/ok/"$file
+  sleep 3
   echo "-------------------------------------------------------"
 done
+
+sleep 3
 
 echo "              ------------------------"
 echo "             |-----TESTS FALLIDOS-----|"
@@ -22,8 +25,12 @@ echo "              ------------------------"
 for file in $(ls tests/lexico-sintacticos/fail); do
   echo "Ejecutando el test "$file""
   ./tests/tester "tests/lexico-sintacticos/fail/"$file
+  sleep 3
   echo "-------------------------------------------------------"
 done
+
+sleep 4
+
 echo
 echo
 echo
@@ -37,8 +44,11 @@ echo "             --------------------------"
 for file in $(ls tests/semanticos/ok); do
   echo "Ejecutando el test "$file""
   ./tests/tester "tests/semanticos/ok/"$file
+  sleep 3
   echo "-------------------------------------------------------"
 done
+
+sleep 4
 
 echo "              ------------------------"
 echo "             |-----TESTS FALLIDOS-----|"
@@ -47,9 +57,11 @@ echo "              ------------------------"
 for file in $(ls tests/semanticos/fail); do
   echo "Ejecutando el test "$file""
   ./tests/tester "tests/semanticos/fail/"$file
+  sleep 3
   echo "-------------------------------------------------------"
 done
 
+sleep 4
 
 echo "|-------------------------------------------------------------------------------|"
 echo "|------------------------  INICIANDO TESTS FINALES  -------------------------|"
@@ -60,5 +72,6 @@ for file in $(ls tests/tests-finales); do
   ./tests/tester "tests/tests-finales/"$file
   gcc -o test asm/assembler.s data/libaux.c
   ./test
+  sleep 3
   echo "-------------------------------------------------------"
 done
