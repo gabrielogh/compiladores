@@ -55,7 +55,7 @@ Compiladores
 >  ./run_tests
 >  Corre los tests de la carpeta tests
 
-Pasos para compilar un programa.
+* Pasos para compilar un programa.
 
 >  *Ejecuta el compilador con ./compiler.
 >
