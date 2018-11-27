@@ -57,16 +57,16 @@ Compiladores
 
 Pasos para compilar un programa.
 
->  Ejecuta el compilador con ./compiler.
+>  *Ejecuta el compilador con ./compiler.
 >
->  Seleccione la opcion numero 1 (compilar programa) del menu principal.
+>  *Seleccione la opcion numero 1 (compilar programa) del menu principal.
 >
->  Ingrese la ruta del archivo (debe tener extension .tds). Ej: miPrograma.tds si se encuentra en el directorio principal del compilador.
+>  *Ingrese la ruta del archivo (debe tener extension .tds). Ej: miPrograma.tds si se encuentra en el directorio principal del compilador.
 >
->  Si no se encuentra alli, debera ingresar la ruta de la forma: carpeta1/.../carpetaN/miPrograma.tds
+>  *Si no se encuentra alli, debera ingresar la ruta de la forma: carpeta1/.../carpetaN/miPrograma.tds
 >
->  Una vez generado el codigo assembler, si utiliza las funciones print() o printGuiones() debera ejecutar el siguiente comando: gcc -o XXX assembler.s data/libaux.c reemplazando XXX por el nombre que desee.
+>  *Una vez generado el codigo assembler, si utiliza las funciones print() o printGuiones() debera ejecutar el siguiente comando: gcc -o XXX assembler.s data/libaux.c reemplazando XXX por el nombre que desee.
 >
->  Si no utiliza ninguna funcion de la libreria libaux.c, debera compilar de la siguiente forma: gcc -o XXX assembler.s
+>  *Si no utiliza ninguna funcion de la libreria libaux.c, debera compilar de la siguiente forma: gcc -o XXX assembler.s
 >
->  Ejecute el programa de la siguiente forma: ./XXX  donde XXX es el nombre ingresado anteriormente.
+>  *Ejecute el programa de la siguiente forma: ./XXX  donde XXX es el nombre ingresado anteriormente.
