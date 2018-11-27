@@ -1,4 +1,5 @@
 #include "cod_intermedio.h"
+#include <dirent.h>
 
 FILE *asm_code;
 
@@ -73,9 +74,27 @@ void mov_a_rax(tresDir *auxInstr);
  * El nombre del archivo es estatico, no es parametro del sistema.
  */
 void crear_archivo(){
-  asm_code = fopen("assembler.s","w");
+  char name[64];
+  char aux[32];
+
+  DIR * dirp;
+  struct dirent * entry;
+
+  dirp = opendir("asm");
+  while ((entry = readdir(dirp)) != NULL) {
+    if (entry->d_type == DT_REG) {
+      files++;
+    }
+  }
+  closedir(dirp);
+
+  strcpy(name, "asm/program");
+  sprintf(aux,"%d", files);
+  strcat(name, aux);
+  strcat(name, ".s");
+  asm_code = fopen(name,"w+");
   if(asm_code == NULL){
-    printf("%s\n","Error al crear el archivo assembler.s" );
+    printf("%s\n","Error al crear el archivo" );
   }
 }
 
@@ -144,18 +163,15 @@ void generar_codigo_assembler(){
   }
   crear_archivo();
   tresDirL *Listaux = head_td;
-
   if(Listaux != NULL){
     while(Listaux !=  NULL){
       if(!(Listaux->is_gv)){
         crear_label_funcion(Listaux);
         cargar_instrcciones(Listaux->fst);
-        printf("Creamos las instrucciones finales\n");
         fputs("  leave\n", asm_code);
         fputs("  retq                      ## -- End function\n", asm_code);
         fputs("  .cfi_endproc\n", asm_code);
         fputs("\n", asm_code);
-        printf("Terminamos las instrucciones\n");
         if(Listaux->next!=NULL){
           if(Listaux->next->is_gv){
             fputs("\n", asm_code);
@@ -167,9 +183,9 @@ void generar_codigo_assembler(){
       }
       Listaux = Listaux->next;
     }
+    fclose(asm_code);
     printf(KGRN "%s\n", "Codigo Assembler generado. "); printf(KNRM);
   }
-
 }
 
 /*
@@ -299,10 +315,8 @@ void cargar_instrcciones(tresDir *instr){
             break;
 
          case END_ELSE  :
-              printf("Entramos al END ELSE\n");
               strcpy(c, auxInstr->res->nombre);strcat(c, ":\n");
               fputs(c, asm_code);
-              printf("SALIMOS DEL END ELSE\n");
             break;
 
         case LABEL_WHILE_INSTRUCCION  :
@@ -411,11 +425,9 @@ void cargar_actual_params(tresDir *auxInstr){
     case 1:
           if(!(auxInstr->op1->const_var)){
             if(auxInstr->op1->global){
-              printf("ENTRAMOS AL IF\n");
               strcpy(res, "  movq  _");
               strcat(res, auxInstr->op1->nombre);
               strcat(res, "(%rip), %rdi\n");
-              printf("salimos del if\n");
             }
             else{ 
               strcpy(res, "  movq  -");sprintf(aux, "%d", (auxInstr->op1->offset)*8);strcat(res, aux);strcat(res, "(%rbp), %rax\n");
@@ -687,7 +699,6 @@ void crear_if_else_instruccion(tresDir *auxInstr){
 void crear_return_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A RETURN\n");
   if(auxInstr->res->global){
     strcpy(res, "  movq _");
     strcat(res, auxInstr->res->nombre);
@@ -1416,7 +1427,6 @@ void crear_equals_instruccion(tresDir *auxInstr){
 void crear_asignacion_instruccion(tresDir *auxInstr){
   char res[64];
   char aux[64];
-  printf("ENTRAMOS A LA ASIGNACION\n");
   int parametro = auxInstr->res->nParam;
   if(!(auxInstr->op1->const_var)){
     if(auxInstr->op1->global){
@@ -1450,7 +1460,6 @@ void crear_asignacion_instruccion(tresDir *auxInstr){
     }
     fputs(res, asm_code);
   }
-  printf("SALIMOS DE LA ASIGNACION\n");
 }
 
 /*

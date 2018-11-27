@@ -576,10 +576,6 @@ void crear_instrucciones(tresDirL *t, node *n){
         whileInstruccion->op = WHILE_INSTRUCCION;
         generate_label(endLabel->nombre);
 
-        //Seteamos el tipo de Jump a realizar segun el tipo de la condicion (<,>,&&,||,!,==...).
-        //int jmp = getJump(last_td->last);
-        //whileInstruccion->op1->valor = jmp; 
-
         whileInstruccion->res = eval_expr(getNodeFst(n));
         whileInstruccion->op2 = endLabel;
         agregar_instruccion(t, whileInstruccion); //Condicion.

@@ -70,3 +70,10 @@ Compiladores
 >  *Si no utiliza ninguna funcion de la libreria libaux.c, debera compilar de la siguiente forma: gcc -o XXX assembler.s
 >
 >  *Ejecute el programa de la siguiente forma: ./XXX  donde XXX es el nombre ingresado anteriormente.
+
+* Algunos ejemplos:
+
+>  tests/tests-finales/testCompleto.tds
+>
+>  tests/tests-finales/program_completo.tds
+> 

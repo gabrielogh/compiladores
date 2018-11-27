@@ -270,6 +270,7 @@ void init(){
   tablaFst->prev = NULL;
   tablaFst->next = NULL;
   tablaLast = tablaFst;
+  files = 0;
 }
 
 /*

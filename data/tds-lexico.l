@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <time.h> 
+#include <time.h>
+#include <dirent.h>
 
 #include "tds-sintaxis.tab.h"
 #define KRED  "\x1B[31m"
@@ -287,6 +288,21 @@ void yyerror(){
     exit(-1);
 }
 
+int countFiles(){
+  int files=0;
+  DIR * dirp;
+  struct dirent * entry;
+
+  dirp = opendir("asm");
+  while ((entry = readdir(dirp)) != NULL) {
+    if (entry->d_type == DT_REG) {
+      files++;
+    }
+  }
+  closedir(dirp);
+  return files;
+}
+
 void delay(int number_of_seconds) { 
   // Converting time into milli_seconds 
   int milli_seconds = 1000 * number_of_seconds; 
@@ -304,6 +320,10 @@ int main(int argc,char *argv[]){
   debugL = 0;
   int option;
   char ruta[64];
+  char nombre[64];
+  char aux[32];
+  char command[256];
+  char continuar; //ASCII = 83(S), 115(s).
   printf("                  ----------------------------------------------------------------\n");
   printf("                  *         Bienveido al compilador del lenguaje TDS2018         *\n");
   printf("                  ----------------------------------------------------------------\n");
@@ -327,15 +347,28 @@ int main(int argc,char *argv[]){
     yyin = fopen(ruta,"r");
     yyparse();
 
-    //printf("Ejecutando programa:\n");
-    //system("gcc -o simple assembler.s data/libaux.c");
-    //system("./simple");
-    //tests/semanticos/ok/basic.tds
-    //tests/semanticos/ok/nthprime.tds
-    //tests/tests-finales/testCompleto.tds
+    strcpy(nombre, "asm/program");
+    sprintf(aux,"%d", countFiles()-1);
+    strcat(nombre, aux);
+    strcat(nombre, ".s");
+    
+    strcpy(command, "gcc -o programa ");
+    strcat(command, nombre);
+    strcat(command, " data/libaux.c");
+
+    printf("Ejecutando programa:\n");
+    system(command);
+    system("./programa");
   }
 	else{
     printf("Error: El nombre del archivo no es correcto\n");
   }
-
+  printf("Desea compilar otro programa?  S/N \n");
+  
+  scanf("%c", &continuar);
+  scanf("%c", &continuar);
+  system("@cls||clear");
+  if((continuar == 83) || (continuar == 115)){
+    system("./compiler");
+  }
 }
