@@ -3,6 +3,7 @@
 //DEFINICION DE TIPOS:
 typedef struct codTresDirs tresDir;
 typedef struct tresDirList tresDirL;
+typedef struct globalVarsList globalVars;
 
 /* Tipo utilizado para representar un codigo de tres direcciones.
  * op: Representa la operacion a realizar mediante su codigo (los codigos se encuentran en constantes.h).
@@ -31,16 +32,23 @@ typedef struct codTresDirs {
 typedef struct tresDirList{
   int stackSize;
   char nombre[32];
+  bool is_gv;
+  int tipo;
   tresDir *fst;
   tresDir *last;
   struct tresDirList *next;
 } tresDirL;
 
+typedef struct globalVarsList{
+  data_gen *var;
+  struct globalVarsList *next;
+}globalVars;
 
 //VARIABLES GLOBALES:
 
 int temp,labels, instrucciones, stackPos, stackParams;
 tresDirL *head_td, *last_td;
+globalVars *fst_var, *last_var; //Lista de variables globales.
 
 //DECLARACION DE METODOS:
 void initTresDirList();
@@ -75,6 +83,12 @@ char * opToString(int op);
 
 void createJmp(int p, data_gen *res);
 
+void agregar_variable_global(data_gen *res);
+
+void cargar_variables_globales(globalVars *head);
+
+int getJump(tresDir *instruccion);
+
 //IMPLEMENTACION DE METODOS:
 
 /*
@@ -90,6 +104,8 @@ void initTresDirList(){
   head_td->fst = NULL;
   head_td->next = NULL;
   last_td = head_td;
+  fst_var = NULL;
+  last_var = fst_var;
 }
 
 /*
@@ -131,16 +147,13 @@ void createJmp(int p, data_gen *res){
  */
 data_gen * getLastResult(){
   if(last_td->fst != NULL){
-    tresDir *aux = last_td->fst;
-    while(aux->next != NULL){
-      aux = aux->next;
-    }
-    return aux->res;
+    return last_td->last->res;
   }
   else{
     return NULL;
   }
 }
+
 
 /*
  * Esta esta la funcion principal que se encarga de generar todo el codigo de tres direcciones
@@ -161,9 +174,58 @@ void generar_codigo(){
         last_td->stackSize = stackPos;
         temp = 0;
       }
+      else if(d->data->global){
+        //Las variables globales se insertan al final del archivo, pero estan al principio del primer nivel
+        //Motivo por el cual las pasamos a una lista de variables globales y las cargamos al final.
+        agregar_variable_global(d->data);
+      }
       d = d->next;
     }
+    cargar_variables_globales(fst_var);
   }
+}
+
+/*
+ * Esta funcion inseta una variable global en la lista de variables globales
+ * *res: Variable global.
+ */
+void agregar_variable_global(data_gen *res){
+  globalVars *var = (globalVars *) malloc(sizeof(globalVars));
+  var->var = res;
+  var->next = NULL;
+  if(fst_var == NULL){
+    fst_var = var;
+    last_var = fst_var;
+  }
+  else{
+    last_var->next = var;
+    last_var = var;
+  }
+}
+
+/*
+ * Esta funcion se encarga de genrar el codigo de tres direcciones una vez cargadas todas las variables y funciones del nivel.
+ * *head: Puntero al inicio de la lista.
+ */
+void cargar_variables_globales(globalVars *head){
+  globalVars *aux = head;
+  while(aux != NULL){
+    tresDirL *variable = (tresDirL *) malloc(sizeof(tresDirL));
+    data_gen *res = aux->var;
+    strcpy(variable->nombre, res->nombre);
+    variable->is_gv = true;
+    variable->tipo = res->tipo;
+    if(head_td == NULL){
+      head_td = variable;
+      last_td = head_td;
+    }
+    else{
+      last_td->next = variable;
+      last_td = variable;
+    }
+    aux = aux->next;
+  }
+
 }
 
 /*
@@ -175,6 +237,7 @@ void agregar_funcion(data_stack *d){
   strcpy(param->nombre, d->data->nombre);
   param->fst = NULL;
   param->last = param->fst;
+  param->is_gv = false;
   if(head_td == NULL){
     head_td = param;
     last_td = head_td;
@@ -219,25 +282,34 @@ void cargar_parametros_actuales(tresDirL *pos, paramList *pl){
     n = aux->parametro;
     if(n!=NULL){
       tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+      data_gen *res = (data_gen *) malloc(sizeof(data_gen));
       instruccion->next = NULL;
+      i = i + 1;
       data_gen *param = eval_expr(n);
-      param->nParam = i + 1;
+      param->nParam = i;
       instruccion->op = CARGAR_ACTUAL_PARAMS;
-      instruccion->res = param;
+      instruccion->op1 = param;
+      generate_temp(res->nombre);
+      res->offset = stackPos;
+      instruccion->res = res;
       agregar_instruccion(last_td, instruccion);
     }
     aux = aux->next;
     while(aux!=NULL){
-      tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
-      instruccion->next = NULL;
       n = aux->parametro;
       if(n!=NULL){
-        data_gen *param = eval_expr(n);
-        param->nParam = i + 1;
-        instruccion->op = CARGAR_ACTUAL_PARAMS;
-        instruccion->res = param;
-        agregar_instruccion(last_td, instruccion);
+        tresDir *instruccion = (tresDir *) malloc(sizeof(tresDir));
+        data_gen *res = (data_gen *) malloc(sizeof(data_gen));
+        instruccion->next = NULL;
         i = i + 1;
+        data_gen *param = eval_expr(n);
+        param->nParam = i;
+        instruccion->op = CARGAR_ACTUAL_PARAMS;
+        instruccion->op1 = param;
+        generate_temp(res->nombre);
+        res->offset = stackPos;
+        instruccion->res = res;
+        agregar_instruccion(last_td, instruccion);
       }
       aux = aux->next;
     }
@@ -276,13 +348,13 @@ void cargar_parametros_formales(formalParam *params){
 data_gen * eval_expr(node *n){
   data_gen *aux = n->info->data;
   if(aux != NULL){
-    if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO)){
+    if((n->info->tipoOp == VARR) || (n->info->tipoOp == PARAMETRO) || (n->info->tipoOp == CONSTANTEE)){
       if(n->info->tipoOp == VARR){
         aux->offset = aux->offset;
       }
       return aux;
     }
-    else{
+    else{ //Resolvemos la expresion de forma recursiva.
       crear_instrucciones(last_td, n);
       return getLastResult();
     }
@@ -318,9 +390,17 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if(op == ASIGNACIONN){
         instruccion->op = ASIGN_INSTRUCCION;
+        
+        node *oper = getNodeSnd(n);
+        if((oper->info->tipoOp == VARR) || (oper->info->tipoOp == PARAMETRO)){
+          tresDir *movRax = (tresDir *) malloc(sizeof(tresDir));
+          movRax->op = MOV;
+          movRax->res = eval_expr(oper);
+          agregar_instruccion(t, movRax);
+        }
+
         instruccion->op1 = eval_expr(getNodeSnd(n));
         instruccion->res = eval_expr(getNodeFst(n));
-
         agregar_instruccion(t, instruccion);
       }
       else if(op == IGUALDADD){
@@ -437,6 +517,7 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if (op == IFTHENN){
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
+        data_gen *JmpType = (data_gen *) malloc(sizeof(data_gen));
         generate_label(endLabel->nombre);
         instruccion->op = IF_INSTRUCCION;
         instruccion->op2 = endLabel;
@@ -458,11 +539,13 @@ void crear_instrucciones(tresDirL *t, node *n){
         data_gen *endLabel = (data_gen *) malloc(sizeof(data_gen));
         generate_label(endLabel->nombre);
 
+        data_gen *JmpType = (data_gen *) malloc(sizeof(data_gen));
+
         instruccion->op = IF_ELSE_INSTRUCCION;
         instruccion->res = eval_expr(getNodeFst(n));
 
         instruccion->op2 = elseJmp;
-        agregar_instruccion(t, instruccion);
+        agregar_instruccion(t, instruccion); //Condicion.
 
         crear_instrucciones(t, getNodeSnd(n));
 
@@ -495,7 +578,7 @@ void crear_instrucciones(tresDirL *t, node *n){
 
         whileInstruccion->res = eval_expr(getNodeFst(n));
         whileInstruccion->op2 = endLabel;
-        agregar_instruccion(t, whileInstruccion);
+        agregar_instruccion(t, whileInstruccion); //Condicion.
 
         crear_instrucciones(t, getNodeSnd(n));
 
@@ -508,8 +591,7 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
 
       else if (op == BLOCK){
-        node *auxNode = getNodeFst(n);
-        crear_instrucciones(t, auxNode);
+        crear_instrucciones(t, getNodeFst(n));
       }
       else if (op == STATEMENTS){
         crear_instrucciones(t, getNodeFst(n));
@@ -517,8 +599,7 @@ void crear_instrucciones(tresDirL *t, node *n){
       }
       else if (op == RETURNN){
         if(n->tipoRet != VOIDD){
-          node *auxNode = getNodeFst(n);
-          instruccion->res = eval_expr(auxNode);
+          instruccion->res = eval_expr(getNodeFst(n));
           instruccion->op = RETURN_INSTRUCCION;
           agregar_instruccion(t, instruccion);
         }
@@ -543,6 +624,33 @@ void crear_instrucciones(tresDirL *t, node *n){
         agregar_instruccion(t, invocFunc);
       }
     }
+  }
+}
+
+int getJump(tresDir *instruccion){
+  int op = instruccion->op;
+  switch(op) {
+     case MEN_INSTRUCCION   :
+        return JGE;
+        break;
+
+     case MAY_INSTRUCCION   :
+        return JLE;
+        break;
+
+     case EQ_INSTRUCCION  :
+        return JNE;
+        break;
+
+     case JGE  :
+        return JGE;
+        break;
+
+     case JE  :
+        return JE;
+        break;
+     default :
+     return -1;
   }
 }
 
@@ -688,7 +796,12 @@ void printInstruccion(tresDir *p){
       strcpy(aux2->nombre, "_" );
     }
       printf("          |\n");
-      printf("          |%s  %s  %s %s \n", opToString(aux->op), aux1->nombre, aux2->nombre, aux3->nombre);
+      if((strcmp(aux1->nombre, "int_cte") == 0) || (strcmp(aux1->nombre, "bool_cte") == 0)){
+        printf("          |%s  %d  %s %s \n", opToString(aux->op), aux1->valor, aux2->nombre, aux3->nombre);
+      }
+      else{
+        printf("          |%s  %s  %s %s \n", opToString(aux->op), aux1->nombre, aux2->nombre, aux3->nombre);
+      }
   }
 }
 

@@ -1,7 +1,8 @@
 program
 begin
+    integer globalVariable;
 
-    void printGuiones( ) extern;
+    void printGuiones() extern;
     void print(integer n) extern;
 
 
@@ -109,12 +110,16 @@ begin
 
     void test()
       begin
-        integer aux, result;
-        result = gcd(factorial(3),factorial(4)); //gcd(6,24) = 6
+        integer aux, result, res2, res3, res4, res5;
+        res2 = factorial(3);
+        res3 = factorial(4);
+        result = gcd(res2,res3); //gcd(6,24) = 6
         print( result);
-        aux = nthprime(gcd(factorial(3),factorial(4))); //nthprime(6) = 13
+        res4 = gcd(res2,res3);
+        aux = nthprime(res4); //nthprime(6) = 13
         print( aux);
-        aux = potencia(3,nthprime(gcd(factorial(3),factorial(4)))); //potencia(3,13) = 1594323
+        res5 = nthprime(res4);
+        aux = potencia(3,res5); //potencia(3,13) = 1594323
         print( aux);
       end
 
@@ -156,14 +161,15 @@ begin
           end
         // test nthprime entero
         printGuiones(); // printf("-----------")
-        x=10; // cantidad de veces que ejecutara la funcion
+        x=30; // cantidad de veces que ejecutara la funcion
         i = 0;
         aux = 4;
         while (i<x)
           begin
+            //print(nthprime(aux));
             res = nthprime(aux);
             aux = aux + 1;
-            print( res);
+            print(res);
             i=i+1;
           end
         // test gcd entero    
@@ -190,5 +196,8 @@ begin
         // test test1 
         printGuiones(); // printf("-----------")
         test1();
+        printGuiones(); // printf("-----------")
+        globalVariable = 100;
+        print(globalVariable);
       end
 end

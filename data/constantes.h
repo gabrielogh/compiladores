@@ -1,5 +1,5 @@
 //VARIABLES GLOBALES.
-int treeSize, testType;
+int treeSize, testType, files;
 
 //COLORES
 #define KRED  "\x1B[31m"
@@ -104,6 +104,8 @@ int treeSize, testType;
 #define LABEL_WHILE_INSTRUCCION 228
 #define LABEL_END_WHILE_INSTRUCCION 229
 #define CARGAR_ACTUAL_PARAMS 230
+#define GLOBAL_VAR 231
+#define EVALPARAM 232
 
 //JUMPS
 #define JMP 300

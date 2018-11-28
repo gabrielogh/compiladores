@@ -39,7 +39,7 @@ typedef struct data_generic{
   char nombre[32];
   int valor;
   int tipo;
-  int const_var;
+  bool const_var;
   int linea;
   int offset;
   bool global;
@@ -133,6 +133,7 @@ typedef struct nodeParams{
   node *trd;
   node *block;
   bool es_funcion;
+  bool const_var;
   paramList *params;
 }nodeParam;
 
@@ -269,6 +270,7 @@ void init(){
   tablaFst->prev = NULL;
   tablaFst->next = NULL;
   tablaLast = tablaFst;
+  files = 0;
 }
 
 /*
@@ -820,6 +822,12 @@ nodeParam * createNodeParam(string *s, int val, int tipoVar, int tipoRet, int op
   nodeAux->trd = trd;
   nodeAux->es_funcion = es_funcion;
   nodeAux->params = params;
+  if(oper == CONSTANTEE){
+    nodeAux->const_var = true;
+  }
+  else{
+    nodeAux->const_var = false;
+  }
   return nodeAux;
 }
 
@@ -862,6 +870,7 @@ node * createNode(nodeParam *param){
       dataS = crearDataStack(toString(param->nombre), param->tipoVar, param->valor, param->oper, param->linea, NULL, NULL, false);
     }
     treeSize = treeSize + 1;
+    dataS->data->const_var = param->const_var;
     n->tipoRet = param->tipoRet;
     n->info = dataS;
     n->linea = param->linea;
