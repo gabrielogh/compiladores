@@ -1539,7 +1539,7 @@ yyreduce:
                                                       checkFunctions(inicial);
                                                       if(noErrors()){
                                                         printf(KGRN "%s\n", "Chequeo Semantico satisfactorio. "); printf(KNRM);
-                                                        printf(KGRN "%s\n", "Generando codigo intermedio.... "); printf(KNRM);
+                                                        printf("%s\n", "Generando codigo intermedio.... ");
                                                         generar_codigo();
                                                         //printLista();
                                                         printf(KGRN "%s\n", "Codigo intermedio generado. "); printf(KNRM);
